@@ -6,6 +6,28 @@ import os
 import stat
 import tempfile
 import monty.shutil
+from monty.tempfile import ScratchDir
+import pysisso
+import shutil
+import subprocess
+
+
+TEST_FILES_DIR = os.path.abspath(os.path.join(pysisso.__file__, '..', '..', 'test_files'))
+
+
+def get_version(SISSO_exe='SISSO'):
+    #TODO: check how SISSO<3.0.2 was working
+    with ScratchDir('.'):
+        shutil.copy2(os.path.join(TEST_FILES_DIR, 'inputs', 'SISSO.in_simple'), 'SISSO.in')
+        shutil.copy2(os.path.join(TEST_FILES_DIR, 'inputs', 'train.dat_regression'), 'train.dat')
+        with open('SISSO.log', 'w') as f_stdout, open('SISSO.err', "w", buffering=1) as f_stderr:
+            subprocess.call([SISSO_exe], stdin=None, stdout=f_stdout, stderr=f_stderr)
+            with open('SISSO.out', 'r') as f:
+                header = f.readline()
+                if 'Version' not in header:
+                    raise ValueError('Could not determine SISSO version.')
+                version = tuple([int(ii) for ii in header.split(',')[0].split('.')[1:4]])
+                return {'version': version, 'header': header.strip()}
 
 
 # class FakeExec:

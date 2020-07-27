@@ -4,6 +4,9 @@
 
 from monty.json import MSONable
 import datetime
+import pandas as pd
+import numpy as np
+from typing import Union
 
 
 class SISSOIn(MSONable):
@@ -35,9 +38,21 @@ class SISSOIn(MSONable):
                 'metric': tuple([str]),
                 'nm_output': tuple([int]),
                 'isconvex': tuple(['str_isconvex']),
-                'width': tuple([float])
+                'width': tuple([float]),
+                'nvf': tuple([int]),
+                'vfsize': tuple([int]),
+                'vf2sf': tuple([str]),
+                'npf_must': tuple([int]),
+                'L1_max_iter': tuple([int]),
+                'L1_tole': tuple([float]),
+                'L1_dens': tuple([int]),
+                'L1_nlambda': tuple([int]),
+                'L1_minrmse': tuple([float]),
+                'L1_warm_start': tuple([bool]),
+                'L1_weighted': tuple([bool])
                 }
 
+    #: dict: Available unary and binary operators for feature construction. TODO: add string description
     AVAILABLE_OPERATIONS = {'unary': {'exp': '',
                                       'exp-': '',
                                       '^-1': '',
@@ -58,40 +73,19 @@ class SISSOIn(MSONable):
                                        '/': ''
                                        }}
 
-    def __init__(self, ptype=1, ntask=1, nsample=5, task_weighting=1, desc_dim=2, restart=False,
-                 nsf=3, rung=2, opset='(+)(-)', maxcomplexity=10, dimclass='(1:2)(3:3)',
-                 maxfval_lb=1e-3, maxfval_ub=1e5, subs_sis=20,
-                 method='L0', L1L0_size4L0=1, fit_intercept=True, metric='RMSE', nm_output=100,
-                 isconvex=None, width=None):
-        self.target_properties_keywords = dict()
-        self.target_properties_keywords['ptype'] = ptype
-        self.target_properties_keywords['ntask'] = ntask
-        self.target_properties_keywords['nsample'] = nsample
-        self.target_properties_keywords['task_weighting'] = task_weighting
-        self.target_properties_keywords['desc_dim'] = desc_dim
-        self.target_properties_keywords['restart'] = restart
-        self.feature_construction_sure_independence_screening_keywords = dict()
-        self.feature_construction_sure_independence_screening_keywords['nsf'] = nsf
-        self.feature_construction_sure_independence_screening_keywords['rung'] = rung
-        self.feature_construction_sure_independence_screening_keywords['opset'] = opset
-        self.feature_construction_sure_independence_screening_keywords['maxcomplexity'] = maxcomplexity
-        self.feature_construction_sure_independence_screening_keywords['dimclass'] = dimclass
-        self.feature_construction_sure_independence_screening_keywords['maxfval_lb'] = maxfval_lb
-        self.feature_construction_sure_independence_screening_keywords['maxfval_ub'] = maxfval_ub
-        self.feature_construction_sure_independence_screening_keywords['subs_sis'] = subs_sis
-        self.descriptor_identification_keywords = dict()
-        self.descriptor_identification_keywords['method'] = method
-        self.descriptor_identification_keywords['L1L0_size4L0'] = L1L0_size4L0
-        self.descriptor_identification_keywords['fit_intercept'] = fit_intercept
-        self.descriptor_identification_keywords['metric'] = metric
-        self.descriptor_identification_keywords['nm_output'] = nm_output
-        self.descriptor_identification_keywords['isconvex'] = isconvex
-        self.descriptor_identification_keywords['width'] = width
+    def __init__(self, target_properties_keywords,
+                 feature_construction_sure_independence_screening_keywords,
+                 descriptor_identification_keywords):
+        self.target_properties_keywords = target_properties_keywords
+        self.feature_construction_sure_independence_screening_keywords = feature_construction_sure_independence_screening_keywords
+        self.descriptor_identification_keywords = descriptor_identification_keywords
+        self._check_keywords()
+
+    def _check_keywords(self):
+        #TODO: implement a check on the keywords
+        pass
 
     def _format_kw_value(self, kw, val, float_format='.12f'):
-        # print('FORMATTING KEYWORD AND VALUE')
-        # print(kw)
-        # print(val)
         allowed_types = self.KW_TYPES[kw]
         # Determine the type of the value for this keyword
         val_type = None
@@ -147,6 +141,9 @@ class SISSOIn(MSONable):
 
     @property
     def input_string(self, matgenix_acknowledgement=True):
+        if (self.target_properties_keywords['nsample'] is None or
+                self.feature_construction_sure_independence_screening_keywords['nsf'] is None):
+            raise ValueError('Both keywords "nsample" and "nsf" should be set to get SISSO.in\'s input_string')
         out = []
         if matgenix_acknowledgement:
             year = datetime.datetime.now().year
@@ -194,29 +191,194 @@ class SISSOIn(MSONable):
         return '\n'.join(out)
 
     @property
-    def is_regression(self):
+    def is_regression(self) -> bool:
+        """Whether this SISSOIn object corresponds to a regression model.
+
+        Returns:
+            bool: True if this SISSOIn object is a regression model, False otherwise.
+        """
         return self.target_properties_keywords['ptype'] == 1
 
     @property
     def is_classification(self):
+        """Whether this SISSOIn object corresponds to a classification model.
+
+        Returns:
+            bool: True if this SISSOIn object is a classification model, False otherwise.
+        """
         return self.target_properties_keywords['ptype'] == 2
 
     @classmethod
-    def from_sisso_keywords(cls, ptype=1, ntask=1, nsample=5, task_weighting=1, desc_dim=2, restart=False,
-                            nsf=3, rung=2, opset='(+)(-)...', maxcomplexity=10, dimclass='(1:2)(3:3)',
+    def from_sisso_keywords(cls, ptype, nsample=None, nsf=None, ntask=1, task_weighting=1, desc_dim=2, restart=False,
+                            rung=2, opset='(+)(-)', maxcomplexity=10, dimclass=None,
                             maxfval_lb=1e-3, maxfval_ub=1e5, subs_sis=20,
                             method='L0', L1L0_size4L0=1, fit_intercept=True, metric='RMSE', nm_output=100,
-                            isconvex=None, width=None):
-        raise NotImplementedError
+                            isconvex=None, width=None, nvf=None, vfsize=None, vf2sf=None, npf_must=None,
+                            L1_max_iter=None, L1_tole=None, L1_dens=None, L1_nlambda=None, L1_minrmse=None,
+                            L1_warm_start=None, L1_weighted=None):
+        target_properties_keywords = dict()
+        target_properties_keywords['ptype'] = ptype
+        target_properties_keywords['ntask'] = ntask
+        target_properties_keywords['nsample'] = nsample
+        target_properties_keywords['task_weighting'] = task_weighting
+        target_properties_keywords['desc_dim'] = desc_dim
+        target_properties_keywords['restart'] = restart
+        feature_construction_sure_independence_screening_keywords = dict()
+        feature_construction_sure_independence_screening_keywords['nsf'] = nsf
+        feature_construction_sure_independence_screening_keywords['rung'] = rung
+        feature_construction_sure_independence_screening_keywords['opset'] = opset
+        feature_construction_sure_independence_screening_keywords['maxcomplexity'] = maxcomplexity
+        feature_construction_sure_independence_screening_keywords['dimclass'] = dimclass
+        feature_construction_sure_independence_screening_keywords['maxfval_lb'] = maxfval_lb
+        feature_construction_sure_independence_screening_keywords['maxfval_ub'] = maxfval_ub
+        feature_construction_sure_independence_screening_keywords['subs_sis'] = subs_sis
+        feature_construction_sure_independence_screening_keywords['nvf'] = nvf
+        feature_construction_sure_independence_screening_keywords['vfsize'] = vfsize
+        feature_construction_sure_independence_screening_keywords['vf2sf'] = vf2sf
+        feature_construction_sure_independence_screening_keywords['npf_must'] = npf_must
+        descriptor_identification_keywords = dict()
+        descriptor_identification_keywords['method'] = method
+        descriptor_identification_keywords['L1L0_size4L0'] = L1L0_size4L0
+        descriptor_identification_keywords['fit_intercept'] = fit_intercept
+        descriptor_identification_keywords['metric'] = metric
+        descriptor_identification_keywords['nm_output'] = nm_output
+        descriptor_identification_keywords['isconvex'] = isconvex
+        descriptor_identification_keywords['width'] = width
+        descriptor_identification_keywords['L1_max_iter'] = L1_max_iter
+        descriptor_identification_keywords['L1_tole'] = L1_tole
+        descriptor_identification_keywords['L1_dens'] = L1_dens
+        descriptor_identification_keywords['L1_nlambda'] = L1_nlambda
+        descriptor_identification_keywords['L1_minrmse'] = L1_minrmse
+        descriptor_identification_keywords['L1_warm_start'] = L1_warm_start
+        descriptor_identification_keywords['L1_weighted'] = L1_weighted
+        return cls(target_properties_keywords=target_properties_keywords,
+                   feature_construction_sure_independence_screening_keywords=feature_construction_sure_independence_screening_keywords,
+                   descriptor_identification_keywords=descriptor_identification_keywords)
 
     @classmethod
     def from_file(cls, filepath):
         raise NotImplementedError
+
+    def to_file(self, filename='SISSO.in'):
+        with open(filename, 'w') as f:
+            f.write(self.input_string)
+
+    def set_keywords_for_SISSO_dat(self, sisso_dat):
+        self.target_properties_keywords['nsample'] = sisso_dat.nsample
+        self.feature_construction_sure_independence_screening_keywords['nsf'] = sisso_dat.nsf
+
+    @classmethod
+    def from_SISSO_dat(cls, sisso_dat, model_type='regression', **kwargs):
+        if model_type == 'regression':
+            ptype = 1
+        elif model_type == 'classification':
+            raise NotImplementedError
+        else:
+            raise ValueError('Wrong model_type ("{}"). Should be "regression" or "classification".'.format(model_type))
+        return cls.from_sisso_keywords(ptype=ptype, nsample=sisso_dat.nsample,
+                                       nsf=sisso_dat.nsf, **kwargs)
 
 
 class SISSODat(MSONable):
     """Main class containing the data for SISSO (training data, test data or new data).
     """
 
-    def __init__(self, data):
+    def __init__(self, data: Union[pd.DataFrame], model_type: str = 'regression'):
+        """Constructor for SISSODat class.
+
+        In the current implementation, the input data must be a pandas DataFrame for which the first column contains
+        the identifiers for each data point (e.g. material identifier, batch number of a process, ...), the second
+        column contains the property to be predicted and the other columns are the base features.
+
+        Classification is not yet supported (needs the items in the same classes to be grouped together).
+        Multi-Task SISSO is not yet supported.
+
+        Args:
+            data:
+            model_type:
+        """
+        if isinstance(data, pd.DataFrame):
+            self.data = data
+        elif isinstance(data, np.ndarray):
+            raise NotImplementedError
+            # self.data = pd.DataFrame(data=data)
+        else:
+            raise NotImplementedError
+            # try:
+            #     self.data = pd.DataFrame(data=data)
+            # except ValueError:
+            #     raise ValueError('Could not create panda\'s DataFrame from input data.')
+        self._check_data_shape(self.data)
+        self.model_type = model_type
+
+    def _check_data_shape(self, data):
         pass
+
+    @property
+    def nsample(self):
+        return len(self.data)
+
+    @property
+    def nsf(self):
+        return len(self.data.columns)-2
+
+    @property
+    def input_string(self):
+        out = [' '.join(['{:20}'.format(column_name) for column_name in self.data.columns])]
+        max_str_size = max(self.data[self.data.columns[0]].apply(len))
+        header_row_format_str = '{{:{}}}'.format(max(20, max_str_size))
+        for _, row in self.data.iterrows():
+            row_list = list(row)
+            line = [header_row_format_str.format(row_list[0])]
+            # line = ['{:20}'.format(row_list[0])]
+            for col in row_list[1:]:
+                line.append('{:<20.12f}'.format(col))
+            out.append(' '.join(line))
+        return '\n'.join(out)
+
+    def to_file(self, filename='train.dat'):
+        with open(filename, 'w') as f:
+            f.write(self.input_string)
+
+    @classmethod
+    def from_dat_file(cls, filepath):
+        data = pd.read_csv(filepath, delim_whitespace=True)
+        return cls(data=data)
+
+
+class SISSOPredictPara(MSONable):
+    """
+    Main class containing the input variables for SISSO_predict.
+
+    This class is basically a container for the SISSO_predict_para input file for SISSO_predict.
+    """
+
+    def __init__(self, nsample, nsf, maxdimension, model_type='regression'):
+        self.nsample = nsample
+        self.nsf = nsf
+        self.maxdimension = maxdimension
+        self.model_type = model_type
+
+    @property
+    def input_string(self):
+        if self.model_type == 'regression':
+            ptype = 1
+        elif self.model_type == 'classification':
+            ptype = 2
+        else:
+            raise ValueError('Input variable "model_type" is "{}" '
+                             'while it should be either "regression" or "classification"'.format(self.model_type))
+        year = datetime.datetime.now().year
+        out = ['{:12d}  ! Number of test-materials in the file predict.dat'.format(self.nsample),
+               '{:12d}  ! Number of features in the file predict.dat'.format(self.nsf),
+               '{:12d}  ! Highest dimension of the models to be read from SISSO.out'.format(self.maxdimension),
+               '{:12d}  ! Property type 1:continuous or 2:categorical'.format(ptype),
+               '!-------------------------------------------------------------!\n'
+               '! SISSO_predict_para generated by Matgenix\'s pysisso package. !\n'
+               '! Copyright (c) {:d}, Matgenix SRL. All Rights Reserved.      !\n'
+               '!-------------------------------------------------------------!\n'.format(year)]
+        return '\n'.join(out)
+
+    def to_file(self, filename='SISSO_predict_para'):
+        with open(filename, 'w') as f:
+            f.write(self.input_string)

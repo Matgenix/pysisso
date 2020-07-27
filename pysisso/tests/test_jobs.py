@@ -5,13 +5,10 @@
 from monty.tempfile import ScratchDir
 import os
 from pysisso.jobs import SISSOJob
-import pysisso
+from pysisso.utils import TEST_FILES_DIR
 import pytest
 import shutil
 import subprocess
-
-
-TEST_FILES_DIR = os.path.abspath(os.path.join(pysisso.__file__, '..', '..', 'test_files'))
 
 
 @pytest.mark.integration_test
