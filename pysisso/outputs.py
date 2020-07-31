@@ -261,11 +261,21 @@ class SISSOModel(MSONable):
         self.rmse = rmse
         self.maxae = maxae
 
-    def evaluate(self, df):
-        outdf = pd.Series([self.intercept]*len(df))
+    def predict(self, df: pd.DataFrame) -> np.ndarray:
+        """Predict values from input DataFrame.
+
+        The input DataFrame should have the columns needed by the different SISSO descriptors.
+
+        Args:
+            df: panda's DataFrame containing the base features needed to apply the model.
+
+        Returns:
+            darray: Predicted values from the model.
+        """
+        out = np.ones(len(df)) * self.intercept
         for idescriptor, descriptor in enumerate(self.descriptors):
-            outdf += self.coefficients[idescriptor] * descriptor.evaluate(df)
-        return outdf
+            out += self.coefficients[idescriptor] * descriptor.evaluate(df)
+        return out
 
     @classmethod
     def from_string(cls, string: str):

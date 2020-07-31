@@ -389,17 +389,19 @@ class SISSOIn(MSONable):
             f.write(self.input_string)
 
     def set_keywords_for_SISSO_dat(self, sisso_dat):
-        feature_dimensions_ranges = sisso_dat.SISSO_features_dimensions_ranges
-        if (len(feature_dimensions_ranges) == 0 or
-                (len(feature_dimensions_ranges) == 1 and list(feature_dimensions_ranges.keys())[0] is None)):
-            dimclass = None
-        else:
-            dimclasslist = []
-            for dim, dimrange in feature_dimensions_ranges.items():
-                if dim is None:
-                    continue
-                dimclasslist.append('({:d}:{:d})'.format(dimrange[0], dimrange[1]))
-            dimclass = ''.join(dimclasslist)
+        dimclass = None
+        if sisso_dat.features_dimensions is not None:
+            feature_dimensions_ranges = sisso_dat.SISSO_features_dimensions_ranges
+            if (len(feature_dimensions_ranges) == 0 or
+                    (len(feature_dimensions_ranges) == 1 and list(feature_dimensions_ranges.keys())[0] is None)):
+                dimclass = None
+            else:
+                dimclasslist = []
+                for dim, dimrange in feature_dimensions_ranges.items():
+                    if dim is None:
+                        continue
+                    dimclasslist.append('({:d}:{:d})'.format(dimrange[0], dimrange[1]))
+                dimclass = ''.join(dimclasslist)
 
         self.target_properties_keywords['nsample'] = sisso_dat.nsample
         self.feature_construction_sure_independence_screening_keywords['nsf'] = sisso_dat.nsf

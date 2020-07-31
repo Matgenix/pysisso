@@ -35,6 +35,7 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
         self.run_dir = run_dir
         self.clean_run_dir = clean_run_dir
         self.sisso_out = None
+        self.columns = None
 
     def fit(self, X, y, index=None, columns=None):
         """Fit a SISSO regression based on inputs X and output y.
@@ -45,14 +46,16 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
             index:
             columns:
         """
-        index = index or ['item{:d}'.format(ii) for ii in range(len(y))]
+        X = np.array(X)
+        y = np.array(y)
+        index = index or ['item{:d}'.format(ii) for ii in range(X.shape[0])]
         if len(index) != len(y) or len(index) != len(X):
             raise ValueError('Index, X and y should have same size.')
-        columns = columns or ['feat{:d}'.format(ifeat) for ifeat in range(1, len(X)+1)]
-        if len(columns) != X.shape[1]:
+        self.columns = columns or ['feat{:d}'.format(ifeat) for ifeat in range(1, X.shape[1]+1)]
+        if len(self.columns) != X.shape[1]:
             raise ValueError('Columns should be of the size of the second axis of X.')
 
-        data = pd.DataFrame(X, index=index, columns=columns)
+        data = pd.DataFrame(X, index=index, columns=self.columns)
         data.insert(0, 'target', y)
         data.insert(0, 'identifier', index)
         sisso_dat = SISSODat(data=data, features_dimensions=self.features_dimensions)
@@ -74,9 +77,13 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
         # if self.clean_run_dir:
         #     shutil.rmtree(self.run_dir)
 
-    def predict(self, X):
+    def predict(self, X, index=None):
         """Predict output based on a fitted SISSO regression."""
-        return self.sisso_out.model.evaluate(X)
+        X = np.array(X)
+        index = index or ['item{:d}'.format(ii) for ii in range(X.shape[0])]
+        data = pd.DataFrame(X, index=index, columns=self.columns)
+        print(data)
+        return self.sisso_out.model.predict(data)
 
     @classmethod
     def from_sisso_keywords(cls, use_custodian: bool=True, custodian_job_kwargs=None, custodian_kwargs=None,
