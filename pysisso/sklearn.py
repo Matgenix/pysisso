@@ -21,7 +21,7 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
 
     def __init__(self, sisso_in: SISSOIn, features_dimensions: Union[dict, None]=None, use_custodian: bool=True,
                  custodian_job_kwargs: Union[None, dict]=None, custodian_kwargs: Union[None, dict]=None,
-                 run_dir: str='SISSO_dir', clean_run_dir: bool=True):
+                 run_dir: str='SISSO_dir', clean_run_dir: bool=False):
         """Construct SISSORegressor class.
 
         Args:
@@ -46,6 +46,8 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
             index:
             columns:
         """
+        if columns is None and isinstance(X, pd.DataFrame):
+            columns = list(X.columns)
         X = np.array(X)
         y = np.array(y)
         index = index or ['item{:d}'.format(ii) for ii in range(X.shape[0])]
@@ -74,15 +76,14 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
             self.sisso_out = SISSOOut.from_file(filename='SISSO.out')
 
         # Clean run directory
-        # if self.clean_run_dir:
-        #     shutil.rmtree(self.run_dir)
+        if self.clean_run_dir:
+            shutil.rmtree(self.run_dir)
 
     def predict(self, X, index=None):
         """Predict output based on a fitted SISSO regression."""
         X = np.array(X)
         index = index or ['item{:d}'.format(ii) for ii in range(X.shape[0])]
         data = pd.DataFrame(X, index=index, columns=self.columns)
-        print(data)
         return self.sisso_out.model.predict(data)
 
     @classmethod
@@ -91,27 +92,3 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
         sissoin = SISSOIn.from_sisso_keywords(ptype=1, **sissoin_kwargs)
         return cls(sisso_in=sissoin, use_custodian=use_custodian,
                    custodian_job_kwargs=custodian_job_kwargs, custodian_kwargs=custodian_kwargs)
-
-
-# # Define columns of the pandas DataFrame for the prediction of L*
-# L_columns = ['IDENTITY', 'L*']  # SISSO can only learn one property at a time
-# L_columns.extend(MM_FEATURES)
-#
-# # Create SISSO.in and train.dat
-# L_sisso_dat = pysisso.inputs.SISSODat(FULL_DATA[L_columns], features_dimensions=MM_FEATURES_DIMENSIONS)
-# L_sisso_in = pysisso.inputs.SISSOIn.from_SISSO_dat(L_sisso_dat, opset='(+)(-)(^2)(^-1)', rung=0, desc_dim=4)
-# # L_sisso_in = pysisso.inputs.SISSOIn.from_SISSO_dat(L_sisso_dat, opset='(+)(-)(^2)(^-1)', rung=2, desc_dim=3)
-#
-# # Create directory of execution if needed
-# SISSO_dir = 'SISSO_run'
-# if not os.path.exists(SISSO_dir):
-#     os.makedirs(SISSO_dir)
-#
-# # Run SISSO with pysisso
-# with cd(SISSO_dir):
-#     L_sisso_in.to_file(filename='SISSO.in')
-#     L_sisso_dat.to_file(filename='train.dat')
-#     job = pysisso.jobs.SISSOJob()
-#     c = Custodian(handlers=[], jobs=[job])
-#     c.run()
-#

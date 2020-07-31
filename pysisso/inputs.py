@@ -83,12 +83,6 @@ class SISSODat(MSONable):
                 if self._check_ranges_overlap(range1, range2):
                     raise ValueError("Dimension ranges overlap :")
         return ranges
-        # current_dimension = None
-        # for featcol in featcols:
-        #     if featcol in self.features_dimensions:
-        #         dimension =
-        #     dimension = self.features_dimensions[featcol] if featcol in self.features_dimensions else '_NODIM'
-        # return NotImplementedError
 
     @staticmethod
     def _check_ranges_overlap(r1, r2):
@@ -402,7 +396,6 @@ class SISSOIn(MSONable):
                         continue
                     dimclasslist.append('({:d}:{:d})'.format(dimrange[0], dimrange[1]))
                 dimclass = ''.join(dimclasslist)
-
         self.target_properties_keywords['nsample'] = sisso_dat.nsample
         self.feature_construction_sure_independence_screening_keywords['nsf'] = sisso_dat.nsf
         self.feature_construction_sure_independence_screening_keywords['dimclass'] = dimclass
@@ -419,19 +412,7 @@ class SISSOIn(MSONable):
         sissoin = cls.from_sisso_keywords(ptype=ptype, **kwargs)
         sissoin.set_keywords_for_SISSO_dat(sisso_dat=sisso_dat)
         return sissoin
-        # feature_dimensions_ranges = sisso_dat.SISSO_features_dimensions_ranges
-        # if (len(feature_dimensions_ranges) == 0 or
-        #         (len(feature_dimensions_ranges) == 1 and list(feature_dimensions_ranges.keys())[0] is None)):
-        #     dimclass = None
-        # else:
-        #     dimclasslist = []
-        #     for dim, dimrange in feature_dimensions_ranges.items():
-        #         if dim is None:
-        #             continue
-        #         dimclasslist.append('({:d}:{:d})'.format(dimrange[0], dimrange[1]))
-        #     dimclass = ''.join(dimclasslist)
-        # return cls.from_sisso_keywords(ptype=ptype, nsample=sisso_dat.nsample,
-        #                                nsf=sisso_dat.nsf, dimclass=dimclass, **kwargs)
+
 
 class SISSOPredictPara(MSONable):
     """
