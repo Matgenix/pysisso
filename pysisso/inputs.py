@@ -122,6 +122,13 @@ class SISSODat(MSONable):
             f.write(self.input_string)
 
     @classmethod
+    def from_file(cls, filepath):
+        if filepath.endswith('.dat'):
+            return cls.from_dat_file(filepath)
+        else:
+            raise ValueError('The from_file method is working only with .dat files')
+
+    @classmethod
     def from_dat_file(cls, filepath):
         data = pd.read_csv(filepath, delim_whitespace=True)
         return cls(data=data)
@@ -382,17 +389,6 @@ class SISSOIn(MSONable):
             f.write(self.input_string)
 
     def set_keywords_for_SISSO_dat(self, sisso_dat):
-        self.target_properties_keywords['nsample'] = sisso_dat.nsample
-        self.feature_construction_sure_independence_screening_keywords['nsf'] = sisso_dat.nsf
-
-    @classmethod
-    def from_SISSO_dat(cls, sisso_dat: SISSODat, model_type: str = 'regression', **kwargs: object):
-        if model_type == 'regression':
-            ptype = 1
-        elif model_type == 'classification':
-            raise NotImplementedError
-        else:
-            raise ValueError('Wrong model_type ("{}"). Should be "regression" or "classification".'.format(model_type))
         feature_dimensions_ranges = sisso_dat.SISSO_features_dimensions_ranges
         if (len(feature_dimensions_ranges) == 0 or
                 (len(feature_dimensions_ranges) == 1 and list(feature_dimensions_ranges.keys())[0] is None)):
@@ -404,10 +400,36 @@ class SISSOIn(MSONable):
                     continue
                 dimclasslist.append('({:d}:{:d})'.format(dimrange[0], dimrange[1]))
             dimclass = ''.join(dimclasslist)
-        return cls.from_sisso_keywords(ptype=ptype, nsample=sisso_dat.nsample,
-                                       nsf=sisso_dat.nsf, dimclass=dimclass, **kwargs)
 
+        self.target_properties_keywords['nsample'] = sisso_dat.nsample
+        self.feature_construction_sure_independence_screening_keywords['nsf'] = sisso_dat.nsf
+        self.feature_construction_sure_independence_screening_keywords['dimclass'] = dimclass
 
+    @classmethod
+    def from_SISSO_dat(cls, sisso_dat: SISSODat, model_type: str = 'regression', **kwargs: object):
+
+        if model_type == 'regression':
+            ptype = 1
+        elif model_type == 'classification':
+            raise NotImplementedError
+        else:
+            raise ValueError('Wrong model_type ("{}"). Should be "regression" or "classification".'.format(model_type))
+        sissoin = cls.from_sisso_keywords(ptype=ptype, **kwargs)
+        sissoin.set_keywords_for_SISSO_dat(sisso_dat=sisso_dat)
+        return sissoin
+        # feature_dimensions_ranges = sisso_dat.SISSO_features_dimensions_ranges
+        # if (len(feature_dimensions_ranges) == 0 or
+        #         (len(feature_dimensions_ranges) == 1 and list(feature_dimensions_ranges.keys())[0] is None)):
+        #     dimclass = None
+        # else:
+        #     dimclasslist = []
+        #     for dim, dimrange in feature_dimensions_ranges.items():
+        #         if dim is None:
+        #             continue
+        #         dimclasslist.append('({:d}:{:d})'.format(dimrange[0], dimrange[1]))
+        #     dimclass = ''.join(dimclasslist)
+        # return cls.from_sisso_keywords(ptype=ptype, nsample=sisso_dat.nsample,
+        #                                nsf=sisso_dat.nsf, dimclass=dimclass, **kwargs)
 
 class SISSOPredictPara(MSONable):
     """

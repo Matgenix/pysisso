@@ -40,83 +40,94 @@ class SISSOVersion(MSONable):
 
 
 def scd(x):
+    """Get Standard Cauchy Distribution of x.
+
+    The Standard Cauchy Distribution (SCD) of x is :
+
+    SCD(x) = (1.0 / pi) * 1.0 / (1.0 + x^2)
+
+    Args:
+        x: Value(s) for which the Standard Cauchy Distribution is needed.
+
+    Returns:
+        Standard Cauchy Distribution at value(s) x.
+    """
     return 1.0/(np.pi*(1.0+x*x))
 
 
-def decode_function(string):
-    """Get a function based on the string."""
-    # # (+)(-)(*)(/)(exp)(exp-)(^-1)(^2)(^3)(sqrt)(cbrt)(log)(|-|)(scd)(^6)(sin)(cos)
-    OPERATORS_REPLACEMENT = ['exp(-', 'exp(', 'sin(', 'cos(', 'sqrt(', 'cbrt(', 'log(', 'abs(', 'scd(',
-                             ')^-1', ')^2', ')^3', ')^6',
-                             '+', '-', '*', '/',  '(', ')'
-                             ]
-
-    # Get the list of base features needed
-    # First replace the operators with "_"
-    replaced_string = string
-    for op in OPERATORS_REPLACEMENT:
-        replaced_string = replaced_string.replace(op, '_' * len(op))
-    # Get the features in order of the string and get the unique list of features
-    if replaced_string[0] != '_' or replaced_string[-1] != '_':
-        raise ValueError('String should start and end with "_"')
-    features_in_string = []
-    in_feature_word = False
-    ichar_start = None
-    inputs = []
-    for ichar, char in enumerate(replaced_string):
-        if in_feature_word and char == '_':
-            in_feature_word = False
-            featname = replaced_string[ichar_start:ichar]
-            if featname not in inputs:
-                inputs.append(featname)
-            features_in_string.append({'featname': featname, 'istart': ichar_start, 'iend': ichar})
-        elif not in_feature_word and char != '_':
-            in_feature_word = True
-            ichar_start = ichar
-
-    # Prepare string to be formatted from features
-    prev_ichar = None
-    out = []
-    for fdict in features_in_string:
-        out.append(string[prev_ichar:fdict['istart']])
-        prev_ichar = fdict['iend']
-        out.append('df[\'{}\']'.format(fdict['featname']))
-    out.append(string[prev_ichar:None])
-    evalstring = ''.join(out)
-
-    # Replace operators in the string with numpy operators
-    evalstring = evalstring.replace('sin(', 'np.sin(')
-    evalstring = evalstring.replace('cos(', 'np.cos(')
-    evalstring = evalstring.replace('exp(', 'np.exp(')
-    evalstring = evalstring.replace('log(', 'np.log(')
-    evalstring = evalstring.replace('sqrt(', 'np.sqrt(')
-    evalstring = evalstring.replace('cbrt(', 'np.cbrt(')
-    evalstring = evalstring.replace('abs(', 'np.abs(')
-    evalstring = evalstring.replace(')^2', ')**2')
-    evalstring = evalstring.replace(')^3', ')**3')
-    evalstring = evalstring.replace(')^6', ')**6')
-    # Deal with the ^-1 ...
-    while ')^-1' in evalstring:
-        idx1 = evalstring.index(')^-1')
-        level = 0
-        for ii in range(idx1, -1, -1):
-            if evalstring[ii] == ')':
-                level += 1
-            elif evalstring[ii] == '(':
-                level -= 1
-            if level == 0:
-                idx2 = ii
-                break
-        else:
-            raise ValueError('Could not find initial parenthesis for ")^-1".')
-        evalstring = evalstring[:idx2] + '1.0/' + evalstring[idx2:idx1] + ')' + evalstring[idx1 + 4:]
-
-    # Define the function to evaluate the descriptor based on a dataframe df
-    def evalfun(df):
-        return eval(evalstring)
-
-    return {'evalstring': evalstring, 'features_in_string': features_in_string, 'evalfun': evalfun, 'inputs': inputs}
-
+# def decode_function(string):
+#     """Get a function based on the string."""
+#     # # (+)(-)(*)(/)(exp)(exp-)(^-1)(^2)(^3)(sqrt)(cbrt)(log)(|-|)(scd)(^6)(sin)(cos)
+#     OPERATORS_REPLACEMENT = ['exp(-', 'exp(', 'sin(', 'cos(', 'sqrt(', 'cbrt(', 'log(', 'abs(', 'scd(',
+#                              ')^-1', ')^2', ')^3', ')^6',
+#                              '+', '-', '*', '/',  '(', ')'
+#                              ]
+#
+#     # Get the list of base features needed
+#     # First replace the operators with "_"
+#     replaced_string = string
+#     for op in OPERATORS_REPLACEMENT:
+#         replaced_string = replaced_string.replace(op, '_' * len(op))
+#     # Get the features in order of the string and get the unique list of features
+#     if replaced_string[0] != '_' or replaced_string[-1] != '_':
+#         raise ValueError('String should start and end with "_"')
+#     features_in_string = []
+#     in_feature_word = False
+#     ichar_start = None
+#     inputs = []
+#     for ichar, char in enumerate(replaced_string):
+#         if in_feature_word and char == '_':
+#             in_feature_word = False
+#             featname = replaced_string[ichar_start:ichar]
+#             if featname not in inputs:
+#                 inputs.append(featname)
+#             features_in_string.append({'featname': featname, 'istart': ichar_start, 'iend': ichar})
+#         elif not in_feature_word and char != '_':
+#             in_feature_word = True
+#             ichar_start = ichar
+#
+#     # Prepare string to be formatted from features
+#     prev_ichar = None
+#     out = []
+#     for fdict in features_in_string:
+#         out.append(string[prev_ichar:fdict['istart']])
+#         prev_ichar = fdict['iend']
+#         out.append('df[\'{}\']'.format(fdict['featname']))
+#     out.append(string[prev_ichar:None])
+#     evalstring = ''.join(out)
+#
+#     # Replace operators in the string with numpy operators
+#     evalstring = evalstring.replace('sin(', 'np.sin(')
+#     evalstring = evalstring.replace('cos(', 'np.cos(')
+#     evalstring = evalstring.replace('exp(', 'np.exp(')
+#     evalstring = evalstring.replace('log(', 'np.log(')
+#     evalstring = evalstring.replace('sqrt(', 'np.sqrt(')
+#     evalstring = evalstring.replace('cbrt(', 'np.cbrt(')
+#     evalstring = evalstring.replace('abs(', 'np.abs(')
+#     evalstring = evalstring.replace(')^2', ')**2')
+#     evalstring = evalstring.replace(')^3', ')**3')
+#     evalstring = evalstring.replace(')^6', ')**6')
+#     # Deal with the ^-1 ...
+#     while ')^-1' in evalstring:
+#         idx1 = evalstring.index(')^-1')
+#         level = 0
+#         for ii in range(idx1, -1, -1):
+#             if evalstring[ii] == ')':
+#                 level += 1
+#             elif evalstring[ii] == '(':
+#                 level -= 1
+#             if level == 0:
+#                 idx2 = ii
+#                 break
+#         else:
+#             raise ValueError('Could not find initial parenthesis for ")^-1".')
+#         evalstring = evalstring[:idx2] + '1.0/' + evalstring[idx2:idx1] + ')' + evalstring[idx1 + 4:]
+#
+#     # Define the function to evaluate the descriptor based on a dataframe df
+#     def evalfun(df):
+#         return eval(evalstring)
+#
+#     return {'evalstring': evalstring, 'features_in_string': features_in_string, 'evalfun': evalfun, 'inputs': inputs}
 
 
 class SISSODescriptor(MSONable):
@@ -510,6 +521,10 @@ class SISSOOut(MSONable):
 
         return cls(params=params, iterations=iterations, version=version, cpu_time=cpu_time)
 
+    @property
+    def model(self):
+        return self.iterations[-1].sisso_model
+
 
 class TopModels(MSONable):
     """Class containing summary info of the top N models from SISSO.
@@ -541,6 +556,21 @@ class DescriptorsDataModels(MSONable):
     This class is a container for the desc_DDDd_pPPP.dat files (DDD being the dimension of the descriptor and PPP
     the property number in case of multi-task SISSO) that are stored in the desc_dat directory.
     """
+
+    def __init__(self, data):
+        self.data = data
+
+    @classmethod
+    def from_file(cls, filepath):
+        if filepath.endswith('.dat'):
+            return cls.from_dat_file(filepath)
+        else:
+            raise ValueError('The from_file method is working only with .dat files')
+
+    @classmethod
+    def from_dat_file(cls, filepath):
+        data = pd.read_csv(filepath, delim_whitespace=True)
+        return cls(data=data)
 
 
 class ResidualData(MSONable):
