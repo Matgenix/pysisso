@@ -9,6 +9,8 @@ from pysisso.utils import list_of_ints
 from pysisso.utils import list_of_strs
 from pysisso.utils import str_to_bool
 from pysisso.utils import matrix_of_floats
+import numpy as np
+import pandas as pd
 
 
 class SISSOVersion(MSONable):
@@ -37,6 +39,86 @@ class SISSOVersion(MSONable):
                                                           int(version_sp[3])))
 
 
+def scd(x):
+    return 1.0/(np.pi*(1.0+x*x))
+
+
+def decode_function(string):
+    """Get a function based on the string."""
+    # # (+)(-)(*)(/)(exp)(exp-)(^-1)(^2)(^3)(sqrt)(cbrt)(log)(|-|)(scd)(^6)(sin)(cos)
+    OPERATORS_REPLACEMENT = ['exp(-', 'exp(', 'sin(', 'cos(', 'sqrt(', 'cbrt(', 'log(', 'abs(', 'scd(',
+                             ')^-1', ')^2', ')^3', ')^6',
+                             '+', '-', '*', '/',  '(', ')'
+                             ]
+
+    # Get the list of base features needed
+    # First replace the operators with "_"
+    replaced_string = string
+    for op in OPERATORS_REPLACEMENT:
+        replaced_string = replaced_string.replace(op, '_' * len(op))
+    # Get the features in order of the string and get the unique list of features
+    if replaced_string[0] != '_' or replaced_string[-1] != '_':
+        raise ValueError('String should start and end with "_"')
+    features_in_string = []
+    in_feature_word = False
+    ichar_start = None
+    inputs = []
+    for ichar, char in enumerate(replaced_string):
+        if in_feature_word and char == '_':
+            in_feature_word = False
+            featname = replaced_string[ichar_start:ichar]
+            if featname not in inputs:
+                inputs.append(featname)
+            features_in_string.append({'featname': featname, 'istart': ichar_start, 'iend': ichar})
+        elif not in_feature_word and char != '_':
+            in_feature_word = True
+            ichar_start = ichar
+
+    # Prepare string to be formatted from features
+    prev_ichar = None
+    out = []
+    for fdict in features_in_string:
+        out.append(string[prev_ichar:fdict['istart']])
+        prev_ichar = fdict['iend']
+        out.append('df[\'{}\']'.format(fdict['featname']))
+    out.append(string[prev_ichar:None])
+    evalstring = ''.join(out)
+
+    # Replace operators in the string with numpy operators
+    evalstring = evalstring.replace('sin(', 'np.sin(')
+    evalstring = evalstring.replace('cos(', 'np.cos(')
+    evalstring = evalstring.replace('exp(', 'np.exp(')
+    evalstring = evalstring.replace('log(', 'np.log(')
+    evalstring = evalstring.replace('sqrt(', 'np.sqrt(')
+    evalstring = evalstring.replace('cbrt(', 'np.cbrt(')
+    evalstring = evalstring.replace('abs(', 'np.abs(')
+    evalstring = evalstring.replace(')^2', ')**2')
+    evalstring = evalstring.replace(')^3', ')**3')
+    evalstring = evalstring.replace(')^6', ')**6')
+    # Deal with the ^-1 ...
+    while ')^-1' in evalstring:
+        idx1 = evalstring.index(')^-1')
+        level = 0
+        for ii in range(idx1, -1, -1):
+            if evalstring[ii] == ')':
+                level += 1
+            elif evalstring[ii] == '(':
+                level -= 1
+            if level == 0:
+                idx2 = ii
+                break
+        else:
+            raise ValueError('Could not find initial parenthesis for ")^-1".')
+        evalstring = evalstring[:idx2] + '1.0/' + evalstring[idx2:idx1] + ')' + evalstring[idx1 + 4:]
+
+    # Define the function to evaluate the descriptor based on a dataframe df
+    def evalfun(df):
+        return eval(evalstring)
+
+    return {'evalstring': evalstring, 'features_in_string': features_in_string, 'evalfun': evalfun, 'inputs': inputs}
+
+
+
 class SISSODescriptor(MSONable):
     """Class containing one composed descriptor."""
 
@@ -49,6 +131,85 @@ class SISSODescriptor(MSONable):
         """
         self.descriptor_id = descriptor_id
         self.descriptor_string = descriptor_string
+        self.function = self._decode_function(self.descriptor_string)['evalfun']
+
+    def evaluate(self, df):
+        return self.function(df)
+
+    @staticmethod
+    def _decode_function(string):
+        """Get a function based on the string."""
+        # # (+)(-)(*)(/)(exp)(exp-)(^-1)(^2)(^3)(sqrt)(cbrt)(log)(|-|)(scd)(^6)(sin)(cos)
+        OPERATORS_REPLACEMENT = ['exp(-', 'exp(', 'sin(', 'cos(', 'sqrt(', 'cbrt(', 'log(', 'abs(', 'scd(',
+                                 ')^-1', ')^2', ')^3', ')^6',
+                                 '+', '-', '*', '/', '(', ')'
+                                 ]
+
+        # Get the list of base features needed
+        # First replace the operators with "_"
+        replaced_string = string
+        for op in OPERATORS_REPLACEMENT:
+            replaced_string = replaced_string.replace(op, '_' * len(op))
+        # Get the features in order of the string and get the unique list of features
+        if replaced_string[0] != '_' or replaced_string[-1] != '_':
+            raise ValueError('String should start and end with "_"')
+        features_in_string = []
+        in_feature_word = False
+        ichar_start = None
+        inputs = []
+        for ichar, char in enumerate(replaced_string):
+            if in_feature_word and char == '_':
+                in_feature_word = False
+                featname = replaced_string[ichar_start:ichar]
+                if featname not in inputs:
+                    inputs.append(featname)
+                features_in_string.append({'featname': featname, 'istart': ichar_start, 'iend': ichar})
+            elif not in_feature_word and char != '_':
+                in_feature_word = True
+                ichar_start = ichar
+
+        # Prepare string to be formatted from features
+        prev_ichar = None
+        out = []
+        for fdict in features_in_string:
+            out.append(string[prev_ichar:fdict['istart']])
+            prev_ichar = fdict['iend']
+            out.append('df[\'{}\']'.format(fdict['featname']))
+        out.append(string[prev_ichar:None])
+        evalstring = ''.join(out)
+
+        # Replace operators in the string with numpy operators
+        evalstring = evalstring.replace('sin(', 'np.sin(')
+        evalstring = evalstring.replace('cos(', 'np.cos(')
+        evalstring = evalstring.replace('exp(', 'np.exp(')
+        evalstring = evalstring.replace('log(', 'np.log(')
+        evalstring = evalstring.replace('sqrt(', 'np.sqrt(')
+        evalstring = evalstring.replace('cbrt(', 'np.cbrt(')
+        evalstring = evalstring.replace('abs(', 'np.abs(')
+        evalstring = evalstring.replace(')^2', ')**2')
+        evalstring = evalstring.replace(')^3', ')**3')
+        evalstring = evalstring.replace(')^6', ')**6')
+        # Deal with the ^-1 ...
+        while ')^-1' in evalstring:
+            idx1 = evalstring.index(')^-1')
+            level = 0
+            for ii in range(idx1, -1, -1):
+                if evalstring[ii] == ')':
+                    level += 1
+                elif evalstring[ii] == '(':
+                    level -= 1
+                if level == 0:
+                    idx2 = ii
+                    break
+            else:
+                raise ValueError('Could not find initial parenthesis for ")^-1".')
+            evalstring = evalstring[:idx2] + '1.0/' + evalstring[idx2:idx1] + ')' + evalstring[idx1 + 4:]
+
+        def evalfun(df):
+            return eval(evalstring)
+
+        return {'evalstring': evalstring, 'features_in_string': features_in_string, 'evalfun': evalfun,
+                'inputs': inputs}
 
     @classmethod
     def from_string(cls, string: str):
@@ -88,6 +249,12 @@ class SISSOModel(MSONable):
         self.intercept = intercept
         self.rmse = rmse
         self.maxae = maxae
+
+    def evaluate(self, df):
+        outdf = pd.Series([self.intercept]*len(df))
+        for idescriptor, descriptor in enumerate(self.descriptors):
+            outdf += self.coefficients[idescriptor] * descriptor.evaluate(df)
+        return outdf
 
     @classmethod
     def from_string(cls, string: str):
@@ -318,7 +485,6 @@ class SISSOOut(MSONable):
         with open(filename, 'r') as f:
             string = f.read()
 
-        # r = r'Reading parameters from SISSO\.in:\n-{80}.*?-{80}'
         r = r'Reading parameters from SISSO\.in:\s?\n-{80}.*?-{80}'
         match = re.findall(r, string, re.DOTALL)
         if len(match) != 1:

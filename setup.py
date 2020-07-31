@@ -13,7 +13,8 @@ setup(name='pysisso',
       packages=['pysisso'],
       install_requires=['pandas>=1.0.5',
                         'monty>=3.0.4',
-                        'custodian>=2018.8.10'],
+                        'custodian>=2018.8.10',
+                        'scikit-learn>=0.23.1'],
       tests_require=['pytest',
                      'pytest-cov']
       )

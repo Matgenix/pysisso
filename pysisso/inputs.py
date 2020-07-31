@@ -9,6 +9,124 @@ import numpy as np
 from typing import Union
 
 
+class SISSODat(MSONable):
+    """Main class containing the data for SISSO (training data, test data or new data).
+    """
+
+    def __init__(self, data: pd.DataFrame, features_dimensions: Union[dict, None]=None,
+                 model_type: str = 'regression'):
+        """Constructor for SISSODat class.
+
+        The input data must be a pandas DataFrame for which the first column contains
+        the identifiers for each data point (e.g. material identifier, batch number of a process, ...),
+        the second column contains the property to be predicted and the other columns are the base features.
+
+        Classification is not yet supported (needs the items in the same classes to be grouped together).
+        Multi-Task SISSO is not yet supported.
+
+        Args:
+            data: Input data as pandas DataFrame object. The first column must be the identifiers for each data point,
+                the second column must be the property to be predicted, and the other columns are the base features.
+            features_dimensions: Dimension of the different base features as a dictionary mapping the name of each
+                feature to its dimension. Features not in the dictionary are supposed to be dimensionless. If set to
+                None, all features are supposed to be dimensionless.
+            model_type: Type of model. Should be either "regression" or "classification".
+        """
+        self.data = data
+        self.features_dimensions = features_dimensions
+        self.model_type = model_type
+        self._order_features()
+
+    def _order_features(self):
+        if self.features_dimensions is None:
+            return
+        if len(self.features_dimensions) == 0:
+            return
+        if '_NODIM' in self.features_dimensions:
+            raise ValueError('Dimension name "_NODIM" in features_dimensions is not allowed.')
+        cols = list(self.data.columns)
+        if self.model_type == 'regression':
+            ii = 2
+        elif self.model_type == 'classification':
+            ii = 1
+        else:
+            raise ValueError('Wrong model_type')
+        newcols = cols[:ii]
+        featcols = cols[ii:]
+        newcols.extend(sorted(featcols,
+                              key=lambda x: self.features_dimensions[x] if x in self.features_dimensions else '_NODIM'))
+        self.data = self.data[newcols]
+
+    @property
+    def SISSO_features_dimensions_ranges(self):
+        cols = list(self.data.columns)
+        if self.model_type == 'regression':
+            ii = 2
+        elif self.model_type == 'classification':
+            ii = 1
+        else:
+            raise ValueError('Wrong model_type')
+        featcols = cols[ii:]
+        featdimensions = [self.features_dimensions[featcol]
+                          if featcol in self.features_dimensions else None for featcol in featcols]
+        uniquedimensions = list(set(featdimensions))
+        ranges = {}
+        for dimension in uniquedimensions:
+            idx = featdimensions.index(dimension)
+            count = featdimensions.count(dimension)
+            ranges[dimension] = (idx+1, idx+count)
+        # Check that the ranges do not overlap
+        for dim1, range1 in ranges.items():
+            for dim2, range2 in ranges.items():
+                if dim1 == dim2:
+                    continue
+                if self._check_ranges_overlap(range1, range2):
+                    raise ValueError("Dimension ranges overlap :")
+        return ranges
+        # current_dimension = None
+        # for featcol in featcols:
+        #     if featcol in self.features_dimensions:
+        #         dimension =
+        #     dimension = self.features_dimensions[featcol] if featcol in self.features_dimensions else '_NODIM'
+        # return NotImplementedError
+
+    @staticmethod
+    def _check_ranges_overlap(r1, r2):
+        return not ((r1[0] < r2[0] and r1[1] < r2[0]) or (r2[0] < r1[0] and r2[1] < r1[0]))
+
+
+    @property
+    def nsample(self):
+        return len(self.data)
+
+    @property
+    def nsf(self):
+        return len(self.data.columns)-2
+
+    @property
+    def input_string(self):
+        out = [' '.join(['{:20}'.format(column_name) for column_name in self.data.columns])]
+        max_str_size = max(self.data[self.data.columns[0]].apply(len))
+        header_row_format_str = '{{:{}}}'.format(max(20, max_str_size))
+        for _, row in self.data.iterrows():
+            row_list = list(row)
+            line = [header_row_format_str.format(row_list[0])]
+            # line = ['{:20}'.format(row_list[0])]
+            for col in row_list[1:]:
+                line.append('{:<20.12f}'.format(col))
+            out.append(' '.join(line))
+        return '\n'.join(out)
+
+    def to_file(self, filename='train.dat'):
+        with open(filename, 'w') as f:
+            f.write(self.input_string)
+
+    @classmethod
+    def from_dat_file(cls, filepath):
+        data = pd.read_csv(filepath, delim_whitespace=True)
+        return cls(data=data)
+
+
 class SISSOIn(MSONable):
     """
     Main class containing the input variables for SISSO.
@@ -268,82 +386,27 @@ class SISSOIn(MSONable):
         self.feature_construction_sure_independence_screening_keywords['nsf'] = sisso_dat.nsf
 
     @classmethod
-    def from_SISSO_dat(cls, sisso_dat, model_type='regression', **kwargs):
+    def from_SISSO_dat(cls, sisso_dat: SISSODat, model_type: str = 'regression', **kwargs: object):
         if model_type == 'regression':
             ptype = 1
         elif model_type == 'classification':
             raise NotImplementedError
         else:
             raise ValueError('Wrong model_type ("{}"). Should be "regression" or "classification".'.format(model_type))
-        return cls.from_sisso_keywords(ptype=ptype, nsample=sisso_dat.nsample,
-                                       nsf=sisso_dat.nsf, **kwargs)
-
-
-class SISSODat(MSONable):
-    """Main class containing the data for SISSO (training data, test data or new data).
-    """
-
-    def __init__(self, data: Union[pd.DataFrame], model_type: str = 'regression'):
-        """Constructor for SISSODat class.
-
-        In the current implementation, the input data must be a pandas DataFrame for which the first column contains
-        the identifiers for each data point (e.g. material identifier, batch number of a process, ...), the second
-        column contains the property to be predicted and the other columns are the base features.
-
-        Classification is not yet supported (needs the items in the same classes to be grouped together).
-        Multi-Task SISSO is not yet supported.
-
-        Args:
-            data:
-            model_type:
-        """
-        if isinstance(data, pd.DataFrame):
-            self.data = data
-        elif isinstance(data, np.ndarray):
-            raise NotImplementedError
-            # self.data = pd.DataFrame(data=data)
+        feature_dimensions_ranges = sisso_dat.SISSO_features_dimensions_ranges
+        if (len(feature_dimensions_ranges) == 0 or
+                (len(feature_dimensions_ranges) == 1 and list(feature_dimensions_ranges.keys())[0] is None)):
+            dimclass = None
         else:
-            raise NotImplementedError
-            # try:
-            #     self.data = pd.DataFrame(data=data)
-            # except ValueError:
-            #     raise ValueError('Could not create panda\'s DataFrame from input data.')
-        self._check_data_shape(self.data)
-        self.model_type = model_type
+            dimclasslist = []
+            for dim, dimrange in feature_dimensions_ranges.items():
+                if dim is None:
+                    continue
+                dimclasslist.append('({:d}:{:d})'.format(dimrange[0], dimrange[1]))
+            dimclass = ''.join(dimclasslist)
+        return cls.from_sisso_keywords(ptype=ptype, nsample=sisso_dat.nsample,
+                                       nsf=sisso_dat.nsf, dimclass=dimclass, **kwargs)
 
-    def _check_data_shape(self, data):
-        pass
-
-    @property
-    def nsample(self):
-        return len(self.data)
-
-    @property
-    def nsf(self):
-        return len(self.data.columns)-2
-
-    @property
-    def input_string(self):
-        out = [' '.join(['{:20}'.format(column_name) for column_name in self.data.columns])]
-        max_str_size = max(self.data[self.data.columns[0]].apply(len))
-        header_row_format_str = '{{:{}}}'.format(max(20, max_str_size))
-        for _, row in self.data.iterrows():
-            row_list = list(row)
-            line = [header_row_format_str.format(row_list[0])]
-            # line = ['{:20}'.format(row_list[0])]
-            for col in row_list[1:]:
-                line.append('{:<20.12f}'.format(col))
-            out.append(' '.join(line))
-        return '\n'.join(out)
-
-    def to_file(self, filename='train.dat'):
-        with open(filename, 'w') as f:
-            f.write(self.input_string)
-
-    @classmethod
-    def from_dat_file(cls, filepath):
-        data = pd.read_csv(filepath, delim_whitespace=True)
-        return cls(data=data)
 
 
 class SISSOPredictPara(MSONable):
