@@ -157,25 +157,25 @@ class SISSODescriptor(MSONable):
                                  ]
 
         # Get the list of base features needed
-        # First replace the operators with "_"
+        # First replace the operators with "#"
         replaced_string = string
         for op in OPERATORS_REPLACEMENT:
-            replaced_string = replaced_string.replace(op, '_' * len(op))
+            replaced_string = replaced_string.replace(op, '#' * len(op))
         # Get the features in order of the string and get the unique list of features
-        if replaced_string[0] != '_' or replaced_string[-1] != '_':
-            raise ValueError('String should start and end with "_"')
+        if replaced_string[0] != '#' or replaced_string[-1] != '#':
+            raise ValueError('String should start and end with "#"')
         features_in_string = []
         in_feature_word = False
         ichar_start = None
         inputs = []
         for ichar, char in enumerate(replaced_string):
-            if in_feature_word and char == '_':
+            if in_feature_word and char == '#':
                 in_feature_word = False
                 featname = replaced_string[ichar_start:ichar]
                 if featname not in inputs:
                     inputs.append(featname)
                 features_in_string.append({'featname': featname, 'istart': ichar_start, 'iend': ichar})
-            elif not in_feature_word and char != '_':
+            elif not in_feature_word and char != '#':
                 in_feature_word = True
                 ichar_start = ichar
 
