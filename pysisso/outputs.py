@@ -364,10 +364,11 @@ class SISSOIteration(MSONable):
             raise ValueError('Should get exactly one SIS subspace size in the string.')
         SIS_subspace_size = int(match_SIS_subspace_size[0].split()[-1])
 
-        r_cputime = r'Wall-clock time \(second\) for this FC:.*?\n'
+        r_cputime = r'Wall-clock time \(second\) for this DI:.*?\n'
         match_cputime = re.findall(r_cputime, string)
         if len(match_cputime) != 1:
-            raise ValueError('Should get exactly one Wall-clock time in the string.')
+            raise ValueError('Should get exactly one Wall-clock time in the string, '
+                             'got {:d}.'.format(len(match_cputime)))
         cpu_time = float(match_cputime[0].split()[-1])
 
         return cls(iteration_number=it_num,
@@ -464,6 +465,7 @@ class SISSOParams(MSONable):
     @classmethod
     def from_string(cls, string: str):
         """Construct SISSOParams object from string."""
+
         kwargs = {}
         for class_var, output_var_str, var_type in cls.PARAMS:
             if class_var == 'dimension_types':
@@ -495,14 +497,16 @@ class SISSOOut(MSONable):
             version: Information about the version of SISSO used as a SISSOVersion object.
             cpu_time: Wall-clock CPU time from the output file.
         """
+
         self.params = params
         self.iterations = iterations
         self.version = version
         self.cpu_time = cpu_time
 
     @classmethod
-    def from_file(cls, filename: str='SISSO.out'):
-        """Reads in SISSOOut data from file."""
+    def from_file(cls, filename: str='SISSO.out', allow_unfinished: bool=False):
+        """Read in SISSOOut data from file."""
+
         with open(filename, 'r') as f:
             string = f.read()
 
@@ -521,9 +525,14 @@ class SISSOOut(MSONable):
 
         r = r'Total wall-clock time \(second\):.*?\n'
         match = re.findall(r, string)
-        if len(match) != 1:
-            raise ValueError('Should get exactly one total cpu time in the string.')
-        cpu_time = float(match[0].split()[-1])
+        if len(match) == 0:
+            if not allow_unfinished:
+                raise ValueError('Should get exactly one total cpu time in the string, got 0.')
+            cpu_time = None
+        elif len(match) > 1:
+            raise ValueError('Should get exactly one total cpu time in the string, got {:d}.'.format(len(match)))
+        else:
+            cpu_time = float(match[0].split()[-1])
 
         with open(filename, 'r') as f:
             header = f.readline()
@@ -533,7 +542,18 @@ class SISSOOut(MSONable):
 
     @property
     def model(self):
+        """Get the model for this SISSO run.
+
+        The last model is provided (with the highest dimension).
+        """
+
         return self.iterations[-1].sisso_model
+
+    @property
+    def models(self):
+        """Get the list of models (for all dimensions) for this SISSO run."""
+
+        return [it.sisso_model for it in self.iterations]
 
 
 class TopModels(MSONable):

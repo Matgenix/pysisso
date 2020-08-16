@@ -202,6 +202,19 @@ class SISSOIn(MSONable):
 
     def _check_keywords(self):
         #TODO: implement a check on the keywords
+        # When using L1L0 method, L1L0_size4L0 should not be > subs_sis,
+        #   i.e. should be <= subs_sis ("STOP Error: fs_size_L0 must not larger than fs_size_DI !" in SISSO.err)
+        # When using L1L0 method, L1L0_size4L0 should be >= desc_dim
+        #   i.e. it crashes when it reaches a dimension larger than L1L0_size4L0
+        #   ("Program received signal SIGSEGV: Segmentation fault - invalid memory reference." in SISSO.err)
+        # * L1L0_size4L0 <= subs_sis
+        # * L1L0_size4L0 >= desc_dim
+        # In short :
+        # desc_dim <= L1L0_size4L0 <= subs_sis
+        # Possible fixes :
+        # A. fix L1L0_size4L0 and subs_sis:
+        #   A.1. increase L1L0_size4L0 to at least desc_dim
+        #   A.2. increase subs_sis to at least L1L0_size4L0
         pass
 
     def _format_kw_value(self, kw, val, float_format='.12f'):
@@ -249,7 +262,10 @@ class SISSOIn(MSONable):
         elif val_type is str:
             return '{}=\'{}\''.format(kw, val)
         elif val_type == 'list_of_ints':
-            return '{}=({})'.format(kw, ','.join(['{:d}'.format(v) for v in val]))
+            if kw == 'subs_sis':
+                return '{}={}'.format(kw, ','.join(['{:d}'.format(v) for v in val]))
+            else:
+                return '{}=({})'.format(kw, ','.join(['{:d}'.format(v) for v in val]))
         elif val_type == 'str_operators':
             return '{}=\'{}\''.format(kw, val)
         elif val_type in ['str_dimensions', 'str_isconvex']:
