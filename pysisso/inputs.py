@@ -23,7 +23,6 @@ class SISSODat(MSONable):
         the second column contains the property to be predicted and the other columns are the base features.
 
         Classification is not yet supported (needs the items in the same classes to be grouped together).
-        Multi-Task SISSO is not yet supported.
 
         Args:
             data: Input data as pandas DataFrame object. The first column must be the identifiers for each data point,
@@ -37,6 +36,10 @@ class SISSODat(MSONable):
 
         Raises:
             ValueError: if nsample is not compatible with the data frame.
+
+        Notes:
+            The pandas index has not be used for the identifier here. Indeed when Multi-Task SISSO is used, the
+            same identifier can occur for two different tasks/properties.
         """
         self.data = data
         self.features_dimensions = features_dimensions
