@@ -150,7 +150,6 @@ class SISSODescriptor(MSONable):
     @staticmethod
     def _decode_function(string):
         """Get a function based on the string."""
-        # # (+)(-)(*)(/)(exp)(exp-)(^-1)(^2)(^3)(sqrt)(cbrt)(log)(|-|)(scd)(^6)(sin)(cos)
         OPERATORS_REPLACEMENT = ['exp(-', 'exp(', 'sin(', 'cos(', 'sqrt(', 'cbrt(', 'log(', 'abs(', 'scd(',
                                  ')^-1', ')^2', ')^3', ')^6',
                                  '+', '-', '*', '/', '(', ')'
@@ -239,20 +238,20 @@ class SISSODescriptor(MSONable):
 class SISSOModel(MSONable):
     """Class containing one SISSO model."""
 
-    def __init__(self, dimension: int, descriptors: List[SISSODescriptor], coefficients: List[float],
-                 intercept: Union[float],
-                 rmse: Union[float, None]=None,
-                 maxae: Union[float, None]=None,
+    def __init__(self, dimension: int, descriptors: List[SISSODescriptor], coefficients: List[List[float]],
+                 intercept: List[float],
+                 rmse: Union[List[float], None]=None,
+                 maxae: Union[List[float], None]=None,
                  ):
         """Constructor for SISSOModel class.
 
         Args:
             dimension: Dimension of the model.
             descriptors: List of descriptors used in the model.
-            coefficients: Coefficient of each descriptor.
-            intercept: Intercept of the model.
-            rmse: Root Mean Squared Error of the model on the training data.
-            maxae: Maximum Absolute Error of the model on the training data.
+            coefficients: Coefficient of each descriptor for each task/property.
+            intercept: Intercept of the model for each task/property.
+            rmse: Root Mean Squared Error of the model on the training data for each task/property.
+            maxae: Maximum Absolute Error of the model on the training data for each task/property.
         """
         self.dimension = dimension
         self.descriptors = descriptors
@@ -272,9 +271,10 @@ class SISSOModel(MSONable):
         Returns:
             darray: Predicted values from the model.
         """
-        out = np.ones(len(df)) * self.intercept
+        out = np.array([[intercept]*len(df) for intercept in self.intercept]).T
         for idescriptor, descriptor in enumerate(self.descriptors):
-            out += self.coefficients[idescriptor] * descriptor.evaluate(df)
+            for itask, coefficients in enumerate(self.coefficients):
+                out[:, itask] += coefficients[idescriptor] * descriptor.evaluate(df)
         return out
 
     @classmethod
@@ -290,10 +290,10 @@ class SISSOModel(MSONable):
         lines = string.split('\n')
         dimension = int(lines[1].split('D descriptor')[0])
         descriptors = None
-        coefficients = None
-        intercept = None
-        rmse = None
-        maxae = None
+        coefficients = []
+        intercept = []
+        rmse = []
+        maxae = []
         for iline, line in enumerate(lines):
             if '@@@descriptor' in line:
                 descriptors = []
@@ -302,13 +302,13 @@ class SISSOModel(MSONable):
                 descriptors.append(SISSODescriptor.from_string(line))
                 continue
             if 'coefficients_' in line:
-                coefficients = [float(nn) for nn in line.split(':')[1].split()]
+                coefficients.append([float(nn) for nn in line.split(':')[1].split()])
             elif 'Intercept_' in line:
-                intercept = float(line.split(':')[1])
+                intercept.append(float(line.split(':')[1]))
             elif 'RMSE,MaxAE_' in line:
                 sp = line.split()
-                rmse = float(sp[1])
-                maxae = float(sp[2])
+                rmse.append(float(sp[1]))
+                maxae.append(float(sp[2]))
 
         return cls(dimension=dimension, descriptors=descriptors,
                    coefficients=coefficients, intercept=intercept,
