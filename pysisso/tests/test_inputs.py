@@ -28,7 +28,6 @@ def test_sisso_in():
     sisso_dat = SISSODat.from_dat_file(filepath=os.path.join(TEST_FILES_DIR, 'inputs', 'train.dat_regression'))
     sisso_in = SISSOIn.from_SISSO_dat(sisso_dat=sisso_dat)
     assert sisso_in.is_regression is True
-    sisso_in.to_file()
     with ScratchDir('.'):
         sisso_in.to_file()
         assert os.path.exists('SISSO.in')
