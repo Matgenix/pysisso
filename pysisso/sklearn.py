@@ -71,14 +71,27 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
         self.run_dir = run_dir
         self.clean_run_dir = clean_run_dir
 
-    def fit(self, X, y, index=None, columns=None):
+    def fit(self, X, y, index=None, columns=None, tasks=None):
         """Fit a SISSO regression based on inputs X and output y.
+
+        This method supports Multi-Task SISSO. For Single-Task SISSO, y must have a shape (n_samples) or (n_samples, 1).
+        For Multi-Task SISSO, y must have a shape (n_samples, n_tasks). The arrays will be reshaped to fit SISSO's
+        input files. For example, with 10 samples and 3 properties, the output array (y) will be reshaped to (30, 1).
+        The input array (X) is left unchanged.
+        It is also possible to provide samples without an output for some properties by setting that property to NaN.
+        In that case, the corresponding values in the input (X) and output (y) arrays will be removed from the SISSO
+        inputs. In the previous example, if 2 of the samples have NaN for the first property, 1 sample has Nan for the
+        second property and 4 samples have Nan for the third property, the final output array (y) will have a shape
+        (30-2-1-4, 1), i.e. (23, 1), while the final input array (X) will have a shape (23, n_features).
 
         Args:
             X: Feature vectors as an array-like of shape (n_samples, n_features).
-            y: Target values as an array-like of shape (n_samples,).
-            index:
-            columns:
+            y: Target values as an array-like of shape (n_samples,) or (n_samples, n_tasks).
+            index: List of string identifiers for each sample. If None, "sampleN" with N=[1, ..., n_samples]
+                will be used.
+            columns: List of string names of the features. If None, "featN" with N=[1, ..., n_features] will be used.
+            tasks: When Multi-Task SISSO is used, this is the list of string names that will be used for
+                each task/property. If None, "taskN" with N=[1, ..., n_tasks] will be used.
         """
         self.sisso_in = SISSOIn.from_sisso_keywords(ptype=1, ntask=self.ntask,
                                                     task_weighting=self.task_weighting, desc_dim=self.desc_dim, restart=self.restart,
@@ -92,21 +105,49 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
                                                     L1_max_iter=self.L1_max_iter, L1_tole=self.L1_tole, L1_dens=self.L1_dens,
                                                     L1_nlambda=self.L1_nlambda, L1_minrmse=self.L1_minrmse,
                                                     L1_warm_start=self.L1_warm_start, L1_weighted=self.L1_weighted)
+        # Set up columns. These columns are used by the SISSO model wrapper afterwards for the prediction
         if columns is None and isinstance(X, pd.DataFrame):
             columns = list(X.columns)
-        X = np.array(X)
-        y = np.array(y)
-        index = index or ['item{:d}'.format(ii) for ii in range(X.shape[0])]
-        if len(index) != len(y) or len(index) != len(X):
-            raise ValueError('Index, X and y should have same size.')
-        self.columns = columns or ['feat{:d}'.format(ifeat) for ifeat in range(1, X.shape[1]+1)]
+        self.columns = columns or ['feat{:d}'.format(ifeat) for ifeat in range(1, X.shape[1] + 1)]
         if len(self.columns) != X.shape[1]:
             raise ValueError('Columns should be of the size of the second axis of X.')
 
+        # Set up data
+        X = np.array(X)
+        y = np.array(y)
+        if y.ndim == 1 or y.shape[1] == 1:  # Single-Task SISSO
+            self.ntasks = 1
+            index = index or ['sample{:d}'.format(ii) for ii in range(1, X.shape[0]+1)]
+            if len(index) != len(y) or len(index) != len(X):
+                raise ValueError('Index, X and y should have same size.')
+            nsample = None
+        elif y.ndim == 2 and y.shape[1] > 1:  # Multi-Task SISSO
+            self.ntasks = y.shape[1]
+            samples_index = index or ['sample{:d}'.format(ii) for ii in range(1, X.shape[0] + 1)]
+            tasks = tasks or ['task{:d}'.format(ii) for ii in range(1, self.ntasks + 1)]
+            newX = np.zeros((0, X.shape[1]))
+            newy = np.array([])
+            index = []
+            nsample = []
+            for itask in range(self.ntasks):
+                yadd = y[:, itask]
+                nanindices = np.argwhere(np.isnan(yadd)).flatten()
+                totake = [ii for ii in range(len(yadd)) if ii not in nanindices]
+                newy = np.concatenate([newy, np.take(yadd, indices=totake)])
+                newX = np.row_stack([newX, np.take(X, indices=totake, axis=0)])
+                nsample.append(len(totake))
+                index.extend(['{}_{}'.format(sample_index, tasks[itask])
+                              for i_sample, sample_index in enumerate(samples_index) if i_sample in totake])
+            X = newX
+            y = newy
+        else:
+            raise ValueError('Wrong shapes.')
         data = pd.DataFrame(X, index=index, columns=self.columns)
         data.insert(0, 'target', y)
         data.insert(0, 'identifier', index)
-        sisso_dat = SISSODat(data=data, features_dimensions=self.features_dimensions)
+
+        # Set up SISSODat and SISSOIn
+        sisso_dat = SISSODat(data=data, features_dimensions=self.features_dimensions, nsample=nsample)
         self.sisso_in.set_keywords_for_SISSO_dat(sisso_dat=sisso_dat)
         if not self.use_custodian:
             raise ValueError('Custodian is mandatory.')
