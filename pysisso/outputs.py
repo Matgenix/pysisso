@@ -147,10 +147,12 @@ class SISSODescriptor(MSONable):
     def evaluate(self, df):
         return self.function(df)
 
+    def __str__(self):
+        return self.descriptor_string
+
     @staticmethod
     def _decode_function(string):
         """Get a function based on the string."""
-        # # (+)(-)(*)(/)(exp)(exp-)(^-1)(^2)(^3)(sqrt)(cbrt)(log)(|-|)(scd)(^6)(sin)(cos)
         OPERATORS_REPLACEMENT = ['exp(-', 'exp(', 'sin(', 'cos(', 'sqrt(', 'cbrt(', 'log(', 'abs(', 'scd(',
                                  ')^-1', ')^2', ')^3', ')^6',
                                  '+', '-', '*', '/', '(', ')'
@@ -239,20 +241,20 @@ class SISSODescriptor(MSONable):
 class SISSOModel(MSONable):
     """Class containing one SISSO model."""
 
-    def __init__(self, dimension: int, descriptors: List[SISSODescriptor], coefficients: List[float],
-                 intercept: Union[float],
-                 rmse: Union[float, None]=None,
-                 maxae: Union[float, None]=None,
+    def __init__(self, dimension: int, descriptors: List[SISSODescriptor], coefficients: List[List[float]],
+                 intercept: List[float],
+                 rmse: Union[List[float], None]=None,
+                 maxae: Union[List[float], None]=None,
                  ):
         """Constructor for SISSOModel class.
 
         Args:
             dimension: Dimension of the model.
             descriptors: List of descriptors used in the model.
-            coefficients: Coefficient of each descriptor.
-            intercept: Intercept of the model.
-            rmse: Root Mean Squared Error of the model on the training data.
-            maxae: Maximum Absolute Error of the model on the training data.
+            coefficients: Coefficient of each descriptor for each task/property.
+            intercept: Intercept of the model for each task/property.
+            rmse: Root Mean Squared Error of the model on the training data for each task/property.
+            maxae: Maximum Absolute Error of the model on the training data for each task/property.
         """
         self.dimension = dimension
         self.descriptors = descriptors
@@ -272,9 +274,10 @@ class SISSOModel(MSONable):
         Returns:
             darray: Predicted values from the model.
         """
-        out = np.ones(len(df)) * self.intercept
+        out = np.array([[intercept]*len(df) for intercept in self.intercept]).T
         for idescriptor, descriptor in enumerate(self.descriptors):
-            out += self.coefficients[idescriptor] * descriptor.evaluate(df)
+            for itask, coefficients in enumerate(self.coefficients):
+                out[:, itask] += coefficients[idescriptor] * descriptor.evaluate(df)
         return out
 
     @classmethod
@@ -290,10 +293,10 @@ class SISSOModel(MSONable):
         lines = string.split('\n')
         dimension = int(lines[1].split('D descriptor')[0])
         descriptors = None
-        coefficients = None
-        intercept = None
-        rmse = None
-        maxae = None
+        coefficients = []
+        intercept = []
+        rmse = []
+        maxae = []
         for iline, line in enumerate(lines):
             if '@@@descriptor' in line:
                 descriptors = []
@@ -302,13 +305,13 @@ class SISSOModel(MSONable):
                 descriptors.append(SISSODescriptor.from_string(line))
                 continue
             if 'coefficients_' in line:
-                coefficients = [float(nn) for nn in line.split(':')[1].split()]
+                coefficients.append([float(nn) for nn in line.split(':')[1].split()])
             elif 'Intercept_' in line:
-                intercept = float(line.split(':')[1])
+                intercept.append(float(line.split(':')[1]))
             elif 'RMSE,MaxAE_' in line:
                 sp = line.split()
-                rmse = float(sp[1])
-                maxae = float(sp[2])
+                rmse.append(float(sp[1]))
+                maxae.append(float(sp[2]))
 
         return cls(dimension=dimension, descriptors=descriptors,
                    coefficients=coefficients, intercept=intercept,
@@ -364,10 +367,11 @@ class SISSOIteration(MSONable):
             raise ValueError('Should get exactly one SIS subspace size in the string.')
         SIS_subspace_size = int(match_SIS_subspace_size[0].split()[-1])
 
-        r_cputime = r'Wall-clock time \(second\) for this FC:.*?\n'
+        r_cputime = r'Wall-clock time \(second\) for this DI:.*?\n'
         match_cputime = re.findall(r_cputime, string)
         if len(match_cputime) != 1:
-            raise ValueError('Should get exactly one Wall-clock time in the string.')
+            raise ValueError('Should get exactly one Wall-clock time in the string, '
+                             'got {:d}.'.format(len(match_cputime)))
         cpu_time = float(match_cputime[0].split()[-1])
 
         return cls(iteration_number=it_num,
@@ -464,6 +468,7 @@ class SISSOParams(MSONable):
     @classmethod
     def from_string(cls, string: str):
         """Construct SISSOParams object from string."""
+
         kwargs = {}
         for class_var, output_var_str, var_type in cls.PARAMS:
             if class_var == 'dimension_types':
@@ -495,14 +500,16 @@ class SISSOOut(MSONable):
             version: Information about the version of SISSO used as a SISSOVersion object.
             cpu_time: Wall-clock CPU time from the output file.
         """
+
         self.params = params
         self.iterations = iterations
         self.version = version
         self.cpu_time = cpu_time
 
     @classmethod
-    def from_file(cls, filename: str='SISSO.out'):
-        """Reads in SISSOOut data from file."""
+    def from_file(cls, filename: str='SISSO.out', allow_unfinished: bool=False):
+        """Read in SISSOOut data from file."""
+
         with open(filename, 'r') as f:
             string = f.read()
 
@@ -521,9 +528,14 @@ class SISSOOut(MSONable):
 
         r = r'Total wall-clock time \(second\):.*?\n'
         match = re.findall(r, string)
-        if len(match) != 1:
-            raise ValueError('Should get exactly one total cpu time in the string.')
-        cpu_time = float(match[0].split()[-1])
+        if len(match) == 0:
+            if not allow_unfinished:
+                raise ValueError('Should get exactly one total cpu time in the string, got 0.')
+            cpu_time = None
+        elif len(match) > 1:
+            raise ValueError('Should get exactly one total cpu time in the string, got {:d}.'.format(len(match)))
+        else:
+            cpu_time = float(match[0].split()[-1])
 
         with open(filename, 'r') as f:
             header = f.readline()
@@ -533,7 +545,18 @@ class SISSOOut(MSONable):
 
     @property
     def model(self):
+        """Get the model for this SISSO run.
+
+        The last model is provided (with the highest dimension).
+        """
+
         return self.iterations[-1].sisso_model
+
+    @property
+    def models(self):
+        """Get the list of models (for all dimensions) for this SISSO run."""
+
+        return [it.sisso_model for it in self.iterations]
 
 
 class TopModels(MSONable):

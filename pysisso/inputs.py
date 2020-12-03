@@ -5,7 +5,7 @@
 from monty.json import MSONable
 import datetime
 import pandas as pd
-import numpy as np
+from typing import List
 from typing import Union
 
 
@@ -14,7 +14,7 @@ class SISSODat(MSONable):
     """
 
     def __init__(self, data: pd.DataFrame, features_dimensions: Union[dict, None]=None,
-                 model_type: str = 'regression'):
+                 model_type: str = 'regression', nsample: Union[List[int], int, None]=None):
         """Constructor for SISSODat class.
 
         The input data must be a pandas DataFrame for which the first column contains
@@ -22,7 +22,6 @@ class SISSODat(MSONable):
         the second column contains the property to be predicted and the other columns are the base features.
 
         Classification is not yet supported (needs the items in the same classes to be grouped together).
-        Multi-Task SISSO is not yet supported.
 
         Args:
             data: Input data as pandas DataFrame object. The first column must be the identifiers for each data point,
@@ -31,10 +30,20 @@ class SISSODat(MSONable):
                 feature to its dimension. Features not in the dictionary are supposed to be dimensionless. If set to
                 None, all features are supposed to be dimensionless.
             model_type: Type of model. Should be either "regression" or "classification".
+            nsample: Number of samples. If None or an integer, SISSO is supposed to be Single-Task (ST). If a list of
+                integers, SISSO is supposed to be Multi-Task (MT).
+
+        Raises:
+            ValueError: if nsample is not compatible with the data frame.
+
+        Notes:
+            The pandas index has not be used for the identifier here. Indeed when Multi-Task SISSO is used, the
+            same identifier can occur for two different tasks/properties.
         """
         self.data = data
         self.features_dimensions = features_dimensions
         self.model_type = model_type
+        self.nsample = nsample
         self._order_features()
 
     def _order_features(self):
@@ -88,10 +97,32 @@ class SISSODat(MSONable):
     def _check_ranges_overlap(r1, r2):
         return not ((r1[0] < r2[0] and r1[1] < r2[0]) or (r2[0] < r1[0] and r2[1] < r1[0]))
 
-
     @property
     def nsample(self):
-        return len(self.data)
+        return self._nsample
+
+    @nsample.setter
+    def nsample(self, nsample):
+        if nsample is None:
+            self._nsample = len(self.data)
+        elif isinstance(nsample, int):
+            if nsample != len(self.data):
+                raise ValueError('The size of the DataFrame does not match nsample.')
+        elif isinstance(nsample, list):
+            if sum(nsample) != len(self.data):
+                raise ValueError('Sum of all samples is not equal to the size of the DataFrame.')
+            self._nsample = nsample
+        else:
+            raise ValueError('Type "{}" is not valid for nsample.'.format(type(nsample)))
+
+    @property
+    def ntask(self):
+        if isinstance(self.nsample, int):
+            return 1
+        elif isinstance(self.nsample, list):
+            return len(self.nsample)
+        else:
+            raise ValueError('Wrong nsample in SISSODat.')
 
     @property
     def nsf(self):
@@ -200,9 +231,54 @@ class SISSOIn(MSONable):
         self.descriptor_identification_keywords = descriptor_identification_keywords
         self._check_keywords()
 
-    def _check_keywords(self):
+    def _check_keywords(self, fix=False):
         #TODO: implement a check on the keywords
-        pass
+        # When using L1L0 method, L1L0_size4L0 should not be > subs_sis,
+        #   i.e. should be <= subs_sis ("STOP Error: fs_size_L0 must not larger than fs_size_DI !" in SISSO.err)
+        # When using L1L0 method, L1L0_size4L0 should be >= desc_dim
+        #   i.e. it crashes when it reaches a dimension larger than L1L0_size4L0
+        #   ("Program received signal SIGSEGV: Segmentation fault - invalid memory reference." in SISSO.err)
+        # * L1L0_size4L0 <= subs_sis
+        # * L1L0_size4L0 >= desc_dim
+        # In short :
+        # desc_dim <= L1L0_size4L0 <= subs_sis
+        # Possible fixes :
+        # A. When the number of features is large, fix L1L0_size4L0 and subs_sis:
+        #   A.1. increase L1L0_size4L0 to at least desc_dim
+        #   A.2. increase subs_sis to at least L1L0_size4L0
+        # B. When the number of features is small, we get the following message in SISSO.log :
+        #   "# WARNING: the actual size of the selected subspace is smaller than that specified in "SISSO.in" !!!"
+        #   In that case, subs_sis cannot be increased, L1L0_size4L0 has to be decreased, and in any case, the number
+        #   of descriptors (desc_dim) cannot be larger than L1L0_size4L0
+        # In all method cases (L0 or L1L0), when desc_dim is larger than the total number of features, we get :
+        #   "Program received signal SIGSEGV: Segmentation fault - invalid memory reference." in SISSO.err
+        uses_L1L0 = self.descriptor_identification_keywords['method'] == 'L1L0'
+        if uses_L1L0:
+            desc_dim = self.target_properties_keywords['desc_dim']
+            L1L0_size4L0 = self.descriptor_identification_keywords['L1L0_size4L0']
+            subs_sis = self.feature_construction_sure_independence_screening_keywords['subs_sis']
+            if desc_dim > L1L0_size4L0:
+                if not fix:
+                    raise ValueError('Dimension of descriptor (desc_dim={:d}) is larger than the number of features '
+                                     'available for L0 norm from L1 screening (L1L0_size4L0={:d}).'.format(desc_dim,
+                                                                                                           L1L0_size4L0))
+                L1L0_size4L0 = desc_dim
+                self.descriptor_identification_keywords['L1L0_size4L0'] = L1L0_size4L0
+            if isinstance(subs_sis, int):
+                if L1L0_size4L0 > subs_sis:
+                    if not fix:
+                        raise ValueError('Number of features to be screened by L1 for L0 (L1L0_size4L0={:d}) is larger '
+                                         'than SIS-selected subspace (subs_sis={:d}).'.format(L1L0_size4L0, subs_sis))
+                    self.feature_construction_sure_independence_screening_keywords['subs_sis'] = L1L0_size4L0
+            elif isinstance(subs_sis, list):
+                subs_sis_list = list(subs_sis)
+                for dim, subs_sis_dim in enumerate(subs_sis_list, start=1):
+                    if L1L0_size4L0 > subs_sis_dim:
+                        if not fix:
+                            raise ValueError('Number of features to be screened by L1 for L0 (L1L0_size4L0={:d}) is larger '
+                                             'than SIS-selected subspace (subs_sis={:d}) of '
+                                             'dimension {:d}.'.format(L1L0_size4L0, subs_sis_dim, dim))
+                        subs_sis[dim-1] = L1L0_size4L0
 
     def _format_kw_value(self, kw, val, float_format='.12f'):
         allowed_types = self.KW_TYPES[kw]
@@ -249,7 +325,10 @@ class SISSOIn(MSONable):
         elif val_type is str:
             return '{}=\'{}\''.format(kw, val)
         elif val_type == 'list_of_ints':
-            return '{}=({})'.format(kw, ','.join(['{:d}'.format(v) for v in val]))
+            if kw in ['subs_sis', 'nsample']:
+                return '{}={}'.format(kw, ','.join(['{:d}'.format(v) for v in val]))
+            else:
+                return '{}=({})'.format(kw, ','.join(['{:d}'.format(v) for v in val]))
         elif val_type == 'str_operators':
             return '{}=\'{}\''.format(kw, val)
         elif val_type in ['str_dimensions', 'str_isconvex']:
@@ -397,12 +476,12 @@ class SISSOIn(MSONable):
                     dimclasslist.append('({:d}:{:d})'.format(dimrange[0], dimrange[1]))
                 dimclass = ''.join(dimclasslist)
         self.target_properties_keywords['nsample'] = sisso_dat.nsample
+        self.target_properties_keywords['ntask'] = sisso_dat.ntask
         self.feature_construction_sure_independence_screening_keywords['nsf'] = sisso_dat.nsf
         self.feature_construction_sure_independence_screening_keywords['dimclass'] = dimclass
 
     @classmethod
     def from_SISSO_dat(cls, sisso_dat: SISSODat, model_type: str = 'regression', **kwargs: object):
-
         if model_type == 'regression':
             ptype = 1
         elif model_type == 'classification':
