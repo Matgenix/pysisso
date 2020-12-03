@@ -20,11 +20,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Install openmpi
+      run: |
+        sudo apt-get install -y openmpi-bin
     - name: Install SISSO
       run: |
         git clone https://github.com/rouyang2017/SISSO.git
         cd SISSO/src
-        mpiifort -fp-model precise var_global.f90 libsisso.f90 DI.f90 FC.f90 SISSO.f90 -o SISSO
+        mpif90 -fp-model precise var_global.f90 libsisso.f90 DI.f90 FC.f90 SISSO.f90 -o SISSO
         export PATHexport PATH=$PATH:`pwd`
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
