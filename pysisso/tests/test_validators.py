@@ -8,7 +8,7 @@ from pysisso.validators import NormalCompletionValidator
 import pytest
 
 
-# @pytest.mark.unit_test
+@pytest.mark.unit
 def test_normal_completion_validator():
     v = NormalCompletionValidator(output_file='SISSO.out', stdout_file='SISSO.log', stderr_file='SISSO.err')
     with ScratchDir('.'):
