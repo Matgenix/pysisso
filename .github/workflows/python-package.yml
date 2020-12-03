@@ -20,15 +20,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Install openmpi
-      run: |
-        sudo apt-get install -y libopenmpi-dev
-    - name: Install SISSO
-      run: |
-        git clone https://github.com/rouyang2017/SISSO.git
-        cd SISSO/src
-        mpif90 var_global.f90 libsisso.f90 DI.f90 FC.f90 SISSO.f90 -o SISSO
-        export PATHexport PATH=$PATH:`pwd`
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -47,4 +38,4 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest
+        pytest -m 'not integration' --cov=pysisso
