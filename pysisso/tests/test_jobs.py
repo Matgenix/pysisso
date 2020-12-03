@@ -11,7 +11,7 @@ import shutil
 import subprocess
 
 
-@pytest.mark.integration_test
+@pytest.mark.integration
 def test_sisso_job():
     j = SISSOJob(SISSO_exe='nonexistingSISSO', nprocs=1, stdout_file='SISSO.log', stderr_file='SISSO.err')
     with pytest.raises(ValueError, match='SISSOJob requires the SISSO executable to be in the path.\n'
