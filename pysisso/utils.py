@@ -3,9 +3,6 @@
 
 
 import os
-import stat
-import tempfile
-import monty.shutil
 from monty.tempfile import ScratchDir
 import pysisso
 import shutil
@@ -26,7 +23,7 @@ def get_version(SISSO_exe='SISSO'):
             subprocess.call([SISSO_exe], stdin=None, stdout=f_stdout, stderr=f_stderr)
             with open('SISSO.out', 'r') as f:
                 header = f.readline()
-                if 'Version' not in header:
+                if 'Version' not in header:  # pragma: no cover # Reason: unlikely error of pysisso.
                     raise ValueError('Could not determine SISSO version.')
                 version = tuple([int(ii) for ii in header.split(',')[0].split('.')[1:4]])
                 return {'version': version, 'header': header.strip()}
@@ -44,15 +41,19 @@ def list_of_ints(string: str, delimiter: Union[str, None]=None) -> List[int]:
     return [int(sp) for sp in string.split(sep=delimiter)]
 
 
-def list_of_strs(string: str, delimiter: Union[str, None]=None) -> List[str]:
+def list_of_strs(string: str, delimiter: Union[str, None]=None, strip=True) -> List[str]:
     """Cast a string to a list of strings.
 
     Args:
         string: String to be converted to a list of str's.
         delimiter: Delimiter between str's in the string.
             Default is to split with any whitespace string (see str.split() method).
+        strip: Whether to strip the substrings (i.e. remove leading and trailing whitespaces after the split with
+            a delimiter that is not whitespace)
     """
 
+    if strip:
+        return [s.strip() for s in string.split(sep=delimiter)]
     return string.split(sep=delimiter)
 
 
@@ -61,8 +62,8 @@ def matrix_of_floats(string: str, delimiter_ax0: str='\n', delimiter_ax1: Union[
 
     Args:
         string: String to be converted to a list of lists of floats.
-        delimiter_ax0: Delimiter .
-        delimiter_ax1: Delimiter .
+        delimiter_ax0: Delimiter for the first axis of the matrix.
+        delimiter_ax1: Delimiter for the second axis of the matrix.
     """
 
     return [[float(sp2) for sp2 in sp.split(sep=delimiter_ax1)] for sp in string.split(sep=delimiter_ax0)]
