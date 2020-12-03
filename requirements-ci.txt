@@ -2,3 +2,6 @@ custodian==2020.4.27
 monty==4.0.2
 pandas==1.1.4
 scikit-learn==0.23.2
+pytest==6.1.2
+coverage==5.3
+pytest-cov==2.10.1
