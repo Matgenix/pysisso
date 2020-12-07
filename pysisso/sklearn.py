@@ -163,7 +163,7 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
             self.sisso_out = SISSOOut.from_file(filepath='SISSO.out')
 
         # Clean run directory
-        if self.clean_run_dir:
+        if self.clean_run_dir:  # TODO: add check here to not remove "." if the user passes . ?
             shutil.rmtree(self.run_dir)
 
     def predict(self, X, index=None):

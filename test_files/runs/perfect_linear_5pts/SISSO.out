@@ -1,0 +1,63 @@
+Version SISSO.3.0.2, June, 2020.
+================================================================================
+
+Reading data from train.dat ...
+Reading parameters from SISSO.in: 
+--------------------------------------------------------------------------------
+Restarts :     F
+Descriptor dimension:        1
+Property type:     1
+Total number of properties:        1
+Task_weighting:        1
+Number of samples for each property:        5
+Number of scalar features:        1
+Number of recursive calls for feature transformation (rung of the feature space):        0
+Max feature complexity (number of operators in a feature):       10
+Number of dimension(unit)-type (for dimension analysis):        0
+Dimension type for each primary feature: 
+
+Lower bound of the max abs. data value for the selected features:     0.10000E-02
+Upper bound of the max abs. data value for the selected features:     0.10000E+06
+Size of the SIS-selected (single) subspace :        1
+Operators for feature construction: 
+Method for sparsification:  L0        
+Number of the top ranked models to output:      100
+Fitting intercept?      T
+Metric for model selection: RMSE
+--------------------------------------------------------------------------------
+
+Feature Construction and Descriptor Identification (FCDI) starts ...
+
+iteration:   1
+--------------------------------------------------------------------------------
+FC starts ...
+Standard Deviation (SD) of property 001:    1.41421
+Total number of features in the space phi00:              1
+Size of the SIS-selected subspace from phi00:          1
+Wall-clock time (second) for this FC:            0.00
+FC done!
+
+DI starts ...
+total number of SIS-selected features from all iterations:          1
+L0 starts ...
+
+Final model/descriptor to report
+================================================================================
+  1D descriptor (model): 
+Total RMSE,MaxAE:   0.000000  0.000000
+@@@descriptor: 
+                      1:[(feat1)]
+       coefficients_001:     0.1000000000E+01
+          Intercept_001:    -0.1000000000E+01
+         RMSE,MaxAE_001:     0.1570092459E-15    0.4440892099E-15
+================================================================================
+Wall-clock time (second) for this DI:            0.00
+DI done!
+
+FCDI done !
+
+--------------------------------------------------------------------------------
+Total wall-clock time (second):            0.09
+
+                                               Have a nice day !    
+
