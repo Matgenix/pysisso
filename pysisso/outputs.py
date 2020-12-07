@@ -357,6 +357,7 @@ class SISSOIteration(MSONable):
             raise ValueError('Should get exactly one SISSO model excerpt in the string.')
         sisso_model = SISSOModel.from_string(match_sisso_model[0])
 
+        #TODO: different for iteration 1 !
         r_feature_spaces = r'Total number of features in the space phi.*?\n'
         match_feature_spaces = re.findall(r_feature_spaces, string)
         feature_spaces = {mfs.split()[-2][:-1]: int(mfs.split()[-1]) for mfs in match_feature_spaces}
@@ -397,7 +398,7 @@ class SISSOParams(MSONable):
               ('lower_bound_maxabs_value', 'Lower bound of the max abs\. data value for the selected features:', float),
               ('upper_bound_maxabs_value', 'Upper bound of the max abs\. data value for the selected features:', float),
               ('SIS_subspaces_sizes', 'Size of the SIS-selected \(single\) subspace :', list_of_ints),
-              ('operators', 'Size of the SIS-selected \(single\) subspace :', list_of_strs),
+              ('operators', 'Operators for feature construction:', list_of_strs),
               ('sparsification_method', 'Method for sparsification:', str),
               ('n_topmodels', 'Number of the top ranked models to output:', int),
               ('fit_intercept', 'Fitting intercept\?', str_to_bool),
@@ -507,10 +508,10 @@ class SISSOOut(MSONable):
         self.cpu_time = cpu_time
 
     @classmethod
-    def from_file(cls, filename: str='SISSO.out', allow_unfinished: bool=False):
+    def from_file(cls, filepath: str= 'SISSO.out', allow_unfinished: bool=False):
         """Read in SISSOOut data from file."""
 
-        with open(filename, 'r') as f:
+        with open(filepath, 'r') as f:
             string = f.read()
 
         r = r'Reading parameters from SISSO\.in:\s?\n-{80}.*?-{80}'
@@ -537,7 +538,7 @@ class SISSOOut(MSONable):
         else:
             cpu_time = float(match[0].split()[-1])
 
-        with open(filename, 'r') as f:
+        with open(filepath, 'r') as f:
             header = f.readline()
         version = SISSOVersion.from_string(header)
 
