@@ -6,7 +6,7 @@ authors = ["David Waroquiers <david.waroquiers@matgenix.com>"]
 license = "Proprietary"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.6.1"
 pandas = "^1.0.5"
 monty = "^3.0.4"
 custodian = "^2020.4.27"
