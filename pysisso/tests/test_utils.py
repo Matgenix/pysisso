@@ -2,12 +2,15 @@
 # Copyright (c) 2020, Matgenix SRL
 
 
-from pysisso.utils import get_version
-from pysisso.utils import list_of_ints
-from pysisso.utils import list_of_strs
-from pysisso.utils import matrix_of_floats
-from pysisso.utils import str_to_bool
 import pytest
+
+from pysisso.utils import (
+    get_version,
+    list_of_ints,
+    list_of_strs,
+    matrix_of_floats,
+    str_to_bool,
+)
 
 
 @pytest.mark.unit

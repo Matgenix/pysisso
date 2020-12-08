@@ -3,13 +3,13 @@
 
 
 import os
-from monty.tempfile import ScratchDir
-from pysisso.inputs import SISSODat
-from pysisso.inputs import SISSOIn
-import pysisso
-import pytest
-import pandas as pd
 
+import pandas as pd
+import pytest
+from monty.tempfile import ScratchDir
+
+import pysisso
+from pysisso.inputs import SISSODat, SISSOIn
 
 TEST_FILES_DIR = os.path.abspath(
     os.path.join(pysisso.__file__, "..", "..", "test_files")

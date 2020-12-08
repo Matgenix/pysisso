@@ -3,15 +3,18 @@
 
 
 import os
-from pysisso.outputs import SISSOOut
-from pysisso.outputs import SISSOParams
-from pysisso.outputs import SISSOVersion
-from pysisso.outputs import SISSOIteration
-from pysisso.outputs import SISSODescriptor
-import pysisso
-import pytest
-import pandas as pd
 
+import pandas as pd
+import pytest
+
+import pysisso
+from pysisso.outputs import (
+    SISSODescriptor,
+    SISSOIteration,
+    SISSOOut,
+    SISSOParams,
+    SISSOVersion,
+)
 
 TEST_FILES_DIR = os.path.abspath(
     os.path.join(pysisso.__file__, "..", "..", "test_files")

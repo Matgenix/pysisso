@@ -3,13 +3,13 @@
 
 
 import os
-from monty.tempfile import ScratchDir
-import pysisso
 import shutil
 import subprocess
-from typing import List
-from typing import Union
+from typing import List, Union
 
+from monty.tempfile import ScratchDir
+
+import pysisso
 
 TEST_FILES_DIR = os.path.abspath(
     os.path.join(pysisso.__file__, "..", "..", "test_files")
@@ -62,8 +62,8 @@ def list_of_strs(
         string: String to be converted to a list of str's.
         delimiter: Delimiter between str's in the string.
             Default is to split with any whitespace string (see str.split() method).
-        strip: Whether to strip the substrings (i.e. remove leading and trailing whitespaces after the split with
-            a delimiter that is not whitespace)
+        strip: Whether to strip the substrings (i.e. remove leading and trailing
+            whitespaces after the split with a delimiter that is not whitespace).
     """
 
     if strip:
@@ -103,41 +103,3 @@ def str_to_bool(string: str) -> bool:
     elif strip in [".False.", "False", "F", "false", ".false."]:
         return False
     raise ValueError('Could not convert "{}" to a boolean.'.format(string))
-
-
-# class FakeExec:
-#
-#     def __init__(self, exec_name, remove_temp_bin_dir=True):
-#         self.exec_name = exec_name
-#         self.remove_temp_bin_dir = remove_temp_bin_dir
-#
-#     def __enter__(self):
-#         self.temp_bin_dir = tempfile.mkdtemp(prefix='bin', dir='.')
-#         # Create fake executable file and make it executable (equivalent of "chmod +x")
-#         exec_path = os.path.join(self.temp_bin_dir, self.exec_name)
-#         print(exec_path)
-#         with open(exec_path, 'w') as f:
-#             f.write('#! /usr/bin/env python\npass\n')
-#         st = os.stat(exec_path)
-#         os.chmod(exec_path, st.st_mode | stat.S_IEXEC)
-#
-#         # Update PATH
-#         self.current_OS_PATH = os.environ.get('PATH', None)
-#         if self.current_OS_PATH is None:
-#             paths = []
-#         else:
-#             paths = self.current_OS_PATH.split(':')
-#         paths.insert(0, self.temp_bin_dir)
-#         os.environ['PATH'] = ':'.join(paths)
-#
-#         return exec_path
-#
-#     def __exit__(self, exc_type, exc_val, exc_tb):
-#         # Remove temporary bin directory with fake executable from system's PATH environment variable
-#         OS_PATH = os.environ['PATH']
-#         paths = OS_PATH.split(':')
-#         paths.remove(self.temp_bin_dir)
-#         os.environ['PATH'] = ':'.join(paths)
-#
-#         if self.remove_temp_bin_dir:
-#             monty.shutil.remove(self.temp_bin_dir)

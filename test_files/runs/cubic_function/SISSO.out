@@ -2,7 +2,7 @@ Version SISSO.3.0.2, June, 2020.
 ================================================================================
 
 Reading data from train.dat ...
-Reading parameters from SISSO.in: 
+Reading parameters from SISSO.in:
 --------------------------------------------------------------------------------
 Restarts :     F
 Descriptor dimension:        3
@@ -14,13 +14,13 @@ Number of scalar features:        1
 Number of recursive calls for feature transformation (rung of the feature space):        1
 Max feature complexity (number of operators in a feature):       10
 Number of dimension(unit)-type (for dimension analysis):        0
-Dimension type for each primary feature: 
+Dimension type for each primary feature:
 
 Lower bound of the max abs. data value for the selected features:     0.10000E-02
 Upper bound of the max abs. data value for the selected features:     0.10000E+06
 Size of the SIS-selected (single) subspace :       20      20      20
-Operators for feature construction: (+)(*)(^2)(^3)(^-1)(cos)(sin) 
-Method for sparsification:  L0        
+Operators for feature construction: (+)(*)(^2)(^3)(^-1)(cos)(sin)
+Method for sparsification:  L0
 Number of the top ranked models to output:      100
 Fitting intercept?      T
 Metric for model selection: RMSE
@@ -44,9 +44,9 @@ L0 starts ...
 
 Model/descriptor for generating residual:
 ================================================================================
-  1D descriptor (model): 
+  1D descriptor (model):
 Total RMSE,MaxAE:   7.959387 18.582485
-@@@descriptor: 
+@@@descriptor:
                       1:[(myx)^3]
        coefficients_001:     0.2553319133E+00
           Intercept_001:    -0.5364436924E+01
@@ -67,9 +67,9 @@ L0 starts ...
 
 Model/descriptor for generating residual:
 ================================================================================
-  2D descriptor (model): 
+  2D descriptor (model):
 Total RMSE,MaxAE:   2.328261  6.332254
-@@@descriptor: 
+@@@descriptor:
                       1:[(myx)^3]
                       2:[(myx)^2]
        coefficients_001:     0.1020029454E+01   -0.4324618271E+01
@@ -91,9 +91,9 @@ L0 starts ...
 
 Final model/descriptor to report
 ================================================================================
-  3D descriptor (model): 
+  3D descriptor (model):
 Total RMSE,MaxAE:   1.757800  4.267978
-@@@descriptor: 
+@@@descriptor:
                       1:[(myx)^3]
                       2:[(myx)^2]
                       3:[(myx)]
@@ -109,5 +109,5 @@ FCDI done !
 --------------------------------------------------------------------------------
 Total wall-clock time (second):            0.64
 
-                                               Have a nice day !    
+                                               Have a nice day !
 

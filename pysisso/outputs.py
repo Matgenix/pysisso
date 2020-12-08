@@ -2,15 +2,14 @@
 # Copyright (c) 2020, Matgenix SRL
 
 
-from monty.json import MSONable
-from typing import List, Union, Mapping, Tuple
 import re
-from pysisso.utils import list_of_ints
-from pysisso.utils import list_of_strs
-from pysisso.utils import str_to_bool
-from pysisso.utils import matrix_of_floats
+from typing import List, Mapping, Tuple, Union
+
 import numpy as np
 import pandas as pd
+from monty.json import MSONable
+
+from pysisso.utils import list_of_ints, list_of_strs, matrix_of_floats, str_to_bool
 
 
 class SISSOVersion(MSONable):
@@ -54,81 +53,6 @@ def scd(x):
         Standard Cauchy Distribution at value(s) x.
     """
     return 1.0 / (np.pi * (1.0 + x * x))
-
-
-# def decode_function(string):
-#     """Get a function based on the string."""
-#     # # (+)(-)(*)(/)(exp)(exp-)(^-1)(^2)(^3)(sqrt)(cbrt)(log)(|-|)(scd)(^6)(sin)(cos)
-#     OPERATORS_REPLACEMENT = ['exp(-', 'exp(', 'sin(', 'cos(', 'sqrt(', 'cbrt(', 'log(', 'abs(', 'scd(',
-#                              ')^-1', ')^2', ')^3', ')^6',
-#                              '+', '-', '*', '/',  '(', ')'
-#                              ]
-#
-#     # Get the list of base features needed
-#     # First replace the operators with "_"
-#     replaced_string = string
-#     for op in OPERATORS_REPLACEMENT:
-#         replaced_string = replaced_string.replace(op, '_' * len(op))
-#     # Get the features in order of the string and get the unique list of features
-#     if replaced_string[0] != '_' or replaced_string[-1] != '_':
-#         raise ValueError('String should start and end with "_"')
-#     features_in_string = []
-#     in_feature_word = False
-#     ichar_start = None
-#     inputs = []
-#     for ichar, char in enumerate(replaced_string):
-#         if in_feature_word and char == '_':
-#             in_feature_word = False
-#             featname = replaced_string[ichar_start:ichar]
-#             if featname not in inputs:
-#                 inputs.append(featname)
-#             features_in_string.append({'featname': featname, 'istart': ichar_start, 'iend': ichar})
-#         elif not in_feature_word and char != '_':
-#             in_feature_word = True
-#             ichar_start = ichar
-#
-#     # Prepare string to be formatted from features
-#     prev_ichar = None
-#     out = []
-#     for fdict in features_in_string:
-#         out.append(string[prev_ichar:fdict['istart']])
-#         prev_ichar = fdict['iend']
-#         out.append('df[\'{}\']'.format(fdict['featname']))
-#     out.append(string[prev_ichar:None])
-#     evalstring = ''.join(out)
-#
-#     # Replace operators in the string with numpy operators
-#     evalstring = evalstring.replace('sin(', 'np.sin(')
-#     evalstring = evalstring.replace('cos(', 'np.cos(')
-#     evalstring = evalstring.replace('exp(', 'np.exp(')
-#     evalstring = evalstring.replace('log(', 'np.log(')
-#     evalstring = evalstring.replace('sqrt(', 'np.sqrt(')
-#     evalstring = evalstring.replace('cbrt(', 'np.cbrt(')
-#     evalstring = evalstring.replace('abs(', 'np.abs(')
-#     evalstring = evalstring.replace(')^2', ')**2')
-#     evalstring = evalstring.replace(')^3', ')**3')
-#     evalstring = evalstring.replace(')^6', ')**6')
-#     # Deal with the ^-1 ...
-#     while ')^-1' in evalstring:
-#         idx1 = evalstring.index(')^-1')
-#         level = 0
-#         for ii in range(idx1, -1, -1):
-#             if evalstring[ii] == ')':
-#                 level += 1
-#             elif evalstring[ii] == '(':
-#                 level -= 1
-#             if level == 0:
-#                 idx2 = ii
-#                 break
-#         else:
-#             raise ValueError('Could not find initial parenthesis for ")^-1".')
-#         evalstring = evalstring[:idx2] + '1.0/' + evalstring[idx2:idx1] + ')' + evalstring[idx1 + 4:]
-#
-#     # Define the function to evaluate the descriptor based on a dataframe df
-#     def evalfun(df):
-#         return eval(evalstring)
-#
-#     return {'evalstring': evalstring, 'features_in_string': features_in_string, 'evalfun': evalfun, 'inputs': inputs}
 
 
 class SISSODescriptor(MSONable):
@@ -244,8 +168,8 @@ class SISSODescriptor(MSONable):
                 + evalstring[idx1 + 4 :]
             )
 
-        def evalfun(df):
-            return eval(evalstring)
+        def evalfun(df):  # pylint: disable=W0613
+            return eval(evalstring)  # nosec, pylint: disable=W0123
 
         return {
             "evalstring": evalstring,
@@ -258,11 +182,12 @@ class SISSODescriptor(MSONable):
     def from_string(cls, string: str):
         """Construct SISSODescriptor from string.
 
-        The string must be the line of the descriptor in the SISSO.out output file, e.g. :
-                              1:[((feature1-feature2)+(feature3-feature4))]
+        The string must be the line of the descriptor in the SISSO.out output file,
+            e.g. : 1:[((feature1-feature2)+(feature3-feature4))]
 
         Args:
-            string: Substring from the SISSO.out output file corresponding to one descriptor of SISSO.
+            string: Substring from the SISSO.out output file corresponding to one
+                descriptor of SISSO.
         """
         sp = string.split(":")
         return cls(descriptor_id=int(sp[0]), descriptor_string=sp[1][1:].split("]")[0])
@@ -287,8 +212,10 @@ class SISSOModel(MSONable):
             descriptors: List of descriptors used in the model.
             coefficients: Coefficient of each descriptor for each task/property.
             intercept: Intercept of the model for each task/property.
-            rmse: Root Mean Squared Error of the model on the training data for each task/property.
-            maxae: Maximum Absolute Error of the model on the training data for each task/property.
+            rmse: Root Mean Squared Error of the model on the training data for each
+                task/property.
+            maxae: Maximum Absolute Error of the model on the training data for each
+                task/property.
         """
         self.dimension = dimension
         self.descriptors = descriptors
@@ -300,29 +227,33 @@ class SISSOModel(MSONable):
     def predict(self, df: pd.DataFrame) -> np.ndarray:
         """Predict values from input DataFrame.
 
-        The input DataFrame should have the columns needed by the different SISSO descriptors.
+        The input DataFrame should have the columns needed by the different SISSO
+            descriptors.
 
         Args:
-            df: panda's DataFrame containing the base features needed to apply the model.
+            df: panda's DataFrame containing the base features needed to apply the
+                model.
 
         Returns:
             darray: Predicted values from the model.
         """
         out = np.array([[intercept] * len(df) for intercept in self.intercept]).T
-        for idescriptor, descriptor in enumerate(self.descriptors):
-            for itask, coefficients in enumerate(self.coefficients):
-                out[:, itask] += coefficients[idescriptor] * descriptor.evaluate(df)
+        for idescr, descr in enumerate(self.descriptors):
+            for itask, coeffs in enumerate(self.coefficients):
+                dval = coeffs[idescr] * descr.evaluate(df)
+                out[:, itask] += dval  # pylint: disable=E1137
         return out
 
     @classmethod
     def from_string(cls, string: str):
         """Construct SISSOModel object from string.
 
-        The string must be the excerpt corresponding to one model, starting with a line of 80 "=" characters and
-        ending with a line of 80 "=" characters.
+        The string must be the excerpt corresponding to one model, starting with a
+            line of 80 "=" characters and ending with a line of 80 "=" characters.
 
         Args:
-            string: String from the SISSO.out output file corresponding to one model of SISSO.
+            string: String from the SISSO.out output file corresponding to one model
+                of SISSO.
         """
         lines = string.split("\n")
         dimension = int(lines[1].split("D descriptor")[0])
@@ -331,7 +262,7 @@ class SISSOModel(MSONable):
         intercept = []
         rmse = []
         maxae = []
-        for iline, line in enumerate(lines):
+        for _, line in enumerate(lines):
             if "@@@descriptor" in line:
                 descriptors = []
                 continue
@@ -387,11 +318,12 @@ class SISSOIteration(MSONable):
     def from_string(cls, string: str):
         """Construct SISSOIteration object from string.
 
-        The string must be the excerpt corresponding to one iteration, i.e. it must start
-        with "iteration:   N" and end with "DI done!".
+        The string must be the excerpt corresponding to one iteration, i.e. it must
+        start with "iteration:   N" and end with "DI done!".
 
         Args:
-            string: String from the SISSO.out output file corresponding to one iteration of SISSO.
+            string: String from the SISSO.out output file corresponding to one
+                iteration of SISSO.
         """
         lines = string.split("\n")
         it_num = int(lines[0].split(":")[1])
@@ -436,7 +368,7 @@ class SISSOIteration(MSONable):
 
 
 class SISSOParams(MSONable):
-    """Class containing input parameters of SISSO extracted from the SISSO output file."""
+    """Class containing input parameters extracted from the SISSO output file."""
 
     PARAMS = [
         ("property_type", "Descriptor dimension:", int),
@@ -447,17 +379,18 @@ class SISSOParams(MSONable):
         ("n_scalar_features", "Number of scalar features:", int),
         (
             "n_rungs",
-            "Number of recursive calls for feature transformation \(rung of the feature space\):",
+            r"Number of recursive calls for feature transformation \(rung of the "
+            r"feature space\):",
             int,
         ),
         (
             "max_feature_complexity",
-            "Max feature complexity \(number of operators in a feature\):",
+            r"Max feature complexity \(number of operators in a feature\):",
             int,
         ),
         (
             "n_dimension_types",
-            "Number of dimension\(unit\)-type \(for dimension analysis\):",
+            r"Number of dimension\(unit\)-type \(for dimension analysis\):",
             int,
         ),
         (
@@ -467,23 +400,23 @@ class SISSOParams(MSONable):
         ),
         (
             "lower_bound_maxabs_value",
-            "Lower bound of the max abs\. data value for the selected features:",
+            r"Lower bound of the max abs\. data value for the selected features:",
             float,
         ),
         (
             "upper_bound_maxabs_value",
-            "Upper bound of the max abs\. data value for the selected features:",
+            r"Upper bound of the max abs\. data value for the selected features:",
             float,
         ),
         (
             "SIS_subspaces_sizes",
-            "Size of the SIS-selected \(single\) subspace :",
+            r"Size of the SIS-selected \(single\) subspace :",
             list_of_ints,
         ),
         ("operators", "Operators for feature construction:", list_of_strs),
         ("sparsification_method", "Method for sparsification:", str),
         ("n_topmodels", "Number of the top ranked models to output:", int),
-        ("fit_intercept", "Fitting intercept\?", str_to_bool),
+        ("fit_intercept", r"Fitting intercept\?", str_to_bool),
         ("metric", "Metric for model selection:", str),
     ]
 
@@ -572,7 +505,7 @@ class SISSOParams(MSONable):
 
     def __str__(self):
         out = ["Parameters for SISSO :"]
-        for class_var, output_var_str, var_type in self.PARAMS:
+        for class_var, _, _ in self.PARAMS:
             out.append(
                 " - {} : {}".format(class_var, str(self.__getattribute__(class_var)))
             )
@@ -594,7 +527,8 @@ class SISSOOut(MSONable):
         Args:
             params: Parameters used for SISSO (as a SISSOParams object).
             iterations: List of SISSO iterations.
-            version: Information about the version of SISSO used as a SISSOVersion object.
+            version: Information about the version of SISSO used as a SISSOVersion
+                object.
             cpu_time: Wall-clock CPU time from the output file.
         """
 
@@ -635,9 +569,8 @@ class SISSOOut(MSONable):
             cpu_time = None
         elif len(match) > 1:
             raise ValueError(
-                "Should get exactly one total cpu time in the string, got {:d}.".format(
-                    len(match)
-                )
+                "Should get exactly one total cpu time in the string, "
+                "got {:d}.".format(len(match))
             )
         else:
             cpu_time = float(match[0].split()[-1])
@@ -669,32 +602,35 @@ class SISSOOut(MSONable):
 class TopModels(MSONable):
     """Class containing summary info of the top N models from SISSO.
 
-    This class is a container for the topNNNN_DDDd files (NNNN being the number of models in the file and DDD the
-    dimension of the descriptor) that are stored in the models directory.
+    This class is a container for the topNNNN_DDDd files (NNNN being the number of
+    models in the file and DDD the dimension of the descriptor) that are stored in
+    the models directory.
     """
 
 
 class TopModelsCoefficients(MSONable):
-    """Class containing the coefficients of the features for the top N models from SISSO.
+    """Class containing the coefficients of the features for the top N models.
 
-    This class is a container for the topNNNN_DDDd_coeff files (NNNN being the number of models in the file and DDD the
-    dimension of the descriptor) that are stored in the models directory.
+    This class is a container for the topNNNN_DDDd_coeff files (NNNN being the number
+    of models in the file and DDD the dimension of the descriptor) that are stored
+    in the models directory.
     """
 
 
 class FeatureSpace(MSONable):
     """Class containing the selected features from SISSO.
 
-    This class is a container for the space_DDDd.name files (DDD being the dimension of the descriptor) that are stored
-    in the feature_space directory.
+    This class is a container for the space_DDDd.name files (DDD being the dimension
+    of the descriptor) that are stored in the feature_space directory.
     """
 
 
 class DescriptorsDataModels(MSONable):
-    """Class containing the true and predicted data from SISSO for the best descriptors/models.
+    """Class containing the true and predicted data for the best descriptors/models.
 
-    This class is a container for the desc_DDDd_pPPP.dat files (DDD being the dimension of the descriptor and PPP
-    the property number in case of multi-task SISSO) that are stored in the desc_dat directory.
+    This class is a container for the desc_DDDd_pPPP.dat files (DDD being the
+    dimension of the descriptor and PPP the property number in case of multi-task
+    SISSO) that are stored in the desc_dat directory.
     """
 
     def __init__(self, data):
@@ -716,6 +652,7 @@ class DescriptorsDataModels(MSONable):
 class ResidualData(MSONable):
     """Class containing the residuals for the training data computed at each iteration.
 
-    This class is a container for the res_DDDd_pPPP.dat files (DDD being the dimension of the descriptor and PPP
-    the property number in case of multi-task SISSO) that are stored in the residual directory.
+    This class is a container for the res_DDDd_pPPP.dat files (DDD being the dimension
+    of the descriptor and PPP the property number in case of multi-task SISSO)
+    that are stored in the residual directory.
     """
