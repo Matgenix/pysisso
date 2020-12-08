@@ -2,10 +2,12 @@
 # Copyright (c) 2020, Matgenix SRL
 
 
-from monty.tempfile import ScratchDir
 import pathlib
-from pysisso.validators import NormalCompletionValidator
+
 import pytest
+from monty.tempfile import ScratchDir
+
+from pysisso.validators import NormalCompletionValidator
 
 
 @pytest.mark.unit

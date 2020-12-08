@@ -2,10 +2,10 @@
 # Copyright (c) 2020, Matgenix SRL
 
 
-from custodian.custodian import Job
-from monty.dev import requires
-from monty.os.path import which
 import subprocess
+
+from custodian.custodian import Job
+from monty.os.path import which
 
 
 class SISSOJob(Job):

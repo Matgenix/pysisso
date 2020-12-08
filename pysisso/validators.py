@@ -2,8 +2,9 @@
 # Copyright (c) 2020, Matgenix SRL
 
 
-from custodian.custodian import Validator
 import os
+
+from custodian.custodian import Validator
 
 
 class NormalCompletionValidator(Validator):
@@ -17,9 +18,9 @@ class NormalCompletionValidator(Validator):
     ):
         """Constructor for NormalCompletionValidator class.
 
-        This validator checks that the standard error file (SISSO.err by default) is empty, that
-        the standard output file is not empty and that the output file (SISSO.out) is completed,
-        i.e. ends with "Have a nice day !"
+        This validator checks that the standard error file (SISSO.err by default) is
+        empty, that the standard output file is not empty and that the output file
+        (SISSO.out) is completed, i.e. ends with "Have a nice day !"
 
         Args:
             output_file: Name of the output file (default: SISSO.log).
@@ -34,8 +35,8 @@ class NormalCompletionValidator(Validator):
         """Validates the normal completion of SISSO.
 
         Returns:
-            bool: True if the standard error file is empty, the standard output file is not empty and the output file
-                ends with "Have a nice day !".
+            bool: True if the standard error file is empty, the standard output file
+                is not empty and the output file ends with "Have a nice day !".
         """
         if not os.path.isfile(self.output_file):
             return True

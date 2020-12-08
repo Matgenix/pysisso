@@ -2,13 +2,15 @@
 # Copyright (c) 2020, Matgenix SRL
 
 
-from monty.tempfile import ScratchDir
 import os
-from pysisso.jobs import SISSOJob
-from pysisso.utils import TEST_FILES_DIR
-import pytest
 import shutil
 import subprocess
+
+import pytest
+from monty.tempfile import ScratchDir
+
+from pysisso.jobs import SISSOJob
+from pysisso.utils import TEST_FILES_DIR
 
 
 @pytest.mark.integration
