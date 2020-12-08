@@ -2,43 +2,54 @@
 # Copyright (c) 2020, Matgenix SRL
 
 
-from monty.json import MSONable
 import datetime
+from typing import List, Union
+
 import pandas as pd
-from typing import List
-from typing import Union
+from monty.json import MSONable
 
 
 class SISSODat(MSONable):
-    """Main class containing the data for SISSO (training data, test data or new data).
-    """
+    """Main class containing the data for SISSO (training, test or new data)."""
 
-    def __init__(self, data: pd.DataFrame, features_dimensions: Union[dict, None]=None,
-                 model_type: str = 'regression', nsample: Union[List[int], int, None]=None):
+    def __init__(
+        self,
+        data: pd.DataFrame,
+        features_dimensions: Union[dict, None] = None,
+        model_type: str = "regression",
+        nsample: Union[List[int], int, None] = None,
+    ):
         """Constructor for SISSODat class.
 
         The input data must be a pandas DataFrame for which the first column contains
-        the identifiers for each data point (e.g. material identifier, batch number of a process, ...),
-        the second column contains the property to be predicted and the other columns are the base features.
+        the identifiers for each data point (e.g. material identifier, batch number of
+        a process, ...), the second column contains the property to be predicted and
+        the other columns are the base features.
 
-        Classification is not yet supported (needs the items in the same classes to be grouped together).
+        Classification is not yet supported (needs the items in the same classes to
+        be grouped together).
 
         Args:
-            data: Input data as pandas DataFrame object. The first column must be the identifiers for each data point,
-                the second column must be the property to be predicted, and the other columns are the base features.
-            features_dimensions: Dimension of the different base features as a dictionary mapping the name of each
-                feature to its dimension. Features not in the dictionary are supposed to be dimensionless. If set to
-                None, all features are supposed to be dimensionless.
-            model_type: Type of model. Should be either "regression" or "classification".
-            nsample: Number of samples. If None or an integer, SISSO is supposed to be Single-Task (ST). If a list of
-                integers, SISSO is supposed to be Multi-Task (MT).
+            data: Input data as pandas DataFrame object. The first column must be the
+                identifiers for each data point, the second column must be the property
+                to be predicted, and the other columns are the base features.
+            features_dimensions: Dimension of the different base features as a
+                dictionary mapping the name of each feature to its dimension.
+                Features not in the dictionary are supposed to be dimensionless.
+                If set to None, all features are supposed to be dimensionless.
+            model_type: Type of model. Should be either "regression" or
+                "classification".
+            nsample: Number of samples. If None or an integer, SISSO is supposed to be
+                Single-Task (ST). If a list of integers, SISSO is supposed to be
+                Multi-Task (MT).
 
         Raises:
             ValueError: if nsample is not compatible with the data frame.
 
         Notes:
-            The pandas index has not be used for the identifier here. Indeed when Multi-Task SISSO is used, the
-            same identifier can occur for two different tasks/properties.
+            The pandas index has not be used for the identifier here. Indeed when
+            Multi-Task SISSO is used, the same identifier can occur for two different
+            tasks/properties.
         """
         self.data = data
         self.features_dimensions = features_dimensions
@@ -51,39 +62,51 @@ class SISSODat(MSONable):
             return
         if len(self.features_dimensions) == 0:
             return
-        if '_NODIM' in self.features_dimensions:
-            raise ValueError('Dimension name "_NODIM" in features_dimensions is not allowed.')
+        if "_NODIM" in self.features_dimensions:
+            raise ValueError(
+                'Dimension name "_NODIM" in features_dimensions is not allowed.'
+            )
         cols = list(self.data.columns)
-        if self.model_type == 'regression':
+        if self.model_type == "regression":
             ii = 2
-        elif self.model_type == 'classification':
+        elif self.model_type == "classification":
             ii = 1
         else:
-            raise ValueError('Wrong model_type')
+            raise ValueError("Wrong model_type")
         newcols = cols[:ii]
         featcols = cols[ii:]
-        newcols.extend(sorted(featcols,
-                              key=lambda x: self.features_dimensions[x] if x in self.features_dimensions else '_NODIM'))
+        newcols.extend(
+            sorted(
+                featcols,
+                key=lambda x: self.features_dimensions[x]
+                if x in self.features_dimensions
+                else "_NODIM",
+            )
+        )
         self.data = self.data[newcols]
 
     @property
     def SISSO_features_dimensions_ranges(self):
         cols = list(self.data.columns)
-        if self.model_type == 'regression':
+        if self.model_type == "regression":
             ii = 2
-        elif self.model_type == 'classification':
+        elif self.model_type == "classification":
             ii = 1
         else:
-            raise ValueError('Wrong model_type')
+            raise ValueError("Wrong model_type")
         featcols = cols[ii:]
-        featdimensions = [self.features_dimensions[featcol]
-                          if featcol in self.features_dimensions else None for featcol in featcols]
+        featdimensions = [
+            self.features_dimensions[featcol]
+            if featcol in self.features_dimensions
+            else None
+            for featcol in featcols
+        ]
         uniquedimensions = list(set(featdimensions))
         ranges = {}
         for dimension in uniquedimensions:
             idx = featdimensions.index(dimension)
             count = featdimensions.count(dimension)
-            ranges[dimension] = (idx+1, idx+count)
+            ranges[dimension] = (idx + 1, idx + count)
         # Check that the ranges do not overlap
         for dim1, range1 in ranges.items():
             for dim2, range2 in ranges.items():
@@ -95,7 +118,9 @@ class SISSODat(MSONable):
 
     @staticmethod
     def _check_ranges_overlap(r1, r2):
-        return not ((r1[0] < r2[0] and r1[1] < r2[0]) or (r2[0] < r1[0] and r2[1] < r1[0]))
+        return not (
+            (r1[0] < r2[0] and r1[1] < r2[0]) or (r2[0] < r1[0] and r2[1] < r1[0])
+        )
 
     @property
     def nsample(self):
@@ -107,13 +132,17 @@ class SISSODat(MSONable):
             self._nsample = len(self.data)
         elif isinstance(nsample, int):
             if nsample != len(self.data):
-                raise ValueError('The size of the DataFrame does not match nsample.')
+                raise ValueError("The size of the DataFrame does not match nsample.")
         elif isinstance(nsample, list):
             if sum(nsample) != len(self.data):
-                raise ValueError('Sum of all samples is not equal to the size of the DataFrame.')
+                raise ValueError(
+                    "Sum of all samples is not equal to the size of the DataFrame."
+                )
             self._nsample = nsample
         else:
-            raise ValueError('Type "{}" is not valid for nsample.'.format(type(nsample)))
+            raise ValueError(
+                'Type "{}" is not valid for nsample.'.format(type(nsample))
+            )
 
     @property
     def ntask(self):
@@ -122,36 +151,38 @@ class SISSODat(MSONable):
         elif isinstance(self.nsample, list):
             return len(self.nsample)
         else:
-            raise ValueError('Wrong nsample in SISSODat.')
+            raise ValueError("Wrong nsample in SISSODat.")
 
     @property
     def nsf(self):
-        return len(self.data.columns)-2
+        return len(self.data.columns) - 2
 
     @property
     def input_string(self):
-        out = [' '.join(['{:20}'.format(column_name) for column_name in self.data.columns])]
+        out = [
+            " ".join(["{:20}".format(column_name) for column_name in self.data.columns])
+        ]
         max_str_size = max(self.data[self.data.columns[0]].apply(len))
-        header_row_format_str = '{{:{}}}'.format(max(20, max_str_size))
+        header_row_format_str = "{{:{}}}".format(max(20, max_str_size))
         for _, row in self.data.iterrows():
             row_list = list(row)
             line = [header_row_format_str.format(row_list[0])]
             # line = ['{:20}'.format(row_list[0])]
             for col in row_list[1:]:
-                line.append('{:<20.12f}'.format(col))
-            out.append(' '.join(line))
-        return '\n'.join(out)
+                line.append("{:<20.12f}".format(col))
+            out.append(" ".join(line))
+        return "\n".join(out)
 
-    def to_file(self, filename='train.dat'):
-        with open(filename, 'w') as f:
+    def to_file(self, filename="train.dat"):
+        with open(filename, "w") as f:
             f.write(self.input_string)
 
     @classmethod
     def from_file(cls, filepath):
-        if filepath.endswith('.dat'):
+        if filepath.endswith(".dat"):
             return cls.from_dat_file(filepath)
         else:
-            raise ValueError('The from_file method is working only with .dat files')
+            raise ValueError("The from_file method is working only with .dat files")
 
     @classmethod
     def from_dat_file(cls, filepath):
@@ -168,76 +199,83 @@ class SISSOIn(MSONable):
     """
 
     #: dict: Types or descriptions (as a string) of the values for each SISSO keyword.
-    KW_TYPES = {'ptype': tuple([int]),
-                'ntask': tuple([int]),
-                'nsample': tuple([int, 'list_of_ints']),
-                'task_weighting': tuple([int]),
-                'desc_dim': tuple([int]),
-                'nsf': tuple([int]),
-                'restart': tuple([bool]),
-                'rung': tuple([int]),
-                'opset': tuple(['str_operators']),
-                'maxcomplexity': tuple([int]),
-                'dimclass': tuple(['str_dimensions']),
-                'maxfval_lb': tuple([float]),
-                'maxfval_ub': tuple([float]),
-                'subs_sis': tuple([int, 'list_of_ints']),
-                'method': tuple([str]),
-                'L1L0_size4L0': tuple([int]),
-                'fit_intercept': tuple([bool]),
-                'metric': tuple([str]),
-                'nm_output': tuple([int]),
-                'isconvex': tuple(['str_isconvex']),
-                'width': tuple([float]),
-                'nvf': tuple([int]),
-                'vfsize': tuple([int]),
-                'vf2sf': tuple([str]),
-                'npf_must': tuple([int]),
-                'L1_max_iter': tuple([int]),
-                'L1_tole': tuple([float]),
-                'L1_dens': tuple([int]),
-                'L1_nlambda': tuple([int]),
-                'L1_minrmse': tuple([float]),
-                'L1_warm_start': tuple([bool]),
-                'L1_weighted': tuple([bool])
-                }
+    KW_TYPES = {
+        "ptype": tuple([int]),
+        "ntask": tuple([int]),
+        "nsample": tuple([int, "list_of_ints"]),
+        "task_weighting": tuple([int]),
+        "desc_dim": tuple([int]),
+        "nsf": tuple([int]),
+        "restart": tuple([bool]),
+        "rung": tuple([int]),
+        "opset": tuple(["str_operators"]),
+        "maxcomplexity": tuple([int]),
+        "dimclass": tuple(["str_dimensions"]),
+        "maxfval_lb": tuple([float]),
+        "maxfval_ub": tuple([float]),
+        "subs_sis": tuple([int, "list_of_ints"]),
+        "method": tuple([str]),
+        "L1L0_size4L0": tuple([int]),
+        "fit_intercept": tuple([bool]),
+        "metric": tuple([str]),
+        "nm_output": tuple([int]),
+        "isconvex": tuple(["str_isconvex"]),
+        "width": tuple([float]),
+        "nvf": tuple([int]),
+        "vfsize": tuple([int]),
+        "vf2sf": tuple([str]),
+        "npf_must": tuple([int]),
+        "L1_max_iter": tuple([int]),
+        "L1_tole": tuple([float]),
+        "L1_dens": tuple([int]),
+        "L1_nlambda": tuple([int]),
+        "L1_minrmse": tuple([float]),
+        "L1_warm_start": tuple([bool]),
+        "L1_weighted": tuple([bool]),
+    }
 
-    #: dict: Available unary and binary operators for feature construction. TODO: add string description
-    AVAILABLE_OPERATIONS = {'unary': {'exp': '',
-                                      'exp-': '',
-                                      '^-1': '',
-                                      'scd': '',
-                                      '^2': '',
-                                      '^3': '',
-                                      '^6': '',
-                                      'sqrt': '',
-                                      'cbrt': '',
-                                      'log': '',
-                                      'sin': '',
-                                      'cos': ''
-                                      },
-                            'binary': {'+': '',
-                                       '-': '',
-                                       '|-|': '',
-                                       '*': '',
-                                       '/': ''
-                                       }}
+    #: dict: Available unary and binary operators for feature construction.
+    # TODO: add string description
+    AVAILABLE_OPERATIONS = {
+        "unary": {
+            "exp": "",
+            "exp-": "",
+            "^-1": "",
+            "scd": "",
+            "^2": "",
+            "^3": "",
+            "^6": "",
+            "sqrt": "",
+            "cbrt": "",
+            "log": "",
+            "sin": "",
+            "cos": "",
+        },
+        "binary": {"+": "", "-": "", "|-|": "", "*": "", "/": ""},
+    }
 
-    def __init__(self, target_properties_keywords,
-                 feature_construction_sure_independence_screening_keywords,
-                 descriptor_identification_keywords):
+    def __init__(
+        self,
+        target_properties_keywords,
+        feature_construction_sure_independence_screening_keywords,
+        descriptor_identification_keywords,
+    ):
         self.target_properties_keywords = target_properties_keywords
-        self.feature_construction_sure_independence_screening_keywords = feature_construction_sure_independence_screening_keywords
+        self.feature_construction_sure_independence_screening_keywords = (
+            feature_construction_sure_independence_screening_keywords
+        )
         self.descriptor_identification_keywords = descriptor_identification_keywords
         self._check_keywords()
 
     def _check_keywords(self, fix=False):
-        #TODO: implement a check on the keywords
+        # TODO: implement a check on the keywords
         # When using L1L0 method, L1L0_size4L0 should not be > subs_sis,
-        #   i.e. should be <= subs_sis ("STOP Error: fs_size_L0 must not larger than fs_size_DI !" in SISSO.err)
+        #   i.e. should be <= subs_sis ("STOP Error: fs_size_L0 must not larger than
+        #       fs_size_DI !" in SISSO.err)
         # When using L1L0 method, L1L0_size4L0 should be >= desc_dim
         #   i.e. it crashes when it reaches a dimension larger than L1L0_size4L0
-        #   ("Program received signal SIGSEGV: Segmentation fault - invalid memory reference." in SISSO.err)
+        #   ("Program received signal SIGSEGV: Segmentation fault - invalid memory
+        #       reference." in SISSO.err)
         # * L1L0_size4L0 <= subs_sis
         # * L1L0_size4L0 >= desc_dim
         # In short :
@@ -246,41 +284,59 @@ class SISSOIn(MSONable):
         # A. When the number of features is large, fix L1L0_size4L0 and subs_sis:
         #   A.1. increase L1L0_size4L0 to at least desc_dim
         #   A.2. increase subs_sis to at least L1L0_size4L0
-        # B. When the number of features is small, we get the following message in SISSO.log :
-        #   "# WARNING: the actual size of the selected subspace is smaller than that specified in "SISSO.in" !!!"
-        #   In that case, subs_sis cannot be increased, L1L0_size4L0 has to be decreased, and in any case, the number
-        #   of descriptors (desc_dim) cannot be larger than L1L0_size4L0
-        # In all method cases (L0 or L1L0), when desc_dim is larger than the total number of features, we get :
-        #   "Program received signal SIGSEGV: Segmentation fault - invalid memory reference." in SISSO.err
-        uses_L1L0 = self.descriptor_identification_keywords['method'] == 'L1L0'
+        # B. When the number of features is small, we get the following message
+        #   in SISSO.log :
+        #   "# WARNING: the actual size of the selected subspace is smaller than that
+        #       specified in "SISSO.in" !!!"
+        #   In that case, subs_sis cannot be increased, L1L0_size4L0 has to be
+        #       decreased, and in any case, the number of descriptors (desc_dim)
+        #       cannot be larger than L1L0_size4L0
+        # In all method cases (L0 or L1L0), when desc_dim is larger than the total
+        #   number of features, we get :
+        #   "Program received signal SIGSEGV: Segmentation fault - invalid memory
+        #       reference." in SISSO.err
+        uses_L1L0 = self.descriptor_identification_keywords["method"] == "L1L0"
         if uses_L1L0:
-            desc_dim = self.target_properties_keywords['desc_dim']
-            L1L0_size4L0 = self.descriptor_identification_keywords['L1L0_size4L0']
-            subs_sis = self.feature_construction_sure_independence_screening_keywords['subs_sis']
+            desc_dim = self.target_properties_keywords["desc_dim"]
+            L1L0_size4L0 = self.descriptor_identification_keywords["L1L0_size4L0"]
+            subs_sis = self.feature_construction_sure_independence_screening_keywords[
+                "subs_sis"
+            ]
             if desc_dim > L1L0_size4L0:
                 if not fix:
-                    raise ValueError('Dimension of descriptor (desc_dim={:d}) is larger than the number of features '
-                                     'available for L0 norm from L1 screening (L1L0_size4L0={:d}).'.format(desc_dim,
-                                                                                                           L1L0_size4L0))
+                    raise ValueError(
+                        "Dimension of descriptor (desc_dim={:d}) is larger than the "
+                        "number of features available for L0 norm from L1 screening "
+                        "(L1L0_size4L0={:d}).".format(desc_dim, L1L0_size4L0)
+                    )
                 L1L0_size4L0 = desc_dim
-                self.descriptor_identification_keywords['L1L0_size4L0'] = L1L0_size4L0
+                self.descriptor_identification_keywords["L1L0_size4L0"] = L1L0_size4L0
             if isinstance(subs_sis, int):
                 if L1L0_size4L0 > subs_sis:
                     if not fix:
-                        raise ValueError('Number of features to be screened by L1 for L0 (L1L0_size4L0={:d}) is larger '
-                                         'than SIS-selected subspace (subs_sis={:d}).'.format(L1L0_size4L0, subs_sis))
-                    self.feature_construction_sure_independence_screening_keywords['subs_sis'] = L1L0_size4L0
+                        raise ValueError(
+                            "Number of features to be screened by L1 for L0 "
+                            "(L1L0_size4L0={:d}) is larger than SIS-selected subspace "
+                            "(subs_sis={:d}).".format(L1L0_size4L0, subs_sis)
+                        )
+                    self.feature_construction_sure_independence_screening_keywords[
+                        "subs_sis"
+                    ] = L1L0_size4L0
             elif isinstance(subs_sis, list):
                 subs_sis_list = list(subs_sis)
                 for dim, subs_sis_dim in enumerate(subs_sis_list, start=1):
                     if L1L0_size4L0 > subs_sis_dim:
                         if not fix:
-                            raise ValueError('Number of features to be screened by L1 for L0 (L1L0_size4L0={:d}) is larger '
-                                             'than SIS-selected subspace (subs_sis={:d}) of '
-                                             'dimension {:d}.'.format(L1L0_size4L0, subs_sis_dim, dim))
-                        subs_sis[dim-1] = L1L0_size4L0
+                            raise ValueError(
+                                "Number of features to be screened by L1 for L0 "
+                                "(L1L0_size4L0={:d}) is larger than SIS-selected "
+                                "subspace (subs_sis={:d}) of dimension {:d}.".format(
+                                    L1L0_size4L0, subs_sis_dim, dim
+                                )
+                            )
+                        subs_sis[dim - 1] = L1L0_size4L0
 
-    def _format_kw_value(self, kw, val, float_format='.12f'):
+    def _format_kw_value(self, kw, val, float_format=".12f"):
         allowed_types = self.KW_TYPES[kw]
         # Determine the type of the value for this keyword
         val_type = None
@@ -301,92 +357,127 @@ class SISSOIn(MSONable):
                 if type(val) is str:
                     val_type = str
                     break
-            elif allowed_type == 'list_of_ints':
-                if (type(val) is list or type(val) is tuple) and all([type(item) is int for item in val]):
-                    val_type = 'list_of_ints'
+            elif allowed_type == "list_of_ints":
+                if (type(val) is list or type(val) is tuple) and all(
+                    [type(item) is int for item in val]
+                ):
+                    val_type = "list_of_ints"
                     break
-            #TODO: add checks on the str_operators, str_dimensions and str_isconvex
-            elif allowed_type == 'str_operators':
-                val_type = 'str_operators'
-            elif allowed_type == 'str_dimensions':
-                val_type = 'str_dimensions'
-            elif allowed_type == 'str_isconvex':
-                val_type = 'str_isconvex'
+            # TODO: add checks on the str_operators, str_dimensions and str_isconvex
+            elif allowed_type == "str_operators":
+                val_type = "str_operators"
+            elif allowed_type == "str_dimensions":
+                val_type = "str_dimensions"
+            elif allowed_type == "str_isconvex":
+                val_type = "str_isconvex"
         if val_type is None:
-            raise ValueError('Type of value "{}" for keyword "{}" not found/valid.'.format(str(val), kw))
+            raise ValueError(
+                'Type of value "{}" for keyword "{}" not found/valid.'.format(
+                    str(val), kw
+                )
+            )
 
         if val_type is int:
-            return '{}={:d}'.format(kw, val)
+            return "{}={:d}".format(kw, val)
         elif val_type is float:
-            float_ref_str = '{}={{:{}}}'.format(kw, float_format)
+            float_ref_str = "{}={{:{}}}".format(kw, float_format)
             return float_ref_str.format(val)
         elif val_type is bool:
-            return '{}=.{}.'.format(kw, str(val).lower())
+            return "{}=.{}.".format(kw, str(val).lower())
         elif val_type is str:
-            return '{}=\'{}\''.format(kw, val)
-        elif val_type == 'list_of_ints':
-            if kw in ['subs_sis', 'nsample']:
-                return '{}={}'.format(kw, ','.join(['{:d}'.format(v) for v in val]))
+            return "{}='{}'".format(kw, val)
+        elif val_type == "list_of_ints":
+            if kw in ["subs_sis", "nsample"]:
+                return "{}={}".format(kw, ",".join(["{:d}".format(v) for v in val]))
             else:
-                return '{}=({})'.format(kw, ','.join(['{:d}'.format(v) for v in val]))
-        elif val_type == 'str_operators':
-            return '{}=\'{}\''.format(kw, val)
-        elif val_type in ['str_dimensions', 'str_isconvex']:
-            return '{}={}'.format(kw, val)
+                return "{}=({})".format(kw, ",".join(["{:d}".format(v) for v in val]))
+        elif val_type == "str_operators":
+            return "{}='{}'".format(kw, val)
+        elif val_type in ["str_dimensions", "str_isconvex"]:
+            return "{}={}".format(kw, val)
         else:
-            raise ValueError('Wrong type for SISSO value.\nSISSO keyword : {}\n'
-                             'Value : {} (type : {})'.format(kw, str(val), val_type))
+            raise ValueError(
+                "Wrong type for SISSO value.\nSISSO keyword : {}\n"
+                "Value : {} (type : {})".format(kw, str(val), val_type)
+            )
 
     @property
     def input_string(self, matgenix_acknowledgement=True):
-        if (self.target_properties_keywords['nsample'] is None or
-                self.feature_construction_sure_independence_screening_keywords['nsf'] is None):
-            raise ValueError('Both keywords "nsample" and "nsf" should be set to get SISSO.in\'s input_string')
+        if (
+            self.target_properties_keywords["nsample"] is None
+            or self.feature_construction_sure_independence_screening_keywords["nsf"]
+            is None
+        ):
+            raise ValueError(
+                'Both keywords "nsample" and "nsf" should be set to get SISSO.in\'s '
+                "input_string"
+            )
         out = []
         if matgenix_acknowledgement:
             year = datetime.datetime.now().year
-            out.append('!--------------------------------------------------------!\n'
-                       '! SISSO.in generated by Matgenix\'s pysisso package.      !\n'
-                       '! Copyright (c) {:d}, Matgenix SRL. All Rights Reserved. !\n'
-                       '!--------------------------------------------------------!\n'.format(year))
+            out.append(
+                "!--------------------------------------------------------!\n"
+                "! SISSO.in generated by Matgenix's pysisso package.      !\n"
+                "! Copyright (c) {:d}, Matgenix SRL. All Rights Reserved. !\n"
+                "!--------------------------------------------------------!\n".format(
+                    year
+                )
+            )
         if self.is_regression:
-            out.append('!------------------!\n'
-                       '! REGRESSION MODEL !\n'
-                       '!------------------!\n')
+            out.append(
+                "!------------------!\n"
+                "! REGRESSION MODEL !\n"
+                "!------------------!\n"
+            )
         elif self.is_classification:
-            out.append('!----------------------!\n'
-                       '! CLASSIFICATION MODEL !\n'
-                       '!----------------------!\n')
+            out.append(
+                "!----------------------!\n"
+                "! CLASSIFICATION MODEL !\n"
+                "!----------------------!\n"
+            )
 
         # Keywords related to target properties
-        out.append('!------------------------------------!\n'
-                   '! Keywords for the target properties !\n'
-                   '!------------------------------------!')
+        out.append(
+            "!------------------------------------!\n"
+            "! Keywords for the target properties !\n"
+            "!------------------------------------!"
+        )
         for sisso_kw, sisso_val in self.target_properties_keywords.items():
             if sisso_val is None:
                 continue
             out.append(self._format_kw_value(kw=sisso_kw, val=sisso_val))
-        out.append('')
+        out.append("")
 
-        # Keywords related to feature construction (FC) and sure independence screening (SIS)
-        out.append('!------------------------------------------------------------------------------!\n'
-                   '! Keywords for feature construction (FC) and sure independence screening (SIS) !\n'
-                   '!------------------------------------------------------------------------------!')
-        for sisso_kw, sisso_val in self.feature_construction_sure_independence_screening_keywords.items():
+        # Keywords related to feature construction (FC) and
+        #  sure independence screening (SIS)
+        out.append(
+            "!----------------------------------------"
+            "--------------------------------------!\n"
+            "! Keywords for feature construction (FC) "
+            "and sure independence screening (SIS) !\n"
+            "!----------------------------------------"
+            "--------------------------------------!"
+        )
+        for (
+            sisso_kw,
+            sisso_val,
+        ) in self.feature_construction_sure_independence_screening_keywords.items():
             if sisso_val is None:
                 continue
             out.append(self._format_kw_value(kw=sisso_kw, val=sisso_val))
-        out.append('')
+        out.append("")
 
         # Keywords descriptor identification via a sparsifying operator
-        out.append('!------------------------------------------------------------------!\n'
-                   '! Keyword for descriptor identification via a sparsifying operator !\n'
-                   '!------------------------------------------------------------------!')
+        out.append(
+            "!------------------------------------------------------------------!\n"
+            "! Keyword for descriptor identification via a sparsifying operator !\n"
+            "!------------------------------------------------------------------!"
+        )
         for sisso_kw, sisso_val in self.descriptor_identification_keywords.items():
             if sisso_val is None:
                 continue
             out.append(self._format_kw_value(kw=sisso_kw, val=sisso_val))
-        return '\n'.join(out)
+        return "\n".join(out)
 
     @property
     def is_regression(self) -> bool:
@@ -395,99 +486,141 @@ class SISSOIn(MSONable):
         Returns:
             bool: True if this SISSOIn object is a regression model, False otherwise.
         """
-        return self.target_properties_keywords['ptype'] == 1
+        return self.target_properties_keywords["ptype"] == 1
 
     @property
     def is_classification(self):
         """Whether this SISSOIn object corresponds to a classification model.
 
         Returns:
-            bool: True if this SISSOIn object is a classification model, False otherwise.
+            bool: True if this SISSOIn object is a classification model,
+                False otherwise.
         """
-        return self.target_properties_keywords['ptype'] == 2
+        return self.target_properties_keywords["ptype"] == 2
 
     @classmethod
-    def from_sisso_keywords(cls, ptype, nsample=None, nsf=None, ntask=1, task_weighting=1, desc_dim=2, restart=False,
-                            rung=2, opset='(+)(-)', maxcomplexity=10, dimclass=None,
-                            maxfval_lb=1e-3, maxfval_ub=1e5, subs_sis=20,
-                            method='L0', L1L0_size4L0=1, fit_intercept=True, metric='RMSE', nm_output=100,
-                            isconvex=None, width=None, nvf=None, vfsize=None, vf2sf=None, npf_must=None,
-                            L1_max_iter=None, L1_tole=None, L1_dens=None, L1_nlambda=None, L1_minrmse=None,
-                            L1_warm_start=None, L1_weighted=None):
-        target_properties_keywords = dict()
-        target_properties_keywords['ptype'] = ptype
-        target_properties_keywords['ntask'] = ntask
-        target_properties_keywords['nsample'] = nsample
-        target_properties_keywords['task_weighting'] = task_weighting
-        target_properties_keywords['desc_dim'] = desc_dim
-        target_properties_keywords['restart'] = restart
-        feature_construction_sure_independence_screening_keywords = dict()
-        feature_construction_sure_independence_screening_keywords['nsf'] = nsf
-        feature_construction_sure_independence_screening_keywords['rung'] = rung
-        feature_construction_sure_independence_screening_keywords['opset'] = opset
-        feature_construction_sure_independence_screening_keywords['maxcomplexity'] = maxcomplexity
-        feature_construction_sure_independence_screening_keywords['dimclass'] = dimclass
-        feature_construction_sure_independence_screening_keywords['maxfval_lb'] = maxfval_lb
-        feature_construction_sure_independence_screening_keywords['maxfval_ub'] = maxfval_ub
-        feature_construction_sure_independence_screening_keywords['subs_sis'] = subs_sis
-        feature_construction_sure_independence_screening_keywords['nvf'] = nvf
-        feature_construction_sure_independence_screening_keywords['vfsize'] = vfsize
-        feature_construction_sure_independence_screening_keywords['vf2sf'] = vf2sf
-        feature_construction_sure_independence_screening_keywords['npf_must'] = npf_must
-        descriptor_identification_keywords = dict()
-        descriptor_identification_keywords['method'] = method
-        descriptor_identification_keywords['L1L0_size4L0'] = L1L0_size4L0
-        descriptor_identification_keywords['fit_intercept'] = fit_intercept
-        descriptor_identification_keywords['metric'] = metric
-        descriptor_identification_keywords['nm_output'] = nm_output
-        descriptor_identification_keywords['isconvex'] = isconvex
-        descriptor_identification_keywords['width'] = width
-        descriptor_identification_keywords['L1_max_iter'] = L1_max_iter
-        descriptor_identification_keywords['L1_tole'] = L1_tole
-        descriptor_identification_keywords['L1_dens'] = L1_dens
-        descriptor_identification_keywords['L1_nlambda'] = L1_nlambda
-        descriptor_identification_keywords['L1_minrmse'] = L1_minrmse
-        descriptor_identification_keywords['L1_warm_start'] = L1_warm_start
-        descriptor_identification_keywords['L1_weighted'] = L1_weighted
-        return cls(target_properties_keywords=target_properties_keywords,
-                   feature_construction_sure_independence_screening_keywords=feature_construction_sure_independence_screening_keywords,
-                   descriptor_identification_keywords=descriptor_identification_keywords)
+    def from_sisso_keywords(
+        cls,
+        ptype,
+        nsample=None,
+        nsf=None,
+        ntask=1,
+        task_weighting=1,
+        desc_dim=2,
+        restart=False,
+        rung=2,
+        opset="(+)(-)",
+        maxcomplexity=10,
+        dimclass=None,
+        maxfval_lb=1e-3,
+        maxfval_ub=1e5,
+        subs_sis=20,
+        method="L0",
+        L1L0_size4L0=1,
+        fit_intercept=True,
+        metric="RMSE",
+        nm_output=100,
+        isconvex=None,
+        width=None,
+        nvf=None,
+        vfsize=None,
+        vf2sf=None,
+        npf_must=None,
+        L1_max_iter=None,
+        L1_tole=None,
+        L1_dens=None,
+        L1_nlambda=None,
+        L1_minrmse=None,
+        L1_warm_start=None,
+        L1_weighted=None,
+    ):
+        tp_kwds = dict()
+        tp_kwds["ptype"] = ptype
+        tp_kwds["ntask"] = ntask
+        tp_kwds["nsample"] = nsample
+        tp_kwds["task_weighting"] = task_weighting
+        tp_kwds["desc_dim"] = desc_dim
+        tp_kwds["restart"] = restart
+        fcsis_kwds = dict()
+        fcsis_kwds["nsf"] = nsf
+        fcsis_kwds["rung"] = rung
+        fcsis_kwds["opset"] = opset
+        fcsis_kwds["maxcomplexity"] = maxcomplexity
+        fcsis_kwds["dimclass"] = dimclass
+        fcsis_kwds["maxfval_lb"] = maxfval_lb
+        fcsis_kwds["maxfval_ub"] = maxfval_ub
+        fcsis_kwds["subs_sis"] = subs_sis
+        fcsis_kwds["nvf"] = nvf
+        fcsis_kwds["vfsize"] = vfsize
+        fcsis_kwds["vf2sf"] = vf2sf
+        fcsis_kwds["npf_must"] = npf_must
+        di_kwds = dict()
+        di_kwds["method"] = method
+        di_kwds["L1L0_size4L0"] = L1L0_size4L0
+        di_kwds["fit_intercept"] = fit_intercept
+        di_kwds["metric"] = metric
+        di_kwds["nm_output"] = nm_output
+        di_kwds["isconvex"] = isconvex
+        di_kwds["width"] = width
+        di_kwds["L1_max_iter"] = L1_max_iter
+        di_kwds["L1_tole"] = L1_tole
+        di_kwds["L1_dens"] = L1_dens
+        di_kwds["L1_nlambda"] = L1_nlambda
+        di_kwds["L1_minrmse"] = L1_minrmse
+        di_kwds["L1_warm_start"] = L1_warm_start
+        di_kwds["L1_weighted"] = L1_weighted
+        return cls(
+            target_properties_keywords=tp_kwds,
+            feature_construction_sure_independence_screening_keywords=fcsis_kwds,
+            descriptor_identification_keywords=di_kwds,
+        )
 
     @classmethod
     def from_file(cls, filepath):
         raise NotImplementedError
 
-    def to_file(self, filename='SISSO.in'):
-        with open(filename, 'w') as f:
+    def to_file(self, filename="SISSO.in"):
+        with open(filename, "w") as f:
             f.write(self.input_string)
 
     def set_keywords_for_SISSO_dat(self, sisso_dat):
         dimclass = None
         if sisso_dat.features_dimensions is not None:
             feature_dimensions_ranges = sisso_dat.SISSO_features_dimensions_ranges
-            if (len(feature_dimensions_ranges) == 0 or
-                    (len(feature_dimensions_ranges) == 1 and list(feature_dimensions_ranges.keys())[0] is None)):
+            if len(feature_dimensions_ranges) == 0 or (
+                len(feature_dimensions_ranges) == 1
+                and list(feature_dimensions_ranges.keys())[0] is None
+            ):
                 dimclass = None
             else:
                 dimclasslist = []
                 for dim, dimrange in feature_dimensions_ranges.items():
                     if dim is None:
                         continue
-                    dimclasslist.append('({:d}:{:d})'.format(dimrange[0], dimrange[1]))
-                dimclass = ''.join(dimclasslist)
-        self.target_properties_keywords['nsample'] = sisso_dat.nsample
-        self.target_properties_keywords['ntask'] = sisso_dat.ntask
-        self.feature_construction_sure_independence_screening_keywords['nsf'] = sisso_dat.nsf
-        self.feature_construction_sure_independence_screening_keywords['dimclass'] = dimclass
+                    dimclasslist.append("({:d}:{:d})".format(dimrange[0], dimrange[1]))
+                dimclass = "".join(dimclasslist)
+        self.target_properties_keywords["nsample"] = sisso_dat.nsample
+        self.target_properties_keywords["ntask"] = sisso_dat.ntask
+        self.feature_construction_sure_independence_screening_keywords[
+            "nsf"
+        ] = sisso_dat.nsf
+        self.feature_construction_sure_independence_screening_keywords[
+            "dimclass"
+        ] = dimclass
 
     @classmethod
-    def from_SISSO_dat(cls, sisso_dat: SISSODat, model_type: str = 'regression', **kwargs: object):
-        if model_type == 'regression':
+    def from_SISSO_dat(
+        cls, sisso_dat: SISSODat, model_type: str = "regression", **kwargs: object
+    ):
+        if model_type == "regression":
             ptype = 1
-        elif model_type == 'classification':
+        elif model_type == "classification":
             raise NotImplementedError
         else:
-            raise ValueError('Wrong model_type ("{}"). Should be "regression" or "classification".'.format(model_type))
+            raise ValueError(
+                'Wrong model_type ("{}"). Should be "regression" or '
+                '"classification".'.format(model_type)
+            )
         sissoin = cls.from_sisso_keywords(ptype=ptype, **kwargs)
         sissoin.set_keywords_for_SISSO_dat(sisso_dat=sisso_dat)
         return sissoin

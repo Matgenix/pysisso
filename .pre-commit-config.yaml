@@ -1,0 +1,33 @@
+default_language_version:
+  python: python3.8
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.3.0
+    hooks:
+    - id: trailing-whitespace
+      types: [python]
+    - id: check-executables-have-shebangs
+    - id: check-merge-conflict
+    - id: name-tests-test
+      args: ['--django']
+-   repo: https://github.com/PyCQA/bandit
+    rev: 1.6.3
+    hooks:
+    - id: bandit
+      args: ['-iii', '-ll', '-s=B308,B703']
+-   repo: https://gitlab.com/pycqa/flake8
+    rev: 3.8.4
+    hooks:
+    - id: flake8
+#-   repo: https://github.com/PyCQA/pylint
+#    rev: pylint-2.6.0
+#    hooks:
+#    - id: pylint
+-   repo: https://github.com/ambv/black
+    rev: 20.8b1
+    hooks:
+    - id: black
+-   repo: https://github.com/PyCQA/isort
+    rev: 5.6.4
+    hooks:
+    - id: isort
