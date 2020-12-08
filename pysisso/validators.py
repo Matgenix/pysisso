@@ -9,7 +9,12 @@ import os
 class NormalCompletionValidator(Validator):
     """Validator of the normal completion of SISSO."""
 
-    def __init__(self, output_file: str = 'SISSO.out', stdout_file: str = 'SISSO.log', stderr_file: str = 'SISSO.err'):
+    def __init__(
+        self,
+        output_file: str = "SISSO.out",
+        stdout_file: str = "SISSO.log",
+        stderr_file: str = "SISSO.err",
+    ):
         """Constructor for NormalCompletionValidator class.
 
         This validator checks that the standard error file (SISSO.err by default) is empty, that
@@ -45,7 +50,7 @@ class NormalCompletionValidator(Validator):
             if os.stat(self.stderr_file).st_size != 0:
                 return True
 
-        with open(self.output_file, 'rb') as f:
+        with open(self.output_file, "rb") as f:
             out = f.read()
 
-        return out.rfind(b'Have a nice day !') < 0
+        return out.rfind(b"Have a nice day !") < 0

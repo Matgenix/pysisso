@@ -16,5 +16,6 @@ setup(name='pysisso',
                         'custodian>=2018.8.10',
                         'scikit-learn>=0.23.1'],
       tests_require=['pytest',
-                     'pytest-cov']
+                     'pytest-cov',
+                     'pytest-mock']
       )

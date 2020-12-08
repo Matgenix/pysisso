@@ -19,17 +19,44 @@ import numpy as np
 class SISSORegressor(RegressorMixin, BaseEstimator):
     """SISSO regressor class compatible with scikit-learn."""
 
-    def __init__(self,
-                 ntask=1, task_weighting=1, desc_dim=2, restart=False,
-                 rung=2, opset='(+)(-)', maxcomplexity=10, dimclass=None,
-                 maxfval_lb=1e-3, maxfval_ub=1e5, subs_sis=20,
-                 method='L0', L1L0_size4L0=1, fit_intercept=True, metric='RMSE', nm_output=100,
-                 isconvex=None, width=None, nvf=None, vfsize=None, vf2sf=None, npf_must=None,
-                 L1_max_iter=None, L1_tole=None, L1_dens=None, L1_nlambda=None, L1_minrmse=None,
-                 L1_warm_start=None, L1_weighted=None,
-                 features_dimensions: Union[dict, None]=None, use_custodian: bool=True,
-                 custodian_job_kwargs: Union[None, dict]=None, custodian_kwargs: Union[None, dict]=None,
-                 run_dir: str='SISSO_dir', clean_run_dir: bool=False):
+    def __init__(
+        self,
+        ntask=1,
+        task_weighting=1,
+        desc_dim=2,
+        restart=False,
+        rung=2,
+        opset="(+)(-)",
+        maxcomplexity=10,
+        dimclass=None,
+        maxfval_lb=1e-3,
+        maxfval_ub=1e5,
+        subs_sis=20,
+        method="L0",
+        L1L0_size4L0=1,
+        fit_intercept=True,
+        metric="RMSE",
+        nm_output=100,
+        isconvex=None,
+        width=None,
+        nvf=None,
+        vfsize=None,
+        vf2sf=None,
+        npf_must=None,
+        L1_max_iter=None,
+        L1_tole=None,
+        L1_dens=None,
+        L1_nlambda=None,
+        L1_minrmse=None,
+        L1_warm_start=None,
+        L1_weighted=None,
+        features_dimensions: Union[dict, None] = None,
+        use_custodian: bool = True,
+        custodian_job_kwargs: Union[None, dict] = None,
+        custodian_kwargs: Union[None, dict] = None,
+        run_dir: str = "SISSO_dir",
+        clean_run_dir: bool = False,
+    ):
         """Construct SISSORegressor class.
 
         Args:
@@ -93,38 +120,64 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
             tasks: When Multi-Task SISSO is used, this is the list of string names that will be used for
                 each task/property. If None, "taskN" with N=[1, ..., n_tasks] will be used.
         """
-        self.sisso_in = SISSOIn.from_sisso_keywords(ptype=1, ntask=self.ntask,
-                                                    task_weighting=self.task_weighting, desc_dim=self.desc_dim, restart=self.restart,
-                                                    rung=self.rung, opset=self.opset, maxcomplexity=self.maxcomplexity,
-                                                    dimclass=self.dimclass,
-                                                    maxfval_lb=self.maxfval_lb, maxfval_ub=self.maxfval_ub, subs_sis=self.subs_sis,
-                                                    method=self.method, L1L0_size4L0=self.L1L0_size4L0,
-                                                    fit_intercept=self.fit_intercept, metric=self.metric, nm_output=self.nm_output,
-                                                    isconvex=self.isconvex, width=self.width, nvf=self.nvf, vfsize=self.vfsize,
-                                                    vf2sf=self.vf2sf, npf_must=self.npf_must,
-                                                    L1_max_iter=self.L1_max_iter, L1_tole=self.L1_tole, L1_dens=self.L1_dens,
-                                                    L1_nlambda=self.L1_nlambda, L1_minrmse=self.L1_minrmse,
-                                                    L1_warm_start=self.L1_warm_start, L1_weighted=self.L1_weighted)
+        self.sisso_in = SISSOIn.from_sisso_keywords(
+            ptype=1,
+            ntask=self.ntask,
+            task_weighting=self.task_weighting,
+            desc_dim=self.desc_dim,
+            restart=self.restart,
+            rung=self.rung,
+            opset=self.opset,
+            maxcomplexity=self.maxcomplexity,
+            dimclass=self.dimclass,
+            maxfval_lb=self.maxfval_lb,
+            maxfval_ub=self.maxfval_ub,
+            subs_sis=self.subs_sis,
+            method=self.method,
+            L1L0_size4L0=self.L1L0_size4L0,
+            fit_intercept=self.fit_intercept,
+            metric=self.metric,
+            nm_output=self.nm_output,
+            isconvex=self.isconvex,
+            width=self.width,
+            nvf=self.nvf,
+            vfsize=self.vfsize,
+            vf2sf=self.vf2sf,
+            npf_must=self.npf_must,
+            L1_max_iter=self.L1_max_iter,
+            L1_tole=self.L1_tole,
+            L1_dens=self.L1_dens,
+            L1_nlambda=self.L1_nlambda,
+            L1_minrmse=self.L1_minrmse,
+            L1_warm_start=self.L1_warm_start,
+            L1_weighted=self.L1_weighted,
+        )
         # Set up columns. These columns are used by the SISSO model wrapper afterwards for the prediction
         if columns is None and isinstance(X, pd.DataFrame):
             columns = list(X.columns)
-        self.columns = columns or ['feat{:d}'.format(ifeat) for ifeat in range(1, X.shape[1] + 1)]
+        self.columns = columns or [
+            "feat{:d}".format(ifeat) for ifeat in range(1, X.shape[1] + 1)
+        ]
         if len(self.columns) != X.shape[1]:
-            raise ValueError('Columns should be of the size of the second axis of X.')
+            raise ValueError("Columns should be of the size of the second axis of X.")
 
         # Set up data
         X = np.array(X)
         y = np.array(y)
         if y.ndim == 1 or y.shape[1] == 1:  # Single-Task SISSO
             self.ntasks = 1
-            index = index or ['sample{:d}'.format(ii) for ii in range(1, X.shape[0]+1)]
+            index = index or [
+                "sample{:d}".format(ii) for ii in range(1, X.shape[0] + 1)
+            ]
             if len(index) != len(y) or len(index) != len(X):
-                raise ValueError('Index, X and y should have same size.')
+                raise ValueError("Index, X and y should have same size.")
             nsample = None
         elif y.ndim == 2 and y.shape[1] > 1:  # Multi-Task SISSO
             self.ntasks = y.shape[1]
-            samples_index = index or ['sample{:d}'.format(ii) for ii in range(1, X.shape[0] + 1)]
-            tasks = tasks or ['task{:d}'.format(ii) for ii in range(1, self.ntasks + 1)]
+            samples_index = index or [
+                "sample{:d}".format(ii) for ii in range(1, X.shape[0] + 1)
+            ]
+            tasks = tasks or ["task{:d}".format(ii) for ii in range(1, self.ntasks + 1)]
             newX = np.zeros((0, X.shape[1]))
             newy = np.array([])
             index = []
@@ -136,40 +189,49 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
                 newy = np.concatenate([newy, np.take(yadd, indices=totake)])
                 newX = np.row_stack([newX, np.take(X, indices=totake, axis=0)])
                 nsample.append(len(totake))
-                index.extend(['{}_{}'.format(sample_index, tasks[itask])
-                              for i_sample, sample_index in enumerate(samples_index) if i_sample in totake])
+                index.extend(
+                    [
+                        "{}_{}".format(sample_index, tasks[itask])
+                        for i_sample, sample_index in enumerate(samples_index)
+                        if i_sample in totake
+                    ]
+                )
             X = newX
             y = newy
         else:
-            raise ValueError('Wrong shapes.')
+            raise ValueError("Wrong shapes.")
         data = pd.DataFrame(X, index=index, columns=self.columns)
-        data.insert(0, 'target', y)
-        data.insert(0, 'identifier', index)
+        data.insert(0, "target", y)
+        data.insert(0, "identifier", index)
 
         # Set up SISSODat and SISSOIn
-        sisso_dat = SISSODat(data=data, features_dimensions=self.features_dimensions, nsample=nsample)
+        sisso_dat = SISSODat(
+            data=data, features_dimensions=self.features_dimensions, nsample=nsample
+        )
         self.sisso_in.set_keywords_for_SISSO_dat(sisso_dat=sisso_dat)
         if not self.use_custodian:
-            raise ValueError('Custodian is mandatory.')
+            raise ValueError("Custodian is mandatory.")
 
         # Run SISSO
         makedirs_p(self.run_dir)
         with cd(self.run_dir):
-            self.sisso_in.to_file(filename='SISSO.in')
-            sisso_dat.to_file(filename='train.dat')
+            self.sisso_in.to_file(filename="SISSO.in")
+            sisso_dat.to_file(filename="train.dat")
             job = SISSOJob()
             c = Custodian(jobs=[job], handlers=[], validators=[])
             c.run()
-            self.sisso_out = SISSOOut.from_file(filepath='SISSO.out')
+            self.sisso_out = SISSOOut.from_file(filepath="SISSO.out")
 
         # Clean run directory
-        if self.clean_run_dir:  # TODO: add check here to not remove "." if the user passes . ?
+        if (
+            self.clean_run_dir
+        ):  # TODO: add check here to not remove "." if the user passes . ?
             shutil.rmtree(self.run_dir)
 
     def predict(self, X, index=None):
         """Predict output based on a fitted SISSO regression."""
         X = np.array(X)
-        index = index or ['item{:d}'.format(ii) for ii in range(X.shape[0])]
+        index = index or ["item{:d}".format(ii) for ii in range(X.shape[0])]
         data = pd.DataFrame(X, index=index, columns=self.columns)
         return self.sisso_out.model.predict(data)
 
