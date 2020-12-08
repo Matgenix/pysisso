@@ -3,14 +3,15 @@
 
 
 import os
-from monty.tempfile import ScratchDir
-from pysisso.sklearn import SISSORegressor
-import pysisso.sklearn
-import pysisso
-import pytest
-import numpy as np
 import shutil
 
+import numpy as np
+import pytest
+from monty.tempfile import ScratchDir
+
+import pysisso
+import pysisso.sklearn
+from pysisso.sklearn import SISSORegressor
 
 TEST_FILES_DIR = os.path.abspath(
     os.path.join(pysisso.__file__, "..", "..", "test_files")

@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2020, Matgenix SRL
 
+"""Module containing a scikit-learn compliant interface to SISSO."""
 
-from sklearn.base import BaseEstimator, RegressorMixin
-from pysisso.inputs import SISSOIn
-from pysisso.inputs import SISSODat
-from pysisso.outputs import SISSOOut
-from typing import Union
-from monty.os import cd
-from monty.os import makedirs_p
-from custodian import Custodian
-from pysisso.jobs import SISSOJob
-import pandas as pd
 import shutil
+from typing import Union
+
 import numpy as np
+import pandas as pd
+from custodian import Custodian
+from monty.os import cd, makedirs_p
+from sklearn.base import BaseEstimator, RegressorMixin
+
+from pysisso.inputs import SISSODat, SISSOIn
+from pysisso.jobs import SISSOJob
+from pysisso.outputs import SISSOOut
 
 
 class SISSORegressor(RegressorMixin, BaseEstimator):
@@ -74,7 +75,7 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
         self.maxfval_ub = maxfval_ub
         self.subs_sis = subs_sis
         self.method = method
-        self.L1L0_size4L0 = L1L0_size4L0
+        self.L1L0_size4L0 = L1L0_size4L0  # pylint: disable=C0103
         self.fit_intercept = fit_intercept
         self.metric = metric
         self.nm_output = nm_output
@@ -84,13 +85,13 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
         self.vfsize = vfsize
         self.vf2sf = vf2sf
         self.npf_must = npf_must
-        self.L1_max_iter = L1_max_iter
-        self.L1_tole = L1_tole
-        self.L1_dens = L1_dens
-        self.L1_nlambda = L1_nlambda
-        self.L1_minrmse = L1_minrmse
-        self.L1_warm_start = L1_warm_start
-        self.L1_weighted = L1_weighted
+        self.L1_max_iter = L1_max_iter  # pylint: disable=C0103
+        self.L1_tole = L1_tole  # pylint: disable=C0103
+        self.L1_dens = L1_dens  # pylint: disable=C0103
+        self.L1_nlambda = L1_nlambda  # pylint: disable=C0103
+        self.L1_minrmse = L1_minrmse  # pylint: disable=C0103
+        self.L1_warm_start = L1_warm_start  # pylint: disable=C0103
+        self.L1_weighted = L1_weighted  # pylint: disable=C0103
         self.features_dimensions = features_dimensions
         self.use_custodian = use_custodian
         self.custodian_job_kwargs = custodian_job_kwargs
@@ -101,26 +102,33 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
     def fit(self, X, y, index=None, columns=None, tasks=None):
         """Fit a SISSO regression based on inputs X and output y.
 
-        This method supports Multi-Task SISSO. For Single-Task SISSO, y must have a shape (n_samples) or (n_samples, 1).
-        For Multi-Task SISSO, y must have a shape (n_samples, n_tasks). The arrays will be reshaped to fit SISSO's
-        input files. For example, with 10 samples and 3 properties, the output array (y) will be reshaped to (30, 1).
-        The input array (X) is left unchanged.
-        It is also possible to provide samples without an output for some properties by setting that property to NaN.
-        In that case, the corresponding values in the input (X) and output (y) arrays will be removed from the SISSO
-        inputs. In the previous example, if 2 of the samples have NaN for the first property, 1 sample has Nan for the
-        second property and 4 samples have Nan for the third property, the final output array (y) will have a shape
-        (30-2-1-4, 1), i.e. (23, 1), while the final input array (X) will have a shape (23, n_features).
+        This method supports Multi-Task SISSO. For Single-Task SISSO, y must have a
+        shape (n_samples) or (n_samples, 1).
+        For Multi-Task SISSO, y must have a shape (n_samples, n_tasks). The arrays
+        will be reshaped to fit SISSO's input files.
+        For example, with 10 samples and 3 properties, the output array (y) will be
+        reshaped to (30, 1). The input array (X) is left unchanged.
+        It is also possible to provide samples without an output for some properties
+        by setting that property to NaN. In that case, the corresponding values in the
+        input (X) and output (y) arrays will be removed from the SISSO inputs.
+        In the previous example, if 2 of the samples have NaN for the first property,
+        1 sample has Nan for the second property and 4 samples have Nan for the third
+        property, the final output array (y) will have a shape (30-2-1-4, 1), i.e.
+        (23, 1), while the final input array (X) will have a shape (23, n_features).
 
         Args:
             X: Feature vectors as an array-like of shape (n_samples, n_features).
-            y: Target values as an array-like of shape (n_samples,) or (n_samples, n_tasks).
-            index: List of string identifiers for each sample. If None, "sampleN" with N=[1, ..., n_samples]
-                will be used.
-            columns: List of string names of the features. If None, "featN" with N=[1, ..., n_features] will be used.
-            tasks: When Multi-Task SISSO is used, this is the list of string names that will be used for
-                each task/property. If None, "taskN" with N=[1, ..., n_tasks] will be used.
+            y: Target values as an array-like of shape (n_samples,)
+                or (n_samples, n_tasks).
+            index: List of string identifiers for each sample. If None, "sampleN"
+                with N=[1, ..., n_samples] will be used.
+            columns: List of string names of the features. If None, "featN"
+                with N=[1, ..., n_features] will be used.
+            tasks: When Multi-Task SISSO is used, this is the list of string names
+                that will be used for each task/property. If None, "taskN"
+                with N=[1, ..., n_tasks] will be used.
         """
-        self.sisso_in = SISSOIn.from_sisso_keywords(
+        self.sisso_in = SISSOIn.from_sisso_keywords(  # pylint: disable=W0201
             ptype=1,
             ntask=self.ntask,
             task_weighting=self.task_weighting,
@@ -152,10 +160,11 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
             L1_warm_start=self.L1_warm_start,
             L1_weighted=self.L1_weighted,
         )
-        # Set up columns. These columns are used by the SISSO model wrapper afterwards for the prediction
+        # Set up columns. These columns are used by the SISSO model wrapper afterwards
+        # for the prediction
         if columns is None and isinstance(X, pd.DataFrame):
             columns = list(X.columns)
-        self.columns = columns or [
+        self.columns = columns or [  # pylint: disable=W0201
             "feat{:d}".format(ifeat) for ifeat in range(1, X.shape[1] + 1)
         ]
         if len(self.columns) != X.shape[1]:
@@ -165,7 +174,7 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
         X = np.array(X)
         y = np.array(y)
         if y.ndim == 1 or y.shape[1] == 1:  # Single-Task SISSO
-            self.ntasks = 1
+            self.ntasks = 1  # pylint: disable=W0201
             index = index or [
                 "sample{:d}".format(ii) for ii in range(1, X.shape[0] + 1)
             ]
@@ -173,7 +182,7 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
                 raise ValueError("Index, X and y should have same size.")
             nsample = None
         elif y.ndim == 2 and y.shape[1] > 1:  # Multi-Task SISSO
-            self.ntasks = y.shape[1]
+            self.ntasks = y.shape[1]  # pylint: disable=W0201
             samples_index = index or [
                 "sample{:d}".format(ii) for ii in range(1, X.shape[0] + 1)
             ]
@@ -220,7 +229,9 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
             job = SISSOJob()
             c = Custodian(jobs=[job], handlers=[], validators=[])
             c.run()
-            self.sisso_out = SISSOOut.from_file(filepath="SISSO.out")
+            self.sisso_out = SISSOOut.from_file(  # pylint: disable=W0201
+                filepath="SISSO.out"
+            )
 
         # Clean run directory
         if (
@@ -235,13 +246,6 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
         data = pd.DataFrame(X, index=index, columns=self.columns)
         return self.sisso_out.model.predict(data)
 
-    # @classmethod
-    # def from_sisso_keywords(cls, use_custodian: bool=True, custodian_job_kwargs=None, custodian_kwargs=None,
-    #                         **sissoin_kwargs):
-    #     sissoin = SISSOIn.from_sisso_keywords(ptype=1, **sissoin_kwargs)
-    #     return cls(sisso_in=sissoin, use_custodian=use_custodian,
-    #                custodian_job_kwargs=custodian_job_kwargs, custodian_kwargs=custodian_kwargs)
-    #
     @classmethod
     def from_SISSOIn(cls, sisso_in: SISSOIn):
         pass
