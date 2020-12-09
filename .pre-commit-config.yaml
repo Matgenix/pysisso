@@ -5,6 +5,7 @@ repos:
     rev: v3.3.0
     hooks:
     - id: trailing-whitespace
+      types: [python]
     - id: check-executables-have-shebangs
     - id: check-merge-conflict
     - id: name-tests-test
