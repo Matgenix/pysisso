@@ -4,3 +4,8 @@ source = pysisso
 
 omit =
     */test_*
+
+[report]
+exclude_lines =
+    pragma: no cover
+    raise NotImplementedError

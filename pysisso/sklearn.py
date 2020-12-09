@@ -128,6 +128,9 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
                 that will be used for each task/property. If None, "taskN"
                 with N=[1, ..., n_tasks] will be used.
         """
+        if not self.use_custodian:
+            raise NotImplementedError
+
         self.sisso_in = SISSOIn.from_sisso_keywords(  # pylint: disable=W0201
             ptype=1,
             ntask=self.ntask,
@@ -173,7 +176,7 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
         # Set up data
         X = np.array(X)
         y = np.array(y)
-        if y.ndim == 1 or y.shape[1] == 1:  # Single-Task SISSO
+        if y.ndim == 1 or (y.ndim == 2 and y.shape[1] == 1):  # Single-Task SISSO
             self.ntasks = 1  # pylint: disable=W0201
             index = index or [
                 "sample{:d}".format(ii) for ii in range(1, X.shape[0] + 1)
@@ -218,8 +221,6 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
             data=data, features_dimensions=self.features_dimensions, nsample=nsample
         )
         self.sisso_in.set_keywords_for_SISSO_dat(sisso_dat=sisso_dat)
-        if not self.use_custodian:
-            raise ValueError("Custodian is mandatory.")
 
         # Run SISSO
         makedirs_p(self.run_dir)
@@ -248,4 +249,4 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
 
     @classmethod
     def from_SISSOIn(cls, sisso_in: SISSOIn):
-        pass
+        raise NotImplementedError
