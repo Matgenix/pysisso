@@ -1,0 +1,80 @@
+Version SISSO.3.0.2, June, 2020.
+================================================================================
+
+Reading data from train.dat ...
+Reading parameters from SISSO.in: 
+--------------------------------------------------------------------------------
+Restarts :     F
+Descriptor dimension:        3
+Property type:     1
+Total number of properties:        1
+Task_weighting:        1
+Number of samples for each property:      100
+Number of scalar features:        1
+Number of recursive calls for feature transformation (rung of the feature space):        1
+Max feature complexity (number of operators in a feature):       10
+Number of dimension(unit)-type (for dimension analysis):        0
+Dimension type for each primary feature:
+
+Lower bound of the max abs. data value for the selected features:     0.10000E-02
+Upper bound of the max abs. data value for the selected features:     0.10000E+06
+Size of the SIS-selected (single) subspace :       20      20      20
+Operators for feature construction: (+)(*)(^2)(^3)(^-1)(cos)(sin)
+Method for sparsification:  L0
+Number of the top ranked models to output:      100
+Fitting intercept?      T
+Metric for model selection: RMSE
+--------------------------------------------------------------------------------
+
+Feature Construction and Descriptor Identification (FCDI) starts ...
+
+iteration:   1
+--------------------------------------------------------------------------------
+FC starts ...
+Standard Deviation (SD) of property 001:   16.46408
+Total number of features in the space phi00:              1
+Total number of features in the space phi01:              6
+Size of the SIS-selected subspace from phi01:          6
+Wall-clock time (second) for this FC:            0.00
+FC done!
+
+DI starts ...
+total number of SIS-selected features from all iterations:          6
+L0 starts ...
+
+Model/descriptor for generating residual:
+================================================================================
+  1D descriptor (model):
+Total RMSE,MaxAE:   7.959387 18.582485
+@@@descriptor:
+                      1:[(myx)^3]
+       coefficients_001:     0.2553319133E+00
+          Intercept_001:    -0.5364436924E+01
+         RMSE,MaxAE_001:     0.7959386860E+01    0.1858248525E+02
+================================================================================
+Wall-clock time (second) for this DI:            0.00
+DI done!
+
+iteration:   2
+--------------------------------------------------------------------------------
+FC starts ...
+Size of the SIS-selected subspace from this iteration:         0
+FC done!
+
+DI starts ...
+total number of SIS-selected features from all iterations:          6
+L0 starts ...
+
+Model/descriptor for generating residual:
+================================================================================
+  2D descriptor (model):
+Total RMSE,MaxAE:   2.328261  6.332254
+@@@descriptor:
+                      1:[(myx)^3]
+                      2:[(myx)^2]
+       coefficients_001:     0.1020029454E+01   -0.4324618271E+01
+          Intercept_001:     0.4331172825E+01
+         RMSE,MaxAE_001:     0.2328261043E+01    0.6332253765E+01
+================================================================================
+Wall-clock time (second) for this DI:            0.00
+DI done!

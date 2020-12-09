@@ -159,7 +159,7 @@ class SISSODescriptor(MSONable):
                     idx2 = ii
                     break
             else:
-                raise ValueError('Could not find initial parenthesis for ")^-1".')
+                raise ValueError(r'Could not find initial parenthesis for ")^-1".')
             evalstring = (
                 evalstring[:idx2]
                 + "1.0/"
@@ -330,7 +330,7 @@ class SISSOIteration(MSONable):
 
         r_sisso_model = r"={80}.*?={80}"
         match_sisso_model = re.findall(r_sisso_model, string, re.DOTALL)
-        if len(match_sisso_model) != 1:
+        if len(match_sisso_model) != 1:  # pragma: no cover, wrong SISSO output
             raise ValueError(
                 "Should get exactly one SISSO model excerpt in the string."
             )
@@ -345,13 +345,13 @@ class SISSOIteration(MSONable):
 
         r_SIS_subspace_size = r"Size of the SIS-selected subspace.*?\n"
         match_SIS_subspace_size = re.findall(r_SIS_subspace_size, string)
-        if len(match_SIS_subspace_size) != 1:
+        if len(match_SIS_subspace_size) != 1:  # pragma: no cover, wrong SISSO output
             raise ValueError("Should get exactly one SIS subspace size in the string.")
         SIS_subspace_size = int(match_SIS_subspace_size[0].split()[-1])
 
         r_cputime = r"Wall-clock time \(second\) for this DI:.*?\n"
         match_cputime = re.findall(r_cputime, string)
-        if len(match_cputime) != 1:
+        if len(match_cputime) != 1:  # pragma: no cover, wrong SISSO output
             raise ValueError(
                 "Should get exactly one Wall-clock time in the string, "
                 "got {:d}.".format(len(match_cputime))
@@ -496,7 +496,7 @@ class SISSOParams(MSONable):
                 kwargs[class_var] = var_type(match.group(1).strip())
             else:
                 match = re.findall(r"{}.*?\n".format(output_var_str), string)
-                if len(match) != 1:
+                if len(match) != 1:  # pragma: no cover, wrong SISSO output
                     raise ValueError(
                         'Should get exactly one match for "{}".'.format(output_var_str)
                     )
@@ -546,7 +546,7 @@ class SISSOOut(MSONable):
 
         r = r"Reading parameters from SISSO\.in:\s?\n-{80}.*?-{80}"
         match = re.findall(r, string, re.DOTALL)
-        if len(match) != 1:
+        if len(match) != 1:  # pragma: no cover, wrong SISSO output
             raise ValueError(
                 "Should get exactly one excerpt for input parameters in the string."
             )
@@ -567,7 +567,7 @@ class SISSOOut(MSONable):
                     "Should get exactly one total cpu time in the string, got 0."
                 )
             cpu_time = None
-        elif len(match) > 1:
+        elif len(match) > 1:  # pragma: no cover, wrong SISSO output
             raise ValueError(
                 "Should get exactly one total cpu time in the string, "
                 "got {:d}.".format(len(match))
@@ -625,12 +625,15 @@ class FeatureSpace(MSONable):
     """
 
 
-class DescriptorsDataModels(MSONable):
+class DescriptorsDataModels(MSONable):  # pragma: no cover, reading full SISSO.out
     """Class containing the true and predicted data for the best descriptors/models.
 
     This class is a container for the desc_DDDd_pPPP.dat files (DDD being the
     dimension of the descriptor and PPP the property number in case of multi-task
     SISSO) that are stored in the desc_dat directory.
+
+    Note: see if we want to implement this class, everything might be contained in
+        SISSO.out and its SISSOOut object.
     """
 
     def __init__(self, data):
