@@ -3,7 +3,9 @@
 
 """Module containing a scikit-learn compliant interface to SISSO."""
 
+import os
 import shutil
+import tempfile
 from typing import Union
 
 import numpy as np
@@ -55,7 +57,7 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
         use_custodian: bool = True,
         custodian_job_kwargs: Union[None, dict] = None,
         custodian_kwargs: Union[None, dict] = None,
-        run_dir: str = "SISSO_dir",
+        run_dir: Union[None, str] = "SISSO_dir",
         clean_run_dir: bool = False,
     ):
         """Construct SISSORegressor class.
@@ -223,6 +225,9 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
         self.sisso_in.set_keywords_for_SISSO_dat(sisso_dat=sisso_dat)
 
         # Run SISSO
+        if self.run_dir is None:
+            tmp_dir = tempfile.mkdtemp(suffix=None, prefix="SISSO_dir_", dir="")
+            self.run_dir = os.path.join("SISSO_runs", tmp_dir)
         makedirs_p(self.run_dir)
         with cd(self.run_dir):
             self.sisso_in.to_file(filename="SISSO.in")

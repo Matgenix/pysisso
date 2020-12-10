@@ -94,6 +94,51 @@ def test_sisso_regressor(mocker):
         assert makedirs_spy.call_count == 1
         makedirs_spy.reset_mock()
 
+    # Run with a temporary directory (i.e. when run_dir is None, useful for CV)
+    # TODO : mocking tempfile did not work here for some reason ...
+    with ScratchDir("."):
+        sisso_reg = SISSORegressor(
+            desc_dim=1,
+            rung=0,
+            subs_sis=1,
+            method="L0",
+            run_dir=None,
+            clean_run_dir=False,
+        )
+        sisso_reg.fit(np.array([[1], [2], [3], [4], [5]]), np.array([0, 1, 2, 3, 4]))
+        pred = sisso_reg.predict([[1.5], [4.5]])
+        assert pred[0] == 0.5
+        assert pred[1] == 3.5
+        assert os.path.exists("SISSO_runs")
+        dirs = os.listdir("SISSO_runs")
+        assert len(dirs) == 1
+        sisso_dir = dirs[0]
+        assert sisso_dir.startswith("SISSO_dir_")
+        sisso_path = os.path.join("SISSO_runs", sisso_dir)
+        makedirs_spy.assert_called_with(sisso_path)
+        assert makedirs_spy.call_count == 1
+        makedirs_spy.reset_mock()
+
+    # Run with a temporary directory (i.e. when run_dir is None, useful for CV)
+    with ScratchDir("."):
+        sisso_reg = SISSORegressor(
+            desc_dim=1,
+            rung=0,
+            subs_sis=1,
+            method="L0",
+            run_dir=None,
+            clean_run_dir=True,
+        )
+        sisso_reg.fit(np.array([[1], [2], [3], [4], [5]]), np.array([0, 1, 2, 3, 4]))
+        pred = sisso_reg.predict([[1.5], [4.5]])
+        assert pred[0] == 0.5
+        assert pred[1] == 3.5
+        assert os.path.exists("SISSO_runs")
+        dirs = os.listdir("SISSO_runs")
+        assert len(dirs) == 0
+        assert makedirs_spy.call_count == 1
+        makedirs_spy.reset_mock()
+
     # Simple multi task SISSO run
     # Mock the run of the custodian by just copying a reference SISSO.out file
     def copy_sisso_out():
