@@ -1,0 +1,66 @@
+Release 0.2 (Dec 10, 2020)
+==========================
+
+Incompatible changes
+--------------------
+
+* Pysisso now relies on poetry and the pyproject.toml file for configuration and builds
+
+  - Removed setup.py and setup.cfg
+  - Installation with poetry using "poetry install" command
+  - Distribution package (including setup.py generated automatically by poetry) using
+    the "poetry build" command
+  - See https://python-poetry.org/
+
+Features added
+--------------
+
+* Added linting tools
+
+  - pre-commit-hooks (trailing-whitespace, check-executables-have-shebangs,
+    check-merge-conflict and name-tests-test)
+  - bandit
+  - flake8
+  - black
+  - isort
+
+* Full test suite (unit and integration tests)
+
+  - Based on pytest (see https://docs.pytest.org/en/stable/)
+  - Using pytest-cov (using coverage, https://coverage.readthedocs.io/en/coverage-5.3/)
+    to get code coverage reports (see https://pytest-cov.readthedocs.io/en/latest/)
+  - Using pytest-mock (using unittest.mock,
+    https://docs.python.org/3/library/unittest.mock.html) for mocking SISSO execution
+    in unit tests (see https://github.com/pytest-dev/pytest-mock/)
+
+* Added Github workflow for continuous integration with Github Actions
+
+* All configuration has been defined in pyproject.toml (except for flake8)
+
+* Miscellaneous (undocumented here) bug fixes
+
+Release 0.1 (Aug 31, 2020)
+==========================
+
+Features
+--------
+
+* First release.
+
+* Definition of inputs for SISSO
+
+  - SISSO.in, some automatic checks of input arguments
+  - .dat files
+
+* Job to run SISSO using custodian
+
+  - Validator for normal completion of SISSO
+
+* Parsing of outputs of SISSO
+
+  - Definition of SISSOModel objects containing the final expression determined by SISSO
+
+* Scikit-learn compliant interface for regression with SISSO
+
+  - fit method
+  - predict method
