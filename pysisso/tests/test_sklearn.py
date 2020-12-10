@@ -114,8 +114,7 @@ def test_sisso_regressor(mocker):
         assert len(dirs) == 1
         sisso_dir = dirs[0]
         assert sisso_dir.startswith("SISSO_dir_")
-        sisso_path = os.path.join("SISSO_runs", sisso_dir)
-        makedirs_spy.assert_called_with(sisso_path)
+        makedirs_spy.assert_called_with("SISSO_runs")
         assert makedirs_spy.call_count == 1
         makedirs_spy.reset_mock()
 

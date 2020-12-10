@@ -3,7 +3,6 @@
 
 """Module containing a scikit-learn compliant interface to SISSO."""
 
-import os
 import shutil
 import tempfile
 from typing import Union
@@ -226,9 +225,12 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
 
         # Run SISSO
         if self.run_dir is None:
-            tmp_dir = tempfile.mkdtemp(suffix=None, prefix="SISSO_dir_", dir="")
-            self.run_dir = os.path.join("SISSO_runs", tmp_dir)
-        makedirs_p(self.run_dir)
+            makedirs_p("SISSO_runs")
+            self.run_dir = tempfile.mkdtemp(
+                suffix=None, prefix="SISSO_dir_", dir="SISSO_runs"
+            )
+        else:
+            makedirs_p(self.run_dir)
         with cd(self.run_dir):
             self.sisso_in.to_file(filename="SISSO.in")
             sisso_dat.to_file(filename="train.dat")
