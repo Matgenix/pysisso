@@ -4,6 +4,7 @@
 
 import os
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -11,14 +12,21 @@ import pysisso
 from pysisso.outputs import (
     SISSODescriptor,
     SISSOIteration,
+    SISSOModel,
     SISSOOut,
     SISSOParams,
     SISSOVersion,
+    scd,
 )
 
 TEST_FILES_DIR = os.path.abspath(
     os.path.join(pysisso.__file__, "..", "..", "test_files")
 )
+
+sisso_out = SISSOOut.from_file(
+    filepath=os.path.join(TEST_FILES_DIR, "runs", "cubic_function", "SISSO.out")
+)
+print(sisso_out.params)
 
 
 @pytest.mark.unit
@@ -35,6 +43,28 @@ def test_sisso_out():
     assert isinstance(sisso_params, SISSOParams)
     assert sisso_params.number_of_samples == [100]
     assert sisso_params.sparsification_method == "L0"
+    assert (
+        str(sisso_params)
+        == """Parameters for SISSO :
+ - property_type : 3
+ - descriptor_dimension : 3
+ - total_number_properties : 1
+ - task_weighting : [1]
+ - number_of_samples : [100]
+ - n_scalar_features : 1
+ - n_rungs : 1
+ - max_feature_complexity : 10
+ - n_dimension_types : 0
+ - dimension_types : [[]]
+ - lower_bound_maxabs_value : 0.001
+ - upper_bound_maxabs_value : 100000.0
+ - SIS_subspaces_sizes : [20]
+ - operators : ['(+)(*)(^2)(^3)(^-1)(cos)(sin)']
+ - sparsification_method : L0
+ - n_topmodels : 100
+ - fit_intercept : True
+ - metric : RMSE"""
+    )
     sisso_iterations = sisso_out.iterations
     assert isinstance(sisso_iterations, list)
     assert len(sisso_iterations) == sisso_params.descriptor_dimension
@@ -98,6 +128,7 @@ def test_sisso_out():
     assert descriptor_last_1.descriptor_string == "(myx)^3"
     assert descriptor_last_2.descriptor_string == "(myx)^2"
     assert descriptor_last_3.descriptor_string == "(myx)"
+    assert str(descriptor_last_3) == descriptor_last_3.descriptor_string
     descr_last_1_eval = descriptor_last_1.evaluate(df)
     descr_last_2_eval = descriptor_last_2.evaluate(df)
     descr_last_3_eval = descriptor_last_3.evaluate(df)
@@ -113,3 +144,70 @@ def test_sisso_out():
     pred_last = last_model.predict(df)
     assert pred_last[0] == pytest.approx(-6.431243163)
     assert pred_last[1] == pytest.approx(23.9347707285)
+    assert sisso_out.cpu_time == pytest.approx(0.64)
+    models = sisso_out.models
+    assert len(models) == 3
+    assert isinstance(models[0], SISSOModel)
+    assert isinstance(models[1], SISSOModel)
+    assert isinstance(models[2], SISSOModel)
+
+    # Partial SISSO output
+    partial_sisso_out_fpath = os.path.join(
+        TEST_FILES_DIR, "outputs", "SISSO.3.0.2.out_not_finished"
+    )
+    with pytest.raises(
+        ValueError,
+        match=r"Should get exactly one total " r"cpu time in the string, got 0.",
+    ):
+        SISSOOut.from_file(filepath=partial_sisso_out_fpath)
+    sisso_out = SISSOOut.from_file(
+        filepath=partial_sisso_out_fpath, allow_unfinished=True
+    )
+    assert len(sisso_out.iterations) == 2
+    assert sisso_out.cpu_time is None
+    models = sisso_out.models
+    assert len(models) == 2
+    assert isinstance(models[0], SISSOModel)
+    assert isinstance(models[1], SISSOModel)
+
+
+@pytest.mark.unit
+def test_scd():
+    assert scd(0.0) == pytest.approx(1.0 / np.pi)
+    assert scd(1.0) == pytest.approx(0.5 / np.pi)
+    assert scd(-1.0) == pytest.approx(0.5 / np.pi)
+    assert scd(3.0) == pytest.approx(0.1 / np.pi)
+    assert scd(-3.0) == pytest.approx(0.1 / np.pi)
+
+
+@pytest.mark.unit
+def test_decode_function():
+    decoded = SISSODescriptor._decode_function("((myx)^3+sin(myx))")
+    assert decoded["evalstring"] == "((df['myx'])**3+np.sin(df['myx']))"
+    assert decoded["features_in_string"] == [
+        {"featname": "myx", "istart": 2, "iend": 5},
+        {"featname": "myx", "istart": 13, "iend": 16},
+    ]
+    assert decoded["inputs"] == ["myx"]
+
+    with pytest.raises(ValueError, match=r'String should start and end with "#"'):
+        SISSODescriptor._decode_function("tan(myx)")
+
+    string = "((myx)^3+(sin(myx))^-1-((cos(a))^6+sin(b))^-1)"
+    decoded = SISSODescriptor._decode_function(string)
+    assert (
+        decoded["evalstring"] == "((df['myx'])**3+1.0/(np.sin(df['myx']))"
+        "-1.0/((np.cos(df['a']))**6+np.sin(df['b'])))"
+    )
+    assert decoded["features_in_string"] == [
+        {"featname": "myx", "istart": 2, "iend": 5},
+        {"featname": "myx", "istart": 14, "iend": 17},
+        {"featname": "a", "istart": 29, "iend": 30},
+        {"featname": "b", "istart": 39, "iend": 40},
+    ]
+    assert decoded["inputs"] == ["myx", "a", "b"]
+
+    with pytest.raises(
+        ValueError, match=r'Could not find initial parenthesis for "\)\^-1".'
+    ):
+        SISSODescriptor._decode_function("sin(myx))^-1")

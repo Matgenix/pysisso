@@ -74,4 +74,4 @@ jobs:
 
       - name: Run pytest
         shell: bash
-        run: poetry run pytest -m 'not integration' --cov-config .coveragerc --cov=pysisso
+        run: poetry run pytest -m 'not integration'

@@ -2,14 +2,23 @@
 # Copyright (c) 2020, Matgenix SRL
 
 
+import os
+import shutil
+
 import pytest
 
+import pysisso
 from pysisso.utils import (
     get_version,
     list_of_ints,
     list_of_strs,
     matrix_of_floats,
     str_to_bool,
+    subprocess,
+)
+
+TEST_FILES_DIR = os.path.abspath(
+    os.path.join(pysisso.__file__, "..", "..", "test_files")
 )
 
 
@@ -66,8 +75,20 @@ def test_str_to_bool():
         str_to_bool("falsy")
 
 
-@pytest.mark.integration
-def test_get_version():
+@pytest.mark.unit
+def test_get_version(mocker):
+    def copy_sisso_out(*_, **__):
+        shutil.copy(
+            os.path.join(TEST_FILES_DIR, "outputs", "SISSO.3.0.2.out"),
+            "SISSO.out",
+        )
+
+    mocker.patch.object(
+        subprocess,
+        "call",
+        return_value=[],
+        side_effect=copy_sisso_out,
+    )
     assert get_version() == {
         "version": (3, 0, 2),
         "header": "Version SISSO.3.0.2, June, 2020.",

@@ -15,6 +15,7 @@ scikit-learn = "^0.23.1"
 [tool.poetry.dev-dependencies]
 pytest = "^6.1.2"
 pytest-cov = "^2.10.1"
+coverage = {version = "^5.3", extras = ["toml"]}
 pytest-mock = "^3.3.1"
 pre-commit = "^2.9.3"
 isort = "^5.6.4"
@@ -33,3 +34,27 @@ force_grid_wrap = 0
 use_parentheses = true
 ensure_newline_before_comments = true
 line_length = 88
+
+[tool.pytest.ini_options]
+minversion = "6.1.2"
+addopts = "--strict-markers --cov=pysisso -cov-config=pyproject.toml --cov-report html --cov-report term"
+markers = [
+    "unit: Unit tests on small portions of the code that do not require execution of external code.",
+    "integration: Integration tests that require execution of external code.",
+]
+
+# Coverage options
+[tool.coverage.run]
+source = ["pysisso"]
+omit = [
+    "*/test_*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"

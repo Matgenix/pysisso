@@ -62,16 +62,16 @@ class SISSODat(MSONable):
             return
         if len(self.features_dimensions) == 0:
             return
-        if "_NODIM" in self.features_dimensions:
+        if "_NODIM" in self.features_dimensions.values():
             raise ValueError(
                 'Dimension name "_NODIM" in features_dimensions is not allowed.'
             )
         cols = list(self.data.columns)
         if self.model_type == "regression":
             ii = 2
-        elif self.model_type == "classification":
+        elif self.model_type == "classification":  # pragma: no cover
             ii = 1
-        else:
+        else:  # pragma: no cover # should not be anything else
             raise ValueError("Wrong model_type")
         newcols = cols[:ii]
         featcols = cols[ii:]
@@ -90,9 +90,9 @@ class SISSODat(MSONable):
         cols = list(self.data.columns)
         if self.model_type == "regression":
             ii = 2
-        elif self.model_type == "classification":
+        elif self.model_type == "classification":  # pragma: no cover
             ii = 1
-        else:
+        else:  # pragma: no cover # should not be anything else
             raise ValueError("Wrong model_type")
         featcols = cols[ii:]
         featdimensions = [
@@ -112,7 +112,7 @@ class SISSODat(MSONable):
             for dim2, range2 in ranges.items():
                 if dim1 == dim2:
                     continue
-                if self._check_ranges_overlap(range1, range2):
+                if self._check_ranges_overlap(range1, range2):  # pragma: no cover
                     raise ValueError("Dimension ranges overlap :")
         return ranges
 
@@ -134,7 +134,7 @@ class SISSODat(MSONable):
             if nsample != len(self.data):
                 raise ValueError("The size of the DataFrame does not match nsample.")
         elif isinstance(nsample, list):
-            if sum(nsample) != len(self.data):
+            if sum(nsample) != len(self.data):  # pragma: no cover
                 raise ValueError(
                     "Sum of all samples is not equal to the size of the DataFrame."
                 )
@@ -150,7 +150,7 @@ class SISSODat(MSONable):
             return 1
         elif isinstance(self.nsample, list):
             return len(self.nsample)
-        else:
+        else:  # pragma: no cover
             raise ValueError("Wrong nsample in SISSODat.")
 
     @property
@@ -178,16 +178,16 @@ class SISSODat(MSONable):
             f.write(self.input_string)
 
     @classmethod
-    def from_file(cls, filepath):
+    def from_file(cls, filepath, features_dimensions=None):
         if filepath.endswith(".dat"):
-            return cls.from_dat_file(filepath)
-        else:
+            return cls.from_dat_file(filepath, features_dimensions=features_dimensions)
+        else:  # pragma: no cover
             raise ValueError("The from_file method is working only with .dat files")
 
     @classmethod
-    def from_dat_file(cls, filepath):
+    def from_dat_file(cls, filepath, features_dimensions=None):
         data = pd.read_csv(filepath, delim_whitespace=True)
-        return cls(data=data)
+        return cls(data=data, features_dimensions=features_dimensions)
 
 
 class SISSOIn(MSONable):
@@ -259,13 +259,14 @@ class SISSOIn(MSONable):
         target_properties_keywords,
         feature_construction_sure_independence_screening_keywords,
         descriptor_identification_keywords,
+        fix=False,
     ):
         self.target_properties_keywords = target_properties_keywords
         self.feature_construction_sure_independence_screening_keywords = (
             feature_construction_sure_independence_screening_keywords
         )
         self.descriptor_identification_keywords = descriptor_identification_keywords
-        self._check_keywords()
+        self._check_keywords(fix=fix)
 
     def _check_keywords(self, fix=False):
         # TODO: implement a check on the keywords
@@ -366,11 +367,11 @@ class SISSOIn(MSONable):
             # TODO: add checks on the str_operators, str_dimensions and str_isconvex
             elif allowed_type == "str_operators":
                 val_type = "str_operators"
-            elif allowed_type == "str_dimensions":
+            elif allowed_type == "str_dimensions":  # pragma: no cover
                 val_type = "str_dimensions"
-            elif allowed_type == "str_isconvex":
+            elif allowed_type == "str_isconvex":  # pragma: no cover
                 val_type = "str_isconvex"
-        if val_type is None:
+        if val_type is None:  # pragma: no cover
             raise ValueError(
                 'Type of value "{}" for keyword "{}" not found/valid.'.format(
                     str(val), kw
@@ -389,13 +390,13 @@ class SISSOIn(MSONable):
         elif val_type == "list_of_ints":
             if kw in ["subs_sis", "nsample"]:
                 return "{}={}".format(kw, ",".join(["{:d}".format(v) for v in val]))
-            else:
+            else:  # pragma: no cover
                 return "{}=({})".format(kw, ",".join(["{:d}".format(v) for v in val]))
         elif val_type == "str_operators":
             return "{}='{}'".format(kw, val)
-        elif val_type in ["str_dimensions", "str_isconvex"]:
+        elif val_type in ["str_dimensions", "str_isconvex"]:  # pragma: no cover
             return "{}={}".format(kw, val)
-        else:
+        else:  # pragma: no cover
             raise ValueError(
                 "Wrong type for SISSO value.\nSISSO keyword : {}\n"
                 "Value : {} (type : {})".format(kw, str(val), val_type)
@@ -407,7 +408,7 @@ class SISSOIn(MSONable):
             self.target_properties_keywords["nsample"] is None
             or self.feature_construction_sure_independence_screening_keywords["nsf"]
             is None
-        ):
+        ):  # pragma: no cover # unlikely wrong usage
             raise ValueError(
                 'Both keywords "nsample" and "nsf" should be set to get SISSO.in\'s '
                 "input_string"
@@ -429,7 +430,7 @@ class SISSOIn(MSONable):
                 "! REGRESSION MODEL !\n"
                 "!------------------!\n"
             )
-        elif self.is_classification:
+        elif self.is_classification:  # pragma: no cover # not yet implemented
             out.append(
                 "!----------------------!\n"
                 "! CLASSIFICATION MODEL !\n"
@@ -533,6 +534,7 @@ class SISSOIn(MSONable):
         L1_minrmse=None,
         L1_warm_start=None,
         L1_weighted=None,
+        fix=False,
     ):
         tp_kwds = dict()
         tp_kwds["ptype"] = ptype
@@ -573,6 +575,7 @@ class SISSOIn(MSONable):
             target_properties_keywords=tp_kwds,
             feature_construction_sure_independence_screening_keywords=fcsis_kwds,
             descriptor_identification_keywords=di_kwds,
+            fix=fix,
         )
 
     @classmethod
