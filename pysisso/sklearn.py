@@ -5,6 +5,7 @@
 
 import shutil
 import tempfile
+from datetime import datetime
 from typing import Union
 
 import numpy as np
@@ -16,6 +17,16 @@ from sklearn.base import BaseEstimator, RegressorMixin
 from pysisso.inputs import SISSODat, SISSOIn
 from pysisso.jobs import SISSOJob
 from pysisso.outputs import SISSOOut
+
+
+def get_timestamp():
+    now = datetime.now()
+    return (
+        f"{str(now.year).zfill(4)}_{str(now.month).zfill(2)}_"
+        f"{str(now.day).zfill(2)}_"
+        f"{str(now.hour).zfill(2)}_{str(now.minute).zfill(2)}_"
+        f"{str(now.second).zfill(2)}_{str(now.microsecond).zfill(6)}"
+    )
 
 
 class SISSORegressor(RegressorMixin, BaseEstimator):
@@ -226,8 +237,9 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
         # Run SISSO
         if self.run_dir is None:
             makedirs_p("SISSO_runs")
+            timestamp = get_timestamp()
             self.run_dir = tempfile.mkdtemp(
-                suffix=None, prefix="SISSO_dir_", dir="SISSO_runs"
+                suffix=None, prefix=f"SISSO_dir_{timestamp}_", dir="SISSO_runs"
             )
         else:
             makedirs_p(self.run_dir)

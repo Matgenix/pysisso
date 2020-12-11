@@ -96,6 +96,10 @@ def test_sisso_regressor(mocker):
 
     # Run with a temporary directory (i.e. when run_dir is None, useful for CV)
     # TODO : mocking tempfile did not work here for some reason ...
+    mocker.patch(
+        "pysisso.sklearn.get_timestamp",
+        return_value="2018_09_28_16_04_54_017895",
+    )
     with ScratchDir("."):
         sisso_reg = SISSORegressor(
             desc_dim=1,
@@ -113,7 +117,7 @@ def test_sisso_regressor(mocker):
         dirs = os.listdir("SISSO_runs")
         assert len(dirs) == 1
         sisso_dir = dirs[0]
-        assert sisso_dir.startswith("SISSO_dir_")
+        assert sisso_dir.startswith("SISSO_dir_2018_09_28_16_04_54_017895_")
         makedirs_spy.assert_called_with("SISSO_runs")
         assert makedirs_spy.call_count == 1
         makedirs_spy.reset_mock()
