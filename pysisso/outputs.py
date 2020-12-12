@@ -67,10 +67,13 @@ class SISSODescriptor(MSONable):
         """
         self.descriptor_id = descriptor_id
         self.descriptor_string = descriptor_string
-        self.function = self._decode_function(self.descriptor_string)["evalfun"]
+        self.evalstring = self._decode_function(self.descriptor_string)["evalstring"]
 
-    def evaluate(self, df):
-        return self.function(df)
+    def evaluate(self, df):  # pylint: disable=W0613
+        return eval(self.evalstring)  # nosec, pylint: disable=W0123
+
+    # def evaluate(self, df):
+    #     return self.function(df)
 
     def __str__(self):
         return self.descriptor_string
@@ -168,13 +171,9 @@ class SISSODescriptor(MSONable):
                 + evalstring[idx1 + 4 :]
             )
 
-        def evalfun(df):  # pylint: disable=W0613
-            return eval(evalstring)  # nosec, pylint: disable=W0123
-
         return {
             "evalstring": evalstring,
             "features_in_string": features_in_string,
-            "evalfun": evalfun,
             "inputs": inputs,
         }
 

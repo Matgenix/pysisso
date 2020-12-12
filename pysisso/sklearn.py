@@ -19,13 +19,13 @@ from pysisso.jobs import SISSOJob
 from pysisso.outputs import SISSOOut
 
 
-def get_timestamp():
-    now = datetime.now()
+def get_timestamp(tstamp=None):
+    tstamp = tstamp or datetime.now()
     return (
-        f"{str(now.year).zfill(4)}_{str(now.month).zfill(2)}_"
-        f"{str(now.day).zfill(2)}_"
-        f"{str(now.hour).zfill(2)}_{str(now.minute).zfill(2)}_"
-        f"{str(now.second).zfill(2)}_{str(now.microsecond).zfill(6)}"
+        f"{str(tstamp.year).zfill(4)}_{str(tstamp.month).zfill(2)}_"
+        f"{str(tstamp.day).zfill(2)}_"
+        f"{str(tstamp.hour).zfill(2)}_{str(tstamp.minute).zfill(2)}_"
+        f"{str(tstamp.second).zfill(2)}_{str(tstamp.microsecond).zfill(6)}"
     )
 
 

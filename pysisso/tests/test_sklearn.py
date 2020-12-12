@@ -2,6 +2,7 @@
 # Copyright (c) 2020, Matgenix SRL
 
 
+import datetime
 import os
 import shutil
 
@@ -12,11 +13,18 @@ from monty.tempfile import ScratchDir
 
 import pysisso
 import pysisso.sklearn
-from pysisso.sklearn import SISSORegressor
+from pysisso.sklearn import SISSORegressor, get_timestamp
 
 TEST_FILES_DIR = os.path.abspath(
     os.path.join(pysisso.__file__, "..", "..", "test_files")
 )
+
+
+@pytest.mark.unit
+def test_get_timestamp(mocker):
+    timestamp = get_timestamp(datetime.datetime(2014, 5, 28, 9, 6, 57, 6521))
+    assert isinstance(timestamp, str)
+    assert timestamp == "2014_05_28_09_06_57_006521"
 
 
 @pytest.mark.unit
