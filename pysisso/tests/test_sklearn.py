@@ -6,6 +6,7 @@ import datetime
 import os
 import shutil
 
+import joblib
 import numpy as np
 import pandas as pd
 import pytest
@@ -236,3 +237,36 @@ def test_sisso_regressor(mocker):
         X_df = pd.DataFrame([[1], [2], [3], [4], [5]])
         with pytest.raises(ValueError, match=r"Wrong shapes."):
             sisso_reg.fit(X_df, np.array([[[0], [1], [2], [3], [4]]]))
+
+
+@pytest.mark.unit
+def test_model_persistence(mocker):
+    # Simple single task SISSO runs with various options for the run directory
+    # Mock the run of the custodian by just copying a reference SISSO.out file
+    def copy_sisso_out():
+        shutil.copy(
+            os.path.join(TEST_FILES_DIR, "runs", "perfect_linear_5pts", "SISSO.out"),
+            "SISSO.out",
+        )
+
+    mocker.patch.object(
+        pysisso.sklearn.Custodian,
+        "run",
+        return_value=[],
+        side_effect=copy_sisso_out,
+    )
+
+    with ScratchDir("."):
+        sisso_reg = SISSORegressor(desc_dim=1, rung=0, subs_sis=1, method="L0")
+        sisso_reg.fit(np.array([[1], [2], [3], [4], [5]]), np.array([0, 1, 2, 3, 4]))
+        joblib.dump(sisso_reg, filename="model.joblib")
+        sisso_reg_loaded = joblib.load("model.joblib")
+        pred = sisso_reg_loaded.predict([[1.5], [4.5]])
+        assert pred[0] == 0.5
+        assert pred[1] == 3.5
+        assert sisso_reg.get_params() == sisso_reg_loaded.get_params()
+        model = sisso_reg.sisso_out.model
+        model_loaded = sisso_reg_loaded.sisso_out.model
+        assert len(model.coefficients) == 1
+        assert len(model_loaded.coefficients) == 1
+        assert model.coefficients[0] == pytest.approx(model_loaded.coefficients[0])
