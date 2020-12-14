@@ -20,7 +20,7 @@ class SISSODat(MSONable):
         model_type: str = "regression",
         nsample: Union[List[int], int, None] = None,
     ):
-        """Constructor for SISSODat class.
+        """Construct SISSODat class.
 
         The input data must be a pandas DataFrame for which the first column contains
         the identifiers for each data point (e.g. material identifier, batch number of
@@ -130,7 +130,7 @@ class SISSODat(MSONable):
 
     @property
     def nsample(self):
-        """Number of samples in this data set.
+        """Return number of samples in this data set.
 
         Returns:
             int: Number of samples
@@ -157,7 +157,7 @@ class SISSODat(MSONable):
 
     @property
     def ntask(self):
-        """Number of tasks (i.e. output targets) in this data set.
+        """Return number of tasks (i.e. output targets) in this data set.
 
         Returns:
             int: Number of tasks
@@ -171,7 +171,7 @@ class SISSODat(MSONable):
 
     @property
     def nsf(self):
-        """Number of (scalar) features in this data set.
+        """Return number of (scalar) features in this data set.
 
         Returns:
             int: Number of (scalar) features.
@@ -315,7 +315,7 @@ class SISSOIn(MSONable):
         descriptor_identification_keywords,
         fix=False,
     ):
-        """Constructor for SISSOIn object.
+        """Construct SISSOIn object.
 
         Args:
             target_properties_keywords: Keywords related to target properties.

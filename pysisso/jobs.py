@@ -22,7 +22,7 @@ class SISSOJob(Job):
         stdout_file: str = "SISSO.log",
         stderr_file: str = "SISSO.err",
     ):
-        """Constructor for SISSOJob class.
+        """Construct SISSOJob class.
 
         Args:
             SISSO_exe: Name of the SISSO executable.

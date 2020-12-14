@@ -17,7 +17,7 @@ class SISSOVersion(MSONable):
     """Class containing information about the SISSO version used."""
 
     def __init__(self, header_string: str, version: Tuple[int, int, int]):
-        """Constructor for SISSOVersion class.
+        """Construct SISSOVersion class.
 
         Args:
             header_string: Header string found in the SISSO.out output file.
@@ -60,7 +60,7 @@ class SISSODescriptor(MSONable):
     """Class containing one composed descriptor."""
 
     def __init__(self, descriptor_id: int, descriptor_string: str):
-        """Constructor for SISSODescriptor class.
+        """Construct SISSODescriptor class.
 
         Args:
             descriptor_id: Integer identifier of this descriptor.
@@ -82,7 +82,7 @@ class SISSODescriptor(MSONable):
         return eval(self.evalstring)  # nosec, pylint: disable=W0123
 
     def __str__(self):
-        """String representation of this SISSODescriptor.
+        """Return string representation of this SISSODescriptor.
 
         Returns:
             str: String representation of this SISSODescriptor.
@@ -215,7 +215,7 @@ class SISSOModel(MSONable):
         rmse: Union[List[float], None] = None,
         maxae: Union[List[float], None] = None,
     ):
-        """Constructor for SISSOModel class.
+        """Construct SISSOModel class.
 
         Args:
             dimension: Dimension of the model.
@@ -309,7 +309,7 @@ class SISSOIteration(MSONable):
         SIS_subspace_size: int,
         cpu_time: float,
     ):
-        """Constructor for SISSOIteration class.
+        """Construct SISSOIteration class.
 
         Args:
             iteration_number: Number of the iteration.
@@ -451,7 +451,7 @@ class SISSOParams(MSONable):
         fit_intercept: bool,
         metric: str,
     ):  # noqa: D417
-        """Constructor for SISSOParams class.
+        """Construct SISSOParams class.
 
         All arguments not listed below are arguments from the SISSO code. For more
         information, see https://github.com/rouyang2017/SISSO.
@@ -495,7 +495,7 @@ class SISSOParams(MSONable):
         return cls(**kwargs)
 
     def __str__(self):
-        """String representation of the SISSO parameters.
+        """Return string representation of the SISSO parameters.
 
         Returns:
             str: String representation of this SISSOParams object.
@@ -518,7 +518,7 @@ class SISSOOut(MSONable):
         version: SISSOVersion,
         cpu_time: float,
     ):
-        """Constructor for SISSOOut class.
+        """Construct SISSOOut class.
 
         Args:
             params: Parameters used for SISSO (as a SISSOParams object).
@@ -634,7 +634,7 @@ class DescriptorsDataModels(MSONable):  # pragma: no cover, reading full SISSO.o
     """
 
     def __init__(self, data):
-        """Constructor for this DescriptorsDataModels object.
+        """Construct this DescriptorsDataModels object.
 
         Args:
             data: Data for this DescriptorsDataModels object.

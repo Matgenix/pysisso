@@ -6,8 +6,7 @@
 import shutil
 import tempfile
 from datetime import datetime
-from typing import Union
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -292,7 +291,7 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
 
     @classmethod
     def from_SISSOIn(cls, sisso_in: SISSOIn):
-        """Constructs SISSORegressor from a SISSOIn object.
+        """Construct SISSORegressor from a SISSOIn object.
 
         Args:
             sisso_in: SISSOIn object containing the inputs for a SISSO run.
