@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2020, Matgenix SRL
 
+"""Module containing custodian validators for SISSO."""
 
 import os
 
@@ -16,7 +17,7 @@ class NormalCompletionValidator(Validator):
         stdout_file: str = "SISSO.log",
         stderr_file: str = "SISSO.err",
     ):
-        """Constructor for NormalCompletionValidator class.
+        """Construct NormalCompletionValidator class.
 
         This validator checks that the standard error file (SISSO.err by default) is
         empty, that the standard output file is not empty and that the output file
@@ -32,7 +33,7 @@ class NormalCompletionValidator(Validator):
         self.stderr_file = stderr_file
 
     def check(self) -> bool:
-        """Validates the normal completion of SISSO.
+        """Validate the normal completion of SISSO.
 
         Returns:
             bool: True if the standard error file is empty, the standard output file

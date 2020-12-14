@@ -4,7 +4,9 @@
 """Module containing a scikit-learn compliant interface to SISSO."""
 
 import shutil
-from typing import Union
+import tempfile
+from datetime import datetime
+from typing import Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -15,6 +17,25 @@ from sklearn.base import BaseEstimator, RegressorMixin
 from pysisso.inputs import SISSODat, SISSOIn
 from pysisso.jobs import SISSOJob
 from pysisso.outputs import SISSOOut
+
+
+def get_timestamp(tstamp: Optional[datetime] = None) -> object:
+    """Get a string representing the a time stamp.
+
+    Args:
+        tstamp: datetime.datetime object representing date and time. If set to None,
+            the current time is taken.
+
+    Returns:
+        str: String representation of the time stamp.
+    """
+    tstamp = tstamp or datetime.now()
+    return (
+        f"{str(tstamp.year).zfill(4)}_{str(tstamp.month).zfill(2)}_"
+        f"{str(tstamp.day).zfill(2)}_"
+        f"{str(tstamp.hour).zfill(2)}_{str(tstamp.minute).zfill(2)}_"
+        f"{str(tstamp.second).zfill(2)}_{str(tstamp.microsecond).zfill(6)}"
+    )
 
 
 class SISSORegressor(RegressorMixin, BaseEstimator):
@@ -55,13 +76,21 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
         use_custodian: bool = True,
         custodian_job_kwargs: Union[None, dict] = None,
         custodian_kwargs: Union[None, dict] = None,
-        run_dir: str = "SISSO_dir",
+        run_dir: Union[None, str] = "SISSO_dir",
         clean_run_dir: bool = False,
-    ):
+    ):  # noqa: D417
         """Construct SISSORegressor class.
 
+        All arguments not listed below are arguments from the SISSO code. For more
+        information, see https://github.com/rouyang2017/SISSO.
+
         Args:
-            use_custodian:
+            use_custodian: Whether to use custodian (currently mandatory).
+            custodian_job_kwargs: Keyword arguments for custodian job.
+            custodian_kwargs: Keyword arguments for custodian.
+            run_dir: Name of the directory where SISSO is run. If None, the directory
+                will be set automatically. It then contains a timestamp and is unique.
+            clean_run_dir: Whether to clean the run directory after SISSO has run.
         """
         self.ntask = ntask
         self.task_weighting = task_weighting
@@ -223,7 +252,14 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
         self.sisso_in.set_keywords_for_SISSO_dat(sisso_dat=sisso_dat)
 
         # Run SISSO
-        makedirs_p(self.run_dir)
+        if self.run_dir is None:
+            makedirs_p("SISSO_runs")
+            timestamp = get_timestamp()
+            self.run_dir = tempfile.mkdtemp(
+                suffix=None, prefix=f"SISSO_dir_{timestamp}_", dir="SISSO_runs"
+            )
+        else:
+            makedirs_p(self.run_dir)
         with cd(self.run_dir):
             self.sisso_in.to_file(filename="SISSO.in")
             sisso_dat.to_file(filename="train.dat")
@@ -241,7 +277,13 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
             shutil.rmtree(self.run_dir)
 
     def predict(self, X, index=None):
-        """Predict output based on a fitted SISSO regression."""
+        """Predict output based on a fitted SISSO regression.
+
+        Args:
+            X: Feature vectors as an array-like of shape (n_samples, n_features).
+            index: List of string identifiers for each sample. If None, "sampleN"
+                with N=[1, ..., n_samples] will be used.
+        """
         X = np.array(X)
         index = index or ["item{:d}".format(ii) for ii in range(X.shape[0])]
         data = pd.DataFrame(X, index=index, columns=self.columns)
@@ -249,4 +291,12 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
 
     @classmethod
     def from_SISSOIn(cls, sisso_in: SISSOIn):
+        """Construct SISSORegressor from a SISSOIn object.
+
+        Args:
+            sisso_in: SISSOIn object containing the inputs for a SISSO run.
+
+        Returns:
+            SISSORegressor: SISSO regressor.
+        """
         raise NotImplementedError
