@@ -35,7 +35,7 @@ class SISSOJob(Job):
         self.stdout_file = stdout_file
         self.stderr_file = stderr_file
 
-    def setup(self):
+    def setup(self):  # pragma: no cover
         """Not needed for SISSO."""
         pass
 
