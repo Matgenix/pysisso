@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2020, Matgenix SRL
 
+"""Module containing classes to parse SISSO output files."""
 
 import re
 from typing import List, Mapping, Tuple, Union
@@ -70,12 +71,22 @@ class SISSODescriptor(MSONable):
         self.evalstring = self._decode_function(self.descriptor_string)["evalstring"]
 
     def evaluate(self, df):  # pylint: disable=W0613
+        """Evaluate the descriptor from a given Dataframe.
+
+        Args:
+            df: panda's Dataframe to evaluate SISSODescriptor
+
+        Returns:
+            float: Value of this descriptor for the samples in the dataframe.
+        """
         return eval(self.evalstring)  # nosec, pylint: disable=W0123
 
-    # def evaluate(self, df):
-    #     return self.function(df)
-
     def __str__(self):
+        """String representation of this SISSODescriptor.
+
+        Returns:
+            str: String representation of this SISSODescriptor.
+        """
         return self.descriptor_string
 
     @staticmethod
@@ -304,8 +315,8 @@ class SISSOIteration(MSONable):
             iteration_number: Number of the iteration.
             sisso_model: SISSO model of this iteration.
             feature_spaces: Number of features in each feature rung.
-            SIS_subspace_size:
-            cpu_time:
+            SIS_subspace_size: Size of the SIS subspace.
+            cpu_time: CPU time for this SISSO iteration.
         """
         self.iteration_number = iteration_number
         self.sisso_model = sisso_model
@@ -439,30 +450,12 @@ class SISSOParams(MSONable):
         n_topmodels: int,
         fit_intercept: bool,
         metric: str,
-    ):
+    ):  # noqa: D417
         """Constructor for SISSOParams class.
 
-        Args:
-            property_type:
-            descriptor_dimension:
-            total_number_properties:
-            task_weighting:
-            number_of_samples:
-            n_scalar_features:
-            n_rungs:
-            max_feature_complexity:
-            n_dimension_types:
-            dimension_types:
-            lower_bound_maxabs_value:
-            upper_bound_maxabs_value:
-            SIS_subspaces_sizes:
-            operators:
-            sparsification_method:
-            n_topmodels:
-            fit_intercept:
-            metric:
+        All arguments not listed below are arguments from the SISSO code. For more
+        information, see https://github.com/rouyang2017/SISSO.
         """
-
         self.property_type = property_type
         self.descriptor_dimension = descriptor_dimension
         self.total_number_properties = total_number_properties
@@ -485,7 +478,6 @@ class SISSOParams(MSONable):
     @classmethod
     def from_string(cls, string: str):
         """Construct SISSOParams object from string."""
-
         kwargs = {}
         for class_var, output_var_str, var_type in cls.PARAMS:
             if class_var == "dimension_types":
@@ -503,6 +495,11 @@ class SISSOParams(MSONable):
         return cls(**kwargs)
 
     def __str__(self):
+        """String representation of the SISSO parameters.
+
+        Returns:
+            str: String representation of this SISSOParams object.
+        """
         out = ["Parameters for SISSO :"]
         for class_var, _, _ in self.PARAMS:
             out.append(
@@ -530,7 +527,6 @@ class SISSOOut(MSONable):
                 object.
             cpu_time: Wall-clock CPU time from the output file.
         """
-
         self.params = params
         self.iterations = iterations
         self.version = version
@@ -538,8 +534,12 @@ class SISSOOut(MSONable):
 
     @classmethod
     def from_file(cls, filepath: str = "SISSO.out", allow_unfinished: bool = False):
-        """Read in SISSOOut data from file."""
+        """Read in SISSOOut data from file.
 
+        Args:
+            filepath: Path of the file to extract output.
+            allow_unfinished: Whether to allow parsing of unfinished SISSO runs.
+        """
         with open(filepath, "r") as f:
             string = f.read()
 
@@ -584,17 +584,15 @@ class SISSOOut(MSONable):
 
     @property
     def model(self):
-        """Get the model for this SISSO run.
+        """Model for this SISSO run.
 
         The last model is provided (with the highest dimension).
         """
-
         return self.iterations[-1].sisso_model
 
     @property
     def models(self):
-        """Get the list of models (for all dimensions) for this SISSO run."""
-
+        """Models (for all dimensions) for this SISSO run."""
         return [it.sisso_model for it in self.iterations]
 
 
@@ -636,10 +634,23 @@ class DescriptorsDataModels(MSONable):  # pragma: no cover, reading full SISSO.o
     """
 
     def __init__(self, data):
+        """Constructor for this DescriptorsDataModels object.
+
+        Args:
+            data: Data for this DescriptorsDataModels object.
+        """
         self.data = data
 
     @classmethod
     def from_file(cls, filepath):
+        """Construct this DescriptorsDataModels object from file.
+
+        Args:
+            filepath: File to construct this DescriptorsDataModels from.
+
+        Returns:
+            DescriptorsDataModels: DescriptorsDataModels object.
+        """
         if filepath.endswith(".dat"):
             return cls.from_dat_file(filepath)
         else:
@@ -647,6 +658,14 @@ class DescriptorsDataModels(MSONable):  # pragma: no cover, reading full SISSO.o
 
     @classmethod
     def from_dat_file(cls, filepath):
+        """Construct this DescriptorsDataModels object from .dat file.
+
+        Args:
+            filepath: File to construct this DescriptorsDataModels from.
+
+        Returns:
+            DescriptorsDataModels: DescriptorsDataModels object.
+        """
         data = pd.read_csv(filepath, delim_whitespace=True)
         return cls(data=data)
 
