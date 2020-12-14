@@ -1,3 +1,25 @@
+Release 0.2.1 (Dec 14, 2020)
+==========================
+
+Features added
+--------------
+
+* Modified SISSO output objects in order to be able to use model persistence in sklearn
+
+  - Removed inner function that prevented to use joblib
+
+* Added option for temporary run directory (useful for hyperparameter search and
+  cross-validation)
+
+* Added a list of basic examples of usage
+
+* Fixed docstrings according to pydocstyle
+
+Testing
+-------
+
+* Added pydocstyle in pre-commits
+
 Release 0.2 (Dec 10, 2020)
 ==========================
 
