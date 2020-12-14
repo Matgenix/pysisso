@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2020, Matgenix SRL
 
+"""Module containing various utility functions for pysisso."""
 
 import os
 import shutil
@@ -17,6 +18,16 @@ TEST_FILES_DIR = os.path.abspath(
 
 
 def get_version(SISSO_exe="SISSO"):
+    """Get the version of a given SISSO executable.
+
+    Args:
+        SISSO_exe: Name of executable.
+
+    Returns:
+        dict: Dictionary with version and header as keys. Version is a tuple of the
+            three numbers for the SISSO version and header is the header line of the
+            SISSO output.
+    """
     # TODO: check how SISSO<3.0.2 was working
     with ScratchDir("."):
         shutil.copy2(
@@ -49,7 +60,6 @@ def list_of_ints(string: str, delimiter: Union[str, None] = None) -> List[int]:
         delimiter: Delimiter between integers in the string.
             Default is to split with any whitespace string (see str.split() method).
     """
-
     return [int(sp) for sp in string.split(sep=delimiter)]
 
 
@@ -65,7 +75,6 @@ def list_of_strs(
         strip: Whether to strip the substrings (i.e. remove leading and trailing
             whitespaces after the split with a delimiter that is not whitespace).
     """
-
     if strip:
         return [s.strip() for s in string.split(sep=delimiter)]
     return string.split(sep=delimiter)
@@ -81,7 +90,6 @@ def matrix_of_floats(
         delimiter_ax0: Delimiter for the first axis of the matrix.
         delimiter_ax1: Delimiter for the second axis of the matrix.
     """
-
     return [
         [float(sp2) for sp2 in sp.split(sep=delimiter_ax1)]
         for sp in string.split(sep=delimiter_ax0)

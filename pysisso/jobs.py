@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2020, Matgenix SRL
 
+"""Module containing the custodian jobs for SISSO."""
 
 import subprocess
 
@@ -9,9 +10,7 @@ from monty.os.path import which
 
 
 class SISSOJob(Job):
-    """
-    Custodian Job to run SISSO.
-    """
+    """Custodian Job to run SISSO."""
 
     INPUT_FILE = "SISSO.in"
     TRAINING_DATA_DILE = "train.dat"
@@ -23,7 +22,7 @@ class SISSOJob(Job):
         stdout_file: str = "SISSO.log",
         stderr_file: str = "SISSO.err",
     ):
-        """Constructor for SISSOJob class.
+        """Construct SISSOJob class.
 
         Args:
             SISSO_exe: Name of the SISSO executable.
@@ -37,13 +36,11 @@ class SISSOJob(Job):
         self.stderr_file = stderr_file
 
     def setup(self):
-        """
-        Not needed for SISSO.
-        """
+        """Not needed for SISSO."""
+        pass
 
     def run(self) -> subprocess.Popen:
-        """
-        Run SISSO.
+        """Run SISSO.
 
         Returns:
             a Popen process.
@@ -73,6 +70,4 @@ class SISSOJob(Job):
         return p
 
     def postprocess(self):
-        """
-        Not needed for SISSO.
-        """
+        """Not needed for SISSO."""

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2020, Matgenix SRL
 
+"""Module containing classes to create and manipulate SISSO input files."""
 
 import datetime
 from typing import List, Union
@@ -19,7 +20,7 @@ class SISSODat(MSONable):
         model_type: str = "regression",
         nsample: Union[List[int], int, None] = None,
     ):
-        """Constructor for SISSODat class.
+        """Construct SISSODat class.
 
         The input data must be a pandas DataFrame for which the first column contains
         the identifiers for each data point (e.g. material identifier, batch number of
@@ -87,6 +88,11 @@ class SISSODat(MSONable):
 
     @property
     def SISSO_features_dimensions_ranges(self):
+        """Get the ranges of features for each dimension.
+
+        Returns:
+            dict: Dimension to range mapping.
+        """
         cols = list(self.data.columns)
         if self.model_type == "regression":
             ii = 2
@@ -124,6 +130,11 @@ class SISSODat(MSONable):
 
     @property
     def nsample(self):
+        """Return number of samples in this data set.
+
+        Returns:
+            int: Number of samples
+        """
         return self._nsample
 
     @nsample.setter
@@ -146,6 +157,11 @@ class SISSODat(MSONable):
 
     @property
     def ntask(self):
+        """Return number of tasks (i.e. output targets) in this data set.
+
+        Returns:
+            int: Number of tasks
+        """
         if isinstance(self.nsample, int):
             return 1
         elif isinstance(self.nsample, list):
@@ -155,10 +171,20 @@ class SISSODat(MSONable):
 
     @property
     def nsf(self):
+        """Return number of (scalar) features in this data set.
+
+        Returns:
+            int: Number of (scalar) features.
+        """
         return len(self.data.columns) - 2
 
     @property
     def input_string(self):
+        """Input string of the .dat file.
+
+        Returns:
+            str: String for the .dat file.
+        """
         out = [
             " ".join(["{:20}".format(column_name) for column_name in self.data.columns])
         ]
@@ -174,11 +200,28 @@ class SISSODat(MSONable):
         return "\n".join(out)
 
     def to_file(self, filename="train.dat"):
+        """Write this SISSODat object to file.
+
+        Args:
+            filename: Name of the file to write this SISSODat to.
+        """
         with open(filename, "w") as f:
             f.write(self.input_string)
 
     @classmethod
     def from_file(cls, filepath, features_dimensions=None):
+        """Construct SISSODat object from file.
+
+        Args:
+            filepath: Name of the file.
+            features_dimensions: Dimension of the different base features as a
+                dictionary mapping the name of each feature to its dimension.
+                Features not in the dictionary are supposed to be dimensionless.
+                If set to None, all features are supposed to be dimensionless.
+
+        Returns:
+            SISSODat: SISSODat object extracted from file.
+        """
         if filepath.endswith(".dat"):
             return cls.from_dat_file(filepath, features_dimensions=features_dimensions)
         else:  # pragma: no cover
@@ -186,13 +229,24 @@ class SISSODat(MSONable):
 
     @classmethod
     def from_dat_file(cls, filepath, features_dimensions=None):
+        """Construct SISSODat object from .dat file.
+
+        Args:
+            filepath: Name of the file.
+            features_dimensions: Dimension of the different base features as a
+                dictionary mapping the name of each feature to its dimension.
+                Features not in the dictionary are supposed to be dimensionless.
+                If set to None, all features are supposed to be dimensionless.
+
+        Returns:
+            SISSODat: SISSODat object extracted from file.
+        """
         data = pd.read_csv(filepath, delim_whitespace=True)
         return cls(data=data, features_dimensions=features_dimensions)
 
 
 class SISSOIn(MSONable):
-    """
-    Main class containing the input variables for SISSO.
+    """Main class containing the input variables for SISSO.
 
     This class is basically a container for the SISSO.in input file for SISSO.
     Additional helper functions are available.
@@ -261,6 +315,16 @@ class SISSOIn(MSONable):
         descriptor_identification_keywords,
         fix=False,
     ):
+        """Construct SISSOIn object.
+
+        Args:
+            target_properties_keywords: Keywords related to target properties.
+            feature_construction_sure_independence_screening_keywords: Keywords related
+                to feature construction and sure independence screening.
+            descriptor_identification_keywords: Keywords related to descriptor
+                identification.
+            fix: Whether to automatically fix keywords when they are not compatible.
+        """
         self.target_properties_keywords = target_properties_keywords
         self.feature_construction_sure_independence_screening_keywords = (
             feature_construction_sure_independence_screening_keywords
@@ -404,6 +468,14 @@ class SISSOIn(MSONable):
 
     @property
     def input_string(self, matgenix_acknowledgement=True):
+        """Input string of the SISSO.in file.
+
+        Args:
+            matgenix_acknowledgement: Whether to add the acknowledgment of Matgenix.
+
+        Returns:
+            str: String for the SISSO.in file.
+        """
         if (
             self.target_properties_keywords["nsample"] is None
             or self.feature_construction_sure_independence_screening_keywords["nsf"]
@@ -535,7 +607,15 @@ class SISSOIn(MSONable):
         L1_warm_start=None,
         L1_weighted=None,
         fix=False,
-    ):
+    ):  # noqa: D417
+        """Construct SISSOIn object from SISSO input keywords.
+
+        Args:
+            fix: Whether to fix keywords if they are not compatible.
+
+        Returns:
+            SISSOIn: SISSOIn object containing the SISSO input arguments.
+        """
         tp_kwds = dict()
         tp_kwds["ptype"] = ptype
         tp_kwds["ntask"] = ntask
@@ -580,13 +660,28 @@ class SISSOIn(MSONable):
 
     @classmethod
     def from_file(cls, filepath):
+        """Construct SISSOIn from file.
+
+        Args:
+            filepath: Path of the file.
+        """
         raise NotImplementedError
 
     def to_file(self, filename="SISSO.in"):
+        """Write SISSOIn object to file.
+
+        Args:
+            filename: Name of the file to write SISSOIn object.
+        """
         with open(filename, "w") as f:
             f.write(self.input_string)
 
     def set_keywords_for_SISSO_dat(self, sisso_dat):
+        """Update keywords for a given SISSO dat object.
+
+        Args:
+            sisso_dat: SISSODat object to update related keywords.
+        """
         dimclass = None
         if sisso_dat.features_dimensions is not None:
             feature_dimensions_ranges = sisso_dat.SISSO_features_dimensions_ranges
@@ -615,6 +710,16 @@ class SISSOIn(MSONable):
     def from_SISSO_dat(
         cls, sisso_dat: SISSODat, model_type: str = "regression", **kwargs: object
     ):
+        """Construct SISSOIn object from SISSODat object.
+
+        Args:
+            sisso_dat: SISSODat object containing the data to fit.
+            model_type: Type of model. Should be "regression" or "classification".
+            **kwargs: Keywords to be passed to SISSOIn.
+
+        Returns:
+            SISSOIn: SISSOIn object containing all the relevant SISSO input keywords.
+        """
         if model_type == "regression":
             ptype = 1
         elif model_type == "classification":

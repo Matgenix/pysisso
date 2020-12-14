@@ -1,0 +1,5 @@
+[pydocstyle]
+inherit = false
+match = (?!test_).*\.py
+# Do not include examples_usage in pydocstyle checks
+match_dir = ^(?!(examples_usage)).*
