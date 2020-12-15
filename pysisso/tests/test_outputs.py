@@ -26,7 +26,6 @@ TEST_FILES_DIR = os.path.abspath(
 sisso_out = SISSOOut.from_file(
     filepath=os.path.join(TEST_FILES_DIR, "runs", "cubic_function", "SISSO.out")
 )
-print(sisso_out.params)
 
 
 @pytest.mark.unit

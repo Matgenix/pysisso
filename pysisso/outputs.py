@@ -267,7 +267,7 @@ class SISSOModel(MSONable):
         """
         lines = string.split("\n")
         dimension = int(lines[1].split("D descriptor")[0])
-        descriptors: List[SISSODescriptor] = []
+        descriptors: Optional[List[SISSODescriptor]] = None
         coefficients = []
         intercept = []
         rmse = []
@@ -287,6 +287,9 @@ class SISSOModel(MSONable):
                 sp = line.split()
                 rmse.append(float(sp[1]))
                 maxae.append(float(sp[2]))
+
+        if descriptors is None:  # pragma: no cover, wrong SISSO output
+            raise ValueError("Descriptor not found")
 
         return cls(
             dimension=dimension,
