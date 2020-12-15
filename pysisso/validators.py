@@ -5,7 +5,7 @@
 
 import os
 
-from custodian.custodian import Validator
+from custodian.custodian import Validator  # type: ignore
 
 
 class NormalCompletionValidator(Validator):

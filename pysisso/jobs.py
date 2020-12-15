@@ -5,8 +5,8 @@
 
 import subprocess
 
-from custodian.custodian import Job
-from monty.os.path import which
+from custodian.custodian import Job  # type: ignore
+from monty.os.path import which  # type: ignore
 
 
 class SISSOJob(Job):

@@ -6,8 +6,8 @@
 import datetime
 from typing import List, Union
 
-import pandas as pd
-from monty.json import MSONable
+import pandas as pd  # type: ignore
+from monty.json import MSONable  # type: ignore
 
 
 class SISSODat(MSONable):
@@ -466,7 +466,6 @@ class SISSOIn(MSONable):
                 "Value : {} (type : {})".format(kw, str(val), val_type)
             )
 
-    @property
     def input_string(self, matgenix_acknowledgement=True):
         """Input string of the SISSO.in file.
 
@@ -674,7 +673,7 @@ class SISSOIn(MSONable):
             filename: Name of the file to write SISSOIn object.
         """
         with open(filename, "w") as f:
-            f.write(self.input_string)
+            f.write(self.input_string())
 
     def set_keywords_for_SISSO_dat(self, sisso_dat):
         """Update keywords for a given SISSO dat object.

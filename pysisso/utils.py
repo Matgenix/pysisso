@@ -8,7 +8,7 @@ import shutil
 import subprocess
 from typing import List, Union
 
-from monty.tempfile import ScratchDir
+from monty.tempfile import ScratchDir  # type: ignore
 
 import pysisso
 
