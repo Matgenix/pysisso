@@ -178,6 +178,6 @@ def test_sisso_in():
         SISSOIn.from_SISSO_dat(sisso_dat=sisso_dat, model_type="wrong_model_type")
 
     sisso_in = SISSOIn.from_SISSO_dat(sisso_dat=sisso_dat, task_weighting=None)
-    sisso_string = sisso_in.input_string
+    sisso_string = sisso_in.input_string()
     assert "task_weighting" not in sisso_string
     assert "! REGRESSION MODEL !" in sisso_string

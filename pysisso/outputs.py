@@ -4,11 +4,11 @@
 """Module containing classes to parse SISSO output files."""
 
 import re
-from typing import List, Mapping, Tuple, Union
+from typing import Callable, List, Mapping, Optional, Tuple, Union
 
-import numpy as np
-import pandas as pd
-from monty.json import MSONable
+import numpy as np  # type: ignore
+import pandas as pd  # type: ignore
+from monty.json import MSONable  # type: ignore
 
 from pysisso.utils import list_of_ints, list_of_strs, matrix_of_floats, str_to_bool
 
@@ -267,7 +267,7 @@ class SISSOModel(MSONable):
         """
         lines = string.split("\n")
         dimension = int(lines[1].split("D descriptor")[0])
-        descriptors = None
+        descriptors: List[SISSODescriptor] = []
         coefficients = []
         intercept = []
         rmse = []
@@ -380,7 +380,7 @@ class SISSOIteration(MSONable):
 class SISSOParams(MSONable):
     """Class containing input parameters extracted from the SISSO output file."""
 
-    PARAMS = [
+    PARAMS: List[Tuple[str, str, Union[type, Callable]]] = [
         ("property_type", "Descriptor dimension:", int),
         ("descriptor_dimension", "Descriptor dimension:", int),
         ("total_number_properties", "Total number of properties:", int),
@@ -484,14 +484,18 @@ class SISSOParams(MSONable):
                 match = re.search(
                     r"{}(.*?)\nLower bound".format(output_var_str), string, re.DOTALL
                 )
+                if match is None:  # pragma: no cover, wrong SISSO output
+                    raise ValueError(
+                        'Should find a match for "{}"'.format(output_var_str)
+                    )
                 kwargs[class_var] = var_type(match.group(1).strip())
             else:
-                match = re.findall(r"{}.*?\n".format(output_var_str), string)
-                if len(match) != 1:  # pragma: no cover, wrong SISSO output
+                matches = re.findall(r"{}.*?\n".format(output_var_str), string)
+                if len(matches) != 1:  # pragma: no cover, wrong SISSO output
                     raise ValueError(
                         'Should get exactly one match for "{}".'.format(output_var_str)
                     )
-                kwargs[class_var] = var_type(match[0].split()[-1])
+                kwargs[class_var] = var_type(matches[0].split()[-1])
         return cls(**kwargs)
 
     def __str__(self):
@@ -516,7 +520,7 @@ class SISSOOut(MSONable):
         params: SISSOParams,
         iterations: List[SISSOIteration],
         version: SISSOVersion,
-        cpu_time: float,
+        cpu_time: Optional[float],
     ):
         """Construct SISSOOut class.
 
