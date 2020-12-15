@@ -51,12 +51,14 @@ source = ["pysisso"]
 omit = [
     "*/test_*",
 ]
+branch = true
 
 [tool.coverage.report]
 exclude_lines = [
     "pragma: no cover",
     "raise NotImplementedError",
 ]
+fail_under = 100
 
 [tool.coverage.html]
 directory = "htmlcov"

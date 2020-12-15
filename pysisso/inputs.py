@@ -144,6 +144,7 @@ class SISSODat(MSONable):
         elif isinstance(nsample, int):
             if nsample != len(self.data):
                 raise ValueError("The size of the DataFrame does not match nsample.")
+            self._nsample = nsample
         elif isinstance(nsample, list):
             if sum(nsample) != len(self.data):  # pragma: no cover
                 raise ValueError(
@@ -228,7 +229,7 @@ class SISSODat(MSONable):
             raise ValueError("The from_file method is working only with .dat files")
 
     @classmethod
-    def from_dat_file(cls, filepath, features_dimensions=None):
+    def from_dat_file(cls, filepath, features_dimensions=None, nsample=None):
         """Construct SISSODat object from .dat file.
 
         Args:
@@ -237,12 +238,14 @@ class SISSODat(MSONable):
                 dictionary mapping the name of each feature to its dimension.
                 Features not in the dictionary are supposed to be dimensionless.
                 If set to None, all features are supposed to be dimensionless.
+            nsample: Number of samples in the .dat file. If set to None, will be set
+                automatically.
 
         Returns:
             SISSODat: SISSODat object extracted from file.
         """
         data = pd.read_csv(filepath, delim_whitespace=True)
-        return cls(data=data, features_dimensions=features_dimensions)
+        return cls(data=data, features_dimensions=features_dimensions, nsample=nsample)
 
 
 class SISSOIn(MSONable):
@@ -400,6 +403,10 @@ class SISSOIn(MSONable):
                                 )
                             )
                         subs_sis[dim - 1] = L1L0_size4L0
+            else:  # pragma: no cover, should never be here after kw formats check
+                raise ValueError(
+                    'Wrong type for "subs_sis" : {}'.format(type(subs_sis))
+                )
 
     def _format_kw_value(self, kw, val, float_format=".12f"):
         allowed_types = self.KW_TYPES[kw]
@@ -411,21 +418,21 @@ class SISSOIn(MSONable):
                     val_type = int
                     break
             elif allowed_type is float:
-                if type(val) is float:
+                if type(val) is float:  # pragma: no branch
                     val_type = float
                     break
             elif allowed_type is bool:
-                if type(val) is bool:
+                if type(val) is bool:  # pragma: no branch
                     val_type = bool
                     break
             elif allowed_type is str:
-                if type(val) is str:
+                if type(val) is str:  # pragma: no branch
                     val_type = str
                     break
             elif allowed_type == "list_of_ints":
-                if (type(val) is list or type(val) is tuple) and all(
-                    [type(item) is int for item in val]
-                ):
+                if (  # pragma: no branch
+                    type(val) is list or type(val) is tuple
+                ) and all([type(item) is int for item in val]):
                     val_type = "list_of_ints"
                     break
             # TODO: add checks on the str_operators, str_dimensions and str_isconvex
@@ -666,7 +673,10 @@ class SISSOIn(MSONable):
         """
         raise NotImplementedError
 
-    def to_file(self, filename="SISSO.in"):
+    def to_file(
+        self,
+        filename="SISSO.in",
+    ):
         """Write SISSOIn object to file.
 
         Args:

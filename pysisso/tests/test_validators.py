@@ -66,3 +66,9 @@ def test_normal_completion_validator():
             data="Dummy line\n Have a nice day !\n", encoding="utf-8"
         )
         assert v.check() is False
+    with ScratchDir("."):
+        pathlib.Path("mySISSO.log").write_text(data="something", encoding="utf-8")
+        pathlib.Path("mySISSO.out").write_text(
+            data="Dummy line\n Have a nice day !\n", encoding="utf-8"
+        )
+        assert v.check() is False
