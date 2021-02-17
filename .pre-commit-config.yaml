@@ -36,3 +36,9 @@ repos:
     hooks:
     - id: pydocstyle
       exclude: (examples_usage|test_.*py)  # exclude python test files and example usage
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.790
+    hooks:
+    - id: mypy
+      exclude: (examples_usage|test_.*py)  # exclude python test files and example usage
+      args: []

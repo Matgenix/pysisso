@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2020, Matgenix SRL
+# Copyright (c) 2020, Matgenix SRL, All rights reserved.
+# Distributed open source for academic and non-profit users.
+# Contact Matgenix for commercial usage.
+# See LICENCE file for details.
 
 """Module containing custodian validators for SISSO."""
 
 import os
 
-from custodian.custodian import Validator
+from custodian.custodian import Validator  # type: ignore
 
 
 class NormalCompletionValidator(Validator):

@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2020, Matgenix SRL
+# Copyright (c) 2020, Matgenix SRL, All rights reserved.
+# Distributed open source for academic and non-profit users.
+# Contact Matgenix for commercial usage.
+# See LICENCE file for details.
 
 """Example usage of model persistence of sklearn's interface to pysisso.
 

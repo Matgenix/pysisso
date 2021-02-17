@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2020, Matgenix SRL
+# Copyright (c) 2020, Matgenix SRL, All rights reserved.
+# Distributed open source for academic and non-profit users.
+# Contact Matgenix for commercial usage.
+# See LICENCE file for details.
 
 """Module containing the custodian jobs for SISSO."""
 
 import subprocess
 
-from custodian.custodian import Job
-from monty.os.path import which
+from custodian.custodian import Job  # type: ignore
+from monty.os.path import which  # type: ignore
 
 
 class SISSOJob(Job):

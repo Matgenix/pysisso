@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2020, Matgenix SRL
+# Copyright (c) 2020, Matgenix SRL, All rights reserved.
+# Distributed open source for academic and non-profit users.
+# Contact Matgenix for commercial usage.
+# See LICENCE file for details.
 
 """Module containing a scikit-learn compliant interface to SISSO."""
 
@@ -8,11 +11,11 @@ import tempfile
 from datetime import datetime
 from typing import Optional, Union
 
-import numpy as np
-import pandas as pd
-from custodian import Custodian
-from monty.os import cd, makedirs_p
-from sklearn.base import BaseEstimator, RegressorMixin
+import numpy as np  # type: ignore
+import pandas as pd  # type: ignore
+from custodian import Custodian  # type: ignore
+from monty.os import cd, makedirs_p  # type: ignore
+from sklearn.base import BaseEstimator, RegressorMixin  # type: ignore
 
 from pysisso.inputs import SISSODat, SISSOIn
 from pysisso.jobs import SISSOJob

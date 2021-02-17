@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2020, Matgenix SRL
+# Copyright (c) 2020, Matgenix SRL, All rights reserved.
+# Distributed open source for academic and non-profit users.
+# Contact Matgenix for commercial usage.
+# See LICENCE file for details.
 
 
 import pathlib
@@ -61,6 +64,12 @@ def test_normal_completion_validator():
         assert v.check() is True
     with ScratchDir("."):
         pathlib.Path("mySISSO.err").touch()
+        pathlib.Path("mySISSO.log").write_text(data="something", encoding="utf-8")
+        pathlib.Path("mySISSO.out").write_text(
+            data="Dummy line\n Have a nice day !\n", encoding="utf-8"
+        )
+        assert v.check() is False
+    with ScratchDir("."):
         pathlib.Path("mySISSO.log").write_text(data="something", encoding="utf-8")
         pathlib.Path("mySISSO.out").write_text(
             data="Dummy line\n Have a nice day !\n", encoding="utf-8"

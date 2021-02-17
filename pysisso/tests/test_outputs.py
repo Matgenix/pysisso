@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2020, Matgenix SRL
+# Copyright (c) 2020, Matgenix SRL, All rights reserved.
+# Distributed open source for academic and non-profit users.
+# Contact Matgenix for commercial usage.
+# See LICENCE file for details.
 
 
 import os
@@ -26,7 +29,6 @@ TEST_FILES_DIR = os.path.abspath(
 sisso_out = SISSOOut.from_file(
     filepath=os.path.join(TEST_FILES_DIR, "runs", "cubic_function", "SISSO.out")
 )
-print(sisso_out.params)
 
 
 @pytest.mark.unit
