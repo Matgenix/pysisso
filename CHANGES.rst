@@ -1,5 +1,12 @@
-Release 0.2.1 (Dec 14, 2020)
+Release 0.3 (Feb 17, 2021)
 ==========================
+
+* Added LICENCE file
+* Released pysisso under Matgenix's licence
+
+
+Release 0.2.1 (Dec 14, 2020)
+============================
 
 Features added
 --------------
