@@ -504,9 +504,8 @@ class SISSOIn(MSONable):
                 "! Distributed open source for academic and non-profit users. !\n"
                 "! Contact Matgenix for commercial usage.                     !\n"
                 "! See LICENCE file for details.                              !\n"
-                "!------------------------------------------------------------!\n".format(
-                    year
-                )
+                "!------------------------------------------------------------!"
+                "\n".format(year)
             )
         if self.is_regression:
             out.append(
