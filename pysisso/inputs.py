@@ -2,7 +2,7 @@
 # Copyright (c) 2020, Matgenix SRL, All rights reserved.
 # Distributed open source for academic and non-profit users.
 # Contact Matgenix for commercial usage.
-# See LICENCE file for details.
+# See LICENSE file for details.
 
 """Module containing classes to create and manipulate SISSO input files."""
 
@@ -503,7 +503,7 @@ class SISSOIn(MSONable):
                 "! Copyright (c) {:d}, Matgenix SRL. All Rights Reserved.     !\n"
                 "! Distributed open source for academic and non-profit users. !\n"
                 "! Contact Matgenix for commercial usage.                     !\n"
-                "! See LICENCE file for details.                              !\n"
+                "! See LICENSE file for details.                              !\n"
                 "!------------------------------------------------------------!"
                 "\n".format(year)
             )
