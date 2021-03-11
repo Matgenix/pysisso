@@ -1,8 +1,8 @@
 
-Release 0.3.2 (Xxx YY, 2021)
+Release 0.3.2 (Mar 11, 2021)
 ============================
 
-* Added documentation
+* Started documentation
 * Updated spelling of "licence" to "license" everywhere
 
 

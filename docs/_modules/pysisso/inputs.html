@@ -1,0 +1,951 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pysisso.inputs &mdash; pysisso 0.3.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pysisso
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/index.html">Get started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../how-to/index.html">How-to guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../background/index.html">Background information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/index.html">Technical reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pysisso</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pysisso.inputs</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pysisso.inputs</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># Copyright (c) 2020, Matgenix SRL, All rights reserved.</span>
+<span class="c1"># Distributed open source for academic and non-profit users.</span>
+<span class="c1"># Contact Matgenix for commercial usage.</span>
+<span class="c1"># See LICENSE file for details.</span>
+
+<span class="sd">&quot;&quot;&quot;Module containing classes to create and manipulate SISSO input files.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>  <span class="c1"># type: ignore</span>
+
+
+<div class="viewcode-block" id="SISSODat"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.inputs.SISSODat">[docs]</a><span class="k">class</span> <span class="nc">SISSODat</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Main class containing the data for SISSO (training, test or new data).&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">features_dimensions</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">model_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;regression&quot;</span><span class="p">,</span>
+        <span class="n">nsample</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct SISSODat class.</span>
+
+<span class="sd">        The input data must be a pandas DataFrame for which the first column contains</span>
+<span class="sd">        the identifiers for each data point (e.g. material identifier, batch number of</span>
+<span class="sd">        a process, ...), the second column contains the property to be predicted and</span>
+<span class="sd">        the other columns are the base features.</span>
+
+<span class="sd">        Classification is not yet supported (needs the items in the same classes to</span>
+<span class="sd">        be grouped together).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: Input data as pandas DataFrame object. The first column must be the</span>
+<span class="sd">                identifiers for each data point, the second column must be the property</span>
+<span class="sd">                to be predicted, and the other columns are the base features.</span>
+<span class="sd">            features_dimensions: Dimension of the different base features as a</span>
+<span class="sd">                dictionary mapping the name of each feature to its dimension.</span>
+<span class="sd">                Features not in the dictionary are supposed to be dimensionless.</span>
+<span class="sd">                If set to None, all features are supposed to be dimensionless.</span>
+<span class="sd">            model_type: Type of model. Should be either &quot;regression&quot; or</span>
+<span class="sd">                &quot;classification&quot;.</span>
+<span class="sd">            nsample: Number of samples. If None or an integer, SISSO is supposed to be</span>
+<span class="sd">                Single-Task (ST). If a list of integers, SISSO is supposed to be</span>
+<span class="sd">                Multi-Task (MT).</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: if nsample is not compatible with the data frame.</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            The pandas index has not be used for the identifier here. Indeed when</span>
+<span class="sd">            Multi-Task SISSO is used, the same identifier can occur for two different</span>
+<span class="sd">            tasks/properties.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features_dimensions</span> <span class="o">=</span> <span class="n">features_dimensions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_type</span> <span class="o">=</span> <span class="n">model_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nsample</span> <span class="o">=</span> <span class="n">nsample</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_order_features</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_order_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_dimensions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features_dimensions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="s2">&quot;_NODIM&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_dimensions</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Dimension name &quot;_NODIM&quot; in features_dimensions is not allowed.&#39;</span>
+            <span class="p">)</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_type</span> <span class="o">==</span> <span class="s2">&quot;regression&quot;</span><span class="p">:</span>
+            <span class="n">ii</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_type</span> <span class="o">==</span> <span class="s2">&quot;classification&quot;</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="n">ii</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># pragma: no cover # should not be anything else</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wrong model_type&quot;</span><span class="p">)</span>
+        <span class="n">newcols</span> <span class="o">=</span> <span class="n">cols</span><span class="p">[:</span><span class="n">ii</span><span class="p">]</span>
+        <span class="n">featcols</span> <span class="o">=</span> <span class="n">cols</span><span class="p">[</span><span class="n">ii</span><span class="p">:]</span>
+        <span class="n">newcols</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="nb">sorted</span><span class="p">(</span>
+                <span class="n">featcols</span><span class="p">,</span>
+                <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_dimensions</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_dimensions</span>
+                <span class="k">else</span> <span class="s2">&quot;_NODIM&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">newcols</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">SISSO_features_dimensions_ranges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the ranges of features for each dimension.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Dimension to range mapping.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_type</span> <span class="o">==</span> <span class="s2">&quot;regression&quot;</span><span class="p">:</span>
+            <span class="n">ii</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_type</span> <span class="o">==</span> <span class="s2">&quot;classification&quot;</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="n">ii</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># pragma: no cover # should not be anything else</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wrong model_type&quot;</span><span class="p">)</span>
+        <span class="n">featcols</span> <span class="o">=</span> <span class="n">cols</span><span class="p">[</span><span class="n">ii</span><span class="p">:]</span>
+        <span class="n">featdimensions</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">features_dimensions</span><span class="p">[</span><span class="n">featcol</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">featcol</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_dimensions</span>
+            <span class="k">else</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="n">featcol</span> <span class="ow">in</span> <span class="n">featcols</span>
+        <span class="p">]</span>
+        <span class="n">uniquedimensions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">featdimensions</span><span class="p">))</span>
+        <span class="n">ranges</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">dimension</span> <span class="ow">in</span> <span class="n">uniquedimensions</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">featdimensions</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">dimension</span><span class="p">)</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="n">featdimensions</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">dimension</span><span class="p">)</span>
+            <span class="n">ranges</span><span class="p">[</span><span class="n">dimension</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">idx</span> <span class="o">+</span> <span class="n">count</span><span class="p">)</span>
+        <span class="c1"># Check that the ranges do not overlap</span>
+        <span class="k">for</span> <span class="n">dim1</span><span class="p">,</span> <span class="n">range1</span> <span class="ow">in</span> <span class="n">ranges</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">dim2</span><span class="p">,</span> <span class="n">range2</span> <span class="ow">in</span> <span class="n">ranges</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">dim1</span> <span class="o">==</span> <span class="n">dim2</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_ranges_overlap</span><span class="p">(</span><span class="n">range1</span><span class="p">,</span> <span class="n">range2</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Dimension ranges overlap :&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ranges</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_check_ranges_overlap</span><span class="p">(</span><span class="n">r1</span><span class="p">,</span> <span class="n">r2</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">r1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">r2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">r1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">r2</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">or</span> <span class="p">(</span><span class="n">r2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">r1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">r2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">r1</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nsample</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return number of samples in this data set.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Number of samples</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nsample</span>
+
+    <span class="nd">@nsample</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">nsample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nsample</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">nsample</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_nsample</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nsample</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">nsample</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The size of the DataFrame does not match nsample.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_nsample</span> <span class="o">=</span> <span class="n">nsample</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nsample</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">nsample</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Sum of all samples is not equal to the size of the DataFrame.&quot;</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_nsample</span> <span class="o">=</span> <span class="n">nsample</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Type &quot;</span><span class="si">{}</span><span class="s1">&quot; is not valid for nsample.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">nsample</span><span class="p">))</span>
+            <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ntask</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return number of tasks (i.e. output targets) in this data set.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Number of tasks</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nsample</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nsample</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nsample</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wrong nsample in SISSODat.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nsf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return number of (scalar) features in this data set.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Number of (scalar) features.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Input string of the .dat file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: String for the .dat file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">{:20}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">column_name</span><span class="p">)</span> <span class="k">for</span> <span class="n">column_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">])</span>
+        <span class="p">]</span>
+        <span class="n">max_str_size</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="nb">len</span><span class="p">))</span>
+        <span class="n">header_row_format_str</span> <span class="o">=</span> <span class="s2">&quot;{{:</span><span class="si">{}</span><span class="s2">}}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="n">max_str_size</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">row_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="p">[</span><span class="n">header_row_format_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">row_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+            <span class="c1"># line = [&#39;{:20}&#39;.format(row_list[0])]</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">row_list</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="n">line</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:&lt;20.12f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">col</span><span class="p">))</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SISSODat.to_file"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.inputs.SISSODat.to_file">[docs]</a>    <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;train.dat&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write this SISSODat object to file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename: Name of the file to write this SISSODat to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_string</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SISSODat.from_file"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.inputs.SISSODat.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">features_dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct SISSODat object from file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filepath: Name of the file.</span>
+<span class="sd">            features_dimensions: Dimension of the different base features as a</span>
+<span class="sd">                dictionary mapping the name of each feature to its dimension.</span>
+<span class="sd">                Features not in the dictionary are supposed to be dimensionless.</span>
+<span class="sd">                If set to None, all features are supposed to be dimensionless.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            SISSODat: SISSODat object extracted from file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">filepath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.dat&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_dat_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">features_dimensions</span><span class="o">=</span><span class="n">features_dimensions</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The from_file method is working only with .dat files&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SISSODat.from_dat_file"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.inputs.SISSODat.from_dat_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dat_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">features_dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nsample</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct SISSODat object from .dat file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filepath: Name of the file.</span>
+<span class="sd">            features_dimensions: Dimension of the different base features as a</span>
+<span class="sd">                dictionary mapping the name of each feature to its dimension.</span>
+<span class="sd">                Features not in the dictionary are supposed to be dimensionless.</span>
+<span class="sd">                If set to None, all features are supposed to be dimensionless.</span>
+<span class="sd">            nsample: Number of samples in the .dat file. If set to None, will be set</span>
+<span class="sd">                automatically.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            SISSODat: SISSODat object extracted from file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">delim_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">features_dimensions</span><span class="o">=</span><span class="n">features_dimensions</span><span class="p">,</span> <span class="n">nsample</span><span class="o">=</span><span class="n">nsample</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="SISSOIn"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.inputs.SISSOIn">[docs]</a><span class="k">class</span> <span class="nc">SISSOIn</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Main class containing the input variables for SISSO.</span>
+
+<span class="sd">    This class is basically a container for the SISSO.in input file for SISSO.</span>
+<span class="sd">    Additional helper functions are available.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#: dict: Types or descriptions (as a string) of the values for each SISSO keyword.</span>
+    <span class="n">KW_TYPES</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;ptype&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">]),</span>
+        <span class="s2">&quot;ntask&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">]),</span>
+        <span class="s2">&quot;nsample&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">,</span> <span class="s2">&quot;list_of_ints&quot;</span><span class="p">]),</span>
+        <span class="s2">&quot;task_weighting&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">]),</span>
+        <span class="s2">&quot;desc_dim&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">]),</span>
+        <span class="s2">&quot;nsf&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">]),</span>
+        <span class="s2">&quot;restart&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">bool</span><span class="p">]),</span>
+        <span class="s2">&quot;rung&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">]),</span>
+        <span class="s2">&quot;opset&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="s2">&quot;str_operators&quot;</span><span class="p">]),</span>
+        <span class="s2">&quot;maxcomplexity&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">]),</span>
+        <span class="s2">&quot;dimclass&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="s2">&quot;str_dimensions&quot;</span><span class="p">]),</span>
+        <span class="s2">&quot;maxfval_lb&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">float</span><span class="p">]),</span>
+        <span class="s2">&quot;maxfval_ub&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">float</span><span class="p">]),</span>
+        <span class="s2">&quot;subs_sis&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">,</span> <span class="s2">&quot;list_of_ints&quot;</span><span class="p">]),</span>
+        <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">str</span><span class="p">]),</span>
+        <span class="s2">&quot;L1L0_size4L0&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">]),</span>
+        <span class="s2">&quot;fit_intercept&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">bool</span><span class="p">]),</span>
+        <span class="s2">&quot;metric&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">str</span><span class="p">]),</span>
+        <span class="s2">&quot;nm_output&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">]),</span>
+        <span class="s2">&quot;isconvex&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="s2">&quot;str_isconvex&quot;</span><span class="p">]),</span>
+        <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">float</span><span class="p">]),</span>
+        <span class="s2">&quot;nvf&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">]),</span>
+        <span class="s2">&quot;vfsize&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">]),</span>
+        <span class="s2">&quot;vf2sf&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">str</span><span class="p">]),</span>
+        <span class="s2">&quot;npf_must&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">]),</span>
+        <span class="s2">&quot;L1_max_iter&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">]),</span>
+        <span class="s2">&quot;L1_tole&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">float</span><span class="p">]),</span>
+        <span class="s2">&quot;L1_dens&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">]),</span>
+        <span class="s2">&quot;L1_nlambda&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">]),</span>
+        <span class="s2">&quot;L1_minrmse&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">float</span><span class="p">]),</span>
+        <span class="s2">&quot;L1_warm_start&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">bool</span><span class="p">]),</span>
+        <span class="s2">&quot;L1_weighted&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">bool</span><span class="p">]),</span>
+    <span class="p">}</span>
+
+    <span class="c1">#: dict: Available unary and binary operators for feature construction.</span>
+    <span class="c1"># TODO: add string description</span>
+    <span class="n">AVAILABLE_OPERATIONS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;unary&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;exp&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;exp-&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;^-1&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;scd&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;^2&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;^3&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;^6&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sqrt&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cbrt&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;log&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sin&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cos&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;binary&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;+&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;|-|&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">},</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">target_properties_keywords</span><span class="p">,</span>
+        <span class="n">feature_construction_sure_independence_screening_keywords</span><span class="p">,</span>
+        <span class="n">descriptor_identification_keywords</span><span class="p">,</span>
+        <span class="n">fix</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct SISSOIn object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            target_properties_keywords: Keywords related to target properties.</span>
+<span class="sd">            feature_construction_sure_independence_screening_keywords: Keywords related</span>
+<span class="sd">                to feature construction and sure independence screening.</span>
+<span class="sd">            descriptor_identification_keywords: Keywords related to descriptor</span>
+<span class="sd">                identification.</span>
+<span class="sd">            fix: Whether to automatically fix keywords when they are not compatible.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_properties_keywords</span> <span class="o">=</span> <span class="n">target_properties_keywords</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_construction_sure_independence_screening_keywords</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">feature_construction_sure_independence_screening_keywords</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">descriptor_identification_keywords</span> <span class="o">=</span> <span class="n">descriptor_identification_keywords</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_keywords</span><span class="p">(</span><span class="n">fix</span><span class="o">=</span><span class="n">fix</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_check_keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fix</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="c1"># TODO: implement a check on the keywords</span>
+        <span class="c1"># When using L1L0 method, L1L0_size4L0 should not be &gt; subs_sis,</span>
+        <span class="c1">#   i.e. should be &lt;= subs_sis (&quot;STOP Error: fs_size_L0 must not larger than</span>
+        <span class="c1">#       fs_size_DI !&quot; in SISSO.err)</span>
+        <span class="c1"># When using L1L0 method, L1L0_size4L0 should be &gt;= desc_dim</span>
+        <span class="c1">#   i.e. it crashes when it reaches a dimension larger than L1L0_size4L0</span>
+        <span class="c1">#   (&quot;Program received signal SIGSEGV: Segmentation fault - invalid memory</span>
+        <span class="c1">#       reference.&quot; in SISSO.err)</span>
+        <span class="c1"># * L1L0_size4L0 &lt;= subs_sis</span>
+        <span class="c1"># * L1L0_size4L0 &gt;= desc_dim</span>
+        <span class="c1"># In short :</span>
+        <span class="c1"># desc_dim &lt;= L1L0_size4L0 &lt;= subs_sis</span>
+        <span class="c1"># Possible fixes :</span>
+        <span class="c1"># A. When the number of features is large, fix L1L0_size4L0 and subs_sis:</span>
+        <span class="c1">#   A.1. increase L1L0_size4L0 to at least desc_dim</span>
+        <span class="c1">#   A.2. increase subs_sis to at least L1L0_size4L0</span>
+        <span class="c1"># B. When the number of features is small, we get the following message</span>
+        <span class="c1">#   in SISSO.log :</span>
+        <span class="c1">#   &quot;# WARNING: the actual size of the selected subspace is smaller than that</span>
+        <span class="c1">#       specified in &quot;SISSO.in&quot; !!!&quot;</span>
+        <span class="c1">#   In that case, subs_sis cannot be increased, L1L0_size4L0 has to be</span>
+        <span class="c1">#       decreased, and in any case, the number of descriptors (desc_dim)</span>
+        <span class="c1">#       cannot be larger than L1L0_size4L0</span>
+        <span class="c1"># In all method cases (L0 or L1L0), when desc_dim is larger than the total</span>
+        <span class="c1">#   number of features, we get :</span>
+        <span class="c1">#   &quot;Program received signal SIGSEGV: Segmentation fault - invalid memory</span>
+        <span class="c1">#       reference.&quot; in SISSO.err</span>
+        <span class="n">uses_L1L0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">descriptor_identification_keywords</span><span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;L1L0&quot;</span>
+        <span class="k">if</span> <span class="n">uses_L1L0</span><span class="p">:</span>
+            <span class="n">desc_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_properties_keywords</span><span class="p">[</span><span class="s2">&quot;desc_dim&quot;</span><span class="p">]</span>
+            <span class="n">L1L0_size4L0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">descriptor_identification_keywords</span><span class="p">[</span><span class="s2">&quot;L1L0_size4L0&quot;</span><span class="p">]</span>
+            <span class="n">subs_sis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_construction_sure_independence_screening_keywords</span><span class="p">[</span>
+                <span class="s2">&quot;subs_sis&quot;</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="n">desc_dim</span> <span class="o">&gt;</span> <span class="n">L1L0_size4L0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">fix</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Dimension of descriptor (desc_dim=</span><span class="si">{:d}</span><span class="s2">) is larger than the &quot;</span>
+                        <span class="s2">&quot;number of features available for L0 norm from L1 screening &quot;</span>
+                        <span class="s2">&quot;(L1L0_size4L0=</span><span class="si">{:d}</span><span class="s2">).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">desc_dim</span><span class="p">,</span> <span class="n">L1L0_size4L0</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="n">L1L0_size4L0</span> <span class="o">=</span> <span class="n">desc_dim</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">descriptor_identification_keywords</span><span class="p">[</span><span class="s2">&quot;L1L0_size4L0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">L1L0_size4L0</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">subs_sis</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">L1L0_size4L0</span> <span class="o">&gt;</span> <span class="n">subs_sis</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">fix</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="s2">&quot;Number of features to be screened by L1 for L0 &quot;</span>
+                            <span class="s2">&quot;(L1L0_size4L0=</span><span class="si">{:d}</span><span class="s2">) is larger than SIS-selected subspace &quot;</span>
+                            <span class="s2">&quot;(subs_sis=</span><span class="si">{:d}</span><span class="s2">).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">L1L0_size4L0</span><span class="p">,</span> <span class="n">subs_sis</span><span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">feature_construction_sure_independence_screening_keywords</span><span class="p">[</span>
+                        <span class="s2">&quot;subs_sis&quot;</span>
+                    <span class="p">]</span> <span class="o">=</span> <span class="n">L1L0_size4L0</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">subs_sis</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">subs_sis_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">subs_sis</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">dim</span><span class="p">,</span> <span class="n">subs_sis_dim</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">subs_sis_list</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">L1L0_size4L0</span> <span class="o">&gt;</span> <span class="n">subs_sis_dim</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">fix</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                                <span class="s2">&quot;Number of features to be screened by L1 for L0 &quot;</span>
+                                <span class="s2">&quot;(L1L0_size4L0=</span><span class="si">{:d}</span><span class="s2">) is larger than SIS-selected &quot;</span>
+                                <span class="s2">&quot;subspace (subs_sis=</span><span class="si">{:d}</span><span class="s2">) of dimension </span><span class="si">{:d}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                    <span class="n">L1L0_size4L0</span><span class="p">,</span> <span class="n">subs_sis_dim</span><span class="p">,</span> <span class="n">dim</span>
+                                <span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="n">subs_sis</span><span class="p">[</span><span class="n">dim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">L1L0_size4L0</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># pragma: no cover, should never be here after kw formats check</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;Wrong type for &quot;subs_sis&quot; : </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">subs_sis</span><span class="p">))</span>
+                <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_format_kw_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kw</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">float_format</span><span class="o">=</span><span class="s2">&quot;.12f&quot;</span><span class="p">):</span>
+        <span class="n">allowed_types</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">KW_TYPES</span><span class="p">[</span><span class="n">kw</span><span class="p">]</span>
+        <span class="c1"># Determine the type of the value for this keyword</span>
+        <span class="n">val_type</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">allowed_type</span> <span class="ow">in</span> <span class="n">allowed_types</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">allowed_type</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+                    <span class="n">val_type</span> <span class="o">=</span> <span class="nb">int</span>
+                    <span class="k">break</span>
+            <span class="k">elif</span> <span class="n">allowed_type</span> <span class="ow">is</span> <span class="nb">float</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">float</span><span class="p">:</span>  <span class="c1"># pragma: no branch</span>
+                    <span class="n">val_type</span> <span class="o">=</span> <span class="nb">float</span>
+                    <span class="k">break</span>
+            <span class="k">elif</span> <span class="n">allowed_type</span> <span class="ow">is</span> <span class="nb">bool</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">bool</span><span class="p">:</span>  <span class="c1"># pragma: no branch</span>
+                    <span class="n">val_type</span> <span class="o">=</span> <span class="nb">bool</span>
+                    <span class="k">break</span>
+            <span class="k">elif</span> <span class="n">allowed_type</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>  <span class="c1"># pragma: no branch</span>
+                    <span class="n">val_type</span> <span class="o">=</span> <span class="nb">str</span>
+                    <span class="k">break</span>
+            <span class="k">elif</span> <span class="n">allowed_type</span> <span class="o">==</span> <span class="s2">&quot;list_of_ints&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span>  <span class="c1"># pragma: no branch</span>
+                    <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">tuple</span>
+                <span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">([</span><span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">val</span><span class="p">]):</span>
+                    <span class="n">val_type</span> <span class="o">=</span> <span class="s2">&quot;list_of_ints&quot;</span>
+                    <span class="k">break</span>
+            <span class="c1"># TODO: add checks on the str_operators, str_dimensions and str_isconvex</span>
+            <span class="k">elif</span> <span class="n">allowed_type</span> <span class="o">==</span> <span class="s2">&quot;str_operators&quot;</span><span class="p">:</span>
+                <span class="n">val_type</span> <span class="o">=</span> <span class="s2">&quot;str_operators&quot;</span>
+            <span class="k">elif</span> <span class="n">allowed_type</span> <span class="o">==</span> <span class="s2">&quot;str_dimensions&quot;</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+                <span class="n">val_type</span> <span class="o">=</span> <span class="s2">&quot;str_dimensions&quot;</span>
+            <span class="k">elif</span> <span class="n">allowed_type</span> <span class="o">==</span> <span class="s2">&quot;str_isconvex&quot;</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+                <span class="n">val_type</span> <span class="o">=</span> <span class="s2">&quot;str_isconvex&quot;</span>
+        <span class="k">if</span> <span class="n">val_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Type of value &quot;</span><span class="si">{}</span><span class="s1">&quot; for keyword &quot;</span><span class="si">{}</span><span class="s1">&quot; not found/valid.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">),</span> <span class="n">kw</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">val_type</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">=</span><span class="si">{:d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kw</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">val_type</span> <span class="ow">is</span> <span class="nb">float</span><span class="p">:</span>
+            <span class="n">float_ref_str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">={{:</span><span class="si">{}</span><span class="s2">}}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kw</span><span class="p">,</span> <span class="n">float_format</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">float_ref_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">val_type</span> <span class="ow">is</span> <span class="nb">bool</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">=.</span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kw</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        <span class="k">elif</span> <span class="n">val_type</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">=&#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kw</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">val_type</span> <span class="o">==</span> <span class="s2">&quot;list_of_ints&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">kw</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;subs_sis&quot;</span><span class="p">,</span> <span class="s2">&quot;nsample&quot;</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kw</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">{:d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">val</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+                <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">=(</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kw</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">{:d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">val</span><span class="p">]))</span>
+        <span class="k">elif</span> <span class="n">val_type</span> <span class="o">==</span> <span class="s2">&quot;str_operators&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">=&#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kw</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">val_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;str_dimensions&quot;</span><span class="p">,</span> <span class="s2">&quot;str_isconvex&quot;</span><span class="p">]:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kw</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Wrong type for SISSO value.</span><span class="se">\n</span><span class="s2">SISSO keyword : </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;Value : </span><span class="si">{}</span><span class="s2"> (type : </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kw</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">),</span> <span class="n">val_type</span><span class="p">)</span>
+            <span class="p">)</span>
+
+<div class="viewcode-block" id="SISSOIn.input_string"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.inputs.SISSOIn.input_string">[docs]</a>    <span class="k">def</span> <span class="nf">input_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matgenix_acknowledgement</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Input string of the SISSO.in file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            matgenix_acknowledgement: Whether to add the acknowledgment of Matgenix.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: String for the SISSO.in file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">target_properties_keywords</span><span class="p">[</span><span class="s2">&quot;nsample&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_construction_sure_independence_screening_keywords</span><span class="p">[</span><span class="s2">&quot;nsf&quot;</span><span class="p">]</span>
+            <span class="ow">is</span> <span class="kc">None</span>
+        <span class="p">):</span>  <span class="c1"># pragma: no cover # unlikely wrong usage</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Both keywords &quot;nsample&quot; and &quot;nsf&quot; should be set to get SISSO.in</span><span class="se">\&#39;</span><span class="s1">s &#39;</span>
+                <span class="s2">&quot;input_string&quot;</span>
+            <span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">matgenix_acknowledgement</span><span class="p">:</span>
+            <span class="n">year</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">year</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;!------------------------------------------------------------!</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;! SISSO.in generated by Matgenix&#39;s pysisso package.          !</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;! Copyright (c) </span><span class="si">{:d}</span><span class="s2">, Matgenix SRL. All Rights Reserved.     !</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;! Distributed open source for academic and non-profit users. !</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;! Contact Matgenix for commercial usage.                     !</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;! See LICENSE file for details.                              !</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;!------------------------------------------------------------!&quot;</span>
+                <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_regression</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;!------------------!</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;! REGRESSION MODEL !</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;!------------------!</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_classification</span><span class="p">:</span>  <span class="c1"># pragma: no cover # not yet implemented</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;!----------------------!</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;! CLASSIFICATION MODEL !</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;!----------------------!</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Keywords related to target properties</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s2">&quot;!------------------------------------!</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;! Keywords for the target properties !</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;!------------------------------------!&quot;</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">sisso_kw</span><span class="p">,</span> <span class="n">sisso_val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_properties_keywords</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">sisso_val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_kw_value</span><span class="p">(</span><span class="n">kw</span><span class="o">=</span><span class="n">sisso_kw</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="n">sisso_val</span><span class="p">))</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Keywords related to feature construction (FC) and</span>
+        <span class="c1">#  sure independence screening (SIS)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s2">&quot;!----------------------------------------&quot;</span>
+            <span class="s2">&quot;--------------------------------------!</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;! Keywords for feature construction (FC) &quot;</span>
+            <span class="s2">&quot;and sure independence screening (SIS) !</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;!----------------------------------------&quot;</span>
+            <span class="s2">&quot;--------------------------------------!&quot;</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span>
+            <span class="n">sisso_kw</span><span class="p">,</span>
+            <span class="n">sisso_val</span><span class="p">,</span>
+        <span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_construction_sure_independence_screening_keywords</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">sisso_val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_kw_value</span><span class="p">(</span><span class="n">kw</span><span class="o">=</span><span class="n">sisso_kw</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="n">sisso_val</span><span class="p">))</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Keywords descriptor identification via a sparsifying operator</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s2">&quot;!------------------------------------------------------------------!</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;! Keyword for descriptor identification via a sparsifying operator !</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;!------------------------------------------------------------------!&quot;</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">sisso_kw</span><span class="p">,</span> <span class="n">sisso_val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">descriptor_identification_keywords</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">sisso_val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_kw_value</span><span class="p">(</span><span class="n">kw</span><span class="o">=</span><span class="n">sisso_kw</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="n">sisso_val</span><span class="p">))</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_regression</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether this SISSOIn object corresponds to a regression model.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if this SISSOIn object is a regression model, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_properties_keywords</span><span class="p">[</span><span class="s2">&quot;ptype&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_classification</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Whether this SISSOIn object corresponds to a classification model.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if this SISSOIn object is a classification model,</span>
+<span class="sd">                False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_properties_keywords</span><span class="p">[</span><span class="s2">&quot;ptype&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span>
+
+<div class="viewcode-block" id="SISSOIn.from_sisso_keywords"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.inputs.SISSOIn.from_sisso_keywords">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_sisso_keywords</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">ptype</span><span class="p">,</span>
+        <span class="n">nsample</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">nsf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ntask</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">task_weighting</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">desc_dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">restart</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">rung</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">opset</span><span class="o">=</span><span class="s2">&quot;(+)(-)&quot;</span><span class="p">,</span>
+        <span class="n">maxcomplexity</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">dimclass</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">maxfval_lb</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+        <span class="n">maxfval_ub</span><span class="o">=</span><span class="mf">1e5</span><span class="p">,</span>
+        <span class="n">subs_sis</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="n">method</span><span class="o">=</span><span class="s2">&quot;L0&quot;</span><span class="p">,</span>
+        <span class="n">L1L0_size4L0</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">fit_intercept</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;RMSE&quot;</span><span class="p">,</span>
+        <span class="n">nm_output</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+        <span class="n">isconvex</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">nvf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">vfsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">vf2sf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">npf_must</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">L1_max_iter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">L1_tole</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">L1_dens</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">L1_nlambda</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">L1_minrmse</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">L1_warm_start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">L1_weighted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">fix</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>  <span class="c1"># noqa: D417</span>
+        <span class="sd">&quot;&quot;&quot;Construct SISSOIn object from SISSO input keywords.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fix: Whether to fix keywords if they are not compatible.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            SISSOIn: SISSOIn object containing the SISSO input arguments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tp_kwds</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">tp_kwds</span><span class="p">[</span><span class="s2">&quot;ptype&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptype</span>
+        <span class="n">tp_kwds</span><span class="p">[</span><span class="s2">&quot;ntask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ntask</span>
+        <span class="n">tp_kwds</span><span class="p">[</span><span class="s2">&quot;nsample&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nsample</span>
+        <span class="n">tp_kwds</span><span class="p">[</span><span class="s2">&quot;task_weighting&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">task_weighting</span>
+        <span class="n">tp_kwds</span><span class="p">[</span><span class="s2">&quot;desc_dim&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">desc_dim</span>
+        <span class="n">tp_kwds</span><span class="p">[</span><span class="s2">&quot;restart&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">restart</span>
+        <span class="n">fcsis_kwds</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">fcsis_kwds</span><span class="p">[</span><span class="s2">&quot;nsf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nsf</span>
+        <span class="n">fcsis_kwds</span><span class="p">[</span><span class="s2">&quot;rung&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rung</span>
+        <span class="n">fcsis_kwds</span><span class="p">[</span><span class="s2">&quot;opset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">opset</span>
+        <span class="n">fcsis_kwds</span><span class="p">[</span><span class="s2">&quot;maxcomplexity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">maxcomplexity</span>
+        <span class="n">fcsis_kwds</span><span class="p">[</span><span class="s2">&quot;dimclass&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dimclass</span>
+        <span class="n">fcsis_kwds</span><span class="p">[</span><span class="s2">&quot;maxfval_lb&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">maxfval_lb</span>
+        <span class="n">fcsis_kwds</span><span class="p">[</span><span class="s2">&quot;maxfval_ub&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">maxfval_ub</span>
+        <span class="n">fcsis_kwds</span><span class="p">[</span><span class="s2">&quot;subs_sis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subs_sis</span>
+        <span class="n">fcsis_kwds</span><span class="p">[</span><span class="s2">&quot;nvf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nvf</span>
+        <span class="n">fcsis_kwds</span><span class="p">[</span><span class="s2">&quot;vfsize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vfsize</span>
+        <span class="n">fcsis_kwds</span><span class="p">[</span><span class="s2">&quot;vf2sf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vf2sf</span>
+        <span class="n">fcsis_kwds</span><span class="p">[</span><span class="s2">&quot;npf_must&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">npf_must</span>
+        <span class="n">di_kwds</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">di_kwds</span><span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="n">di_kwds</span><span class="p">[</span><span class="s2">&quot;L1L0_size4L0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">L1L0_size4L0</span>
+        <span class="n">di_kwds</span><span class="p">[</span><span class="s2">&quot;fit_intercept&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_intercept</span>
+        <span class="n">di_kwds</span><span class="p">[</span><span class="s2">&quot;metric&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric</span>
+        <span class="n">di_kwds</span><span class="p">[</span><span class="s2">&quot;nm_output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nm_output</span>
+        <span class="n">di_kwds</span><span class="p">[</span><span class="s2">&quot;isconvex&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">isconvex</span>
+        <span class="n">di_kwds</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">width</span>
+        <span class="n">di_kwds</span><span class="p">[</span><span class="s2">&quot;L1_max_iter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">L1_max_iter</span>
+        <span class="n">di_kwds</span><span class="p">[</span><span class="s2">&quot;L1_tole&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">L1_tole</span>
+        <span class="n">di_kwds</span><span class="p">[</span><span class="s2">&quot;L1_dens&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">L1_dens</span>
+        <span class="n">di_kwds</span><span class="p">[</span><span class="s2">&quot;L1_nlambda&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">L1_nlambda</span>
+        <span class="n">di_kwds</span><span class="p">[</span><span class="s2">&quot;L1_minrmse&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">L1_minrmse</span>
+        <span class="n">di_kwds</span><span class="p">[</span><span class="s2">&quot;L1_warm_start&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">L1_warm_start</span>
+        <span class="n">di_kwds</span><span class="p">[</span><span class="s2">&quot;L1_weighted&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">L1_weighted</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">target_properties_keywords</span><span class="o">=</span><span class="n">tp_kwds</span><span class="p">,</span>
+            <span class="n">feature_construction_sure_independence_screening_keywords</span><span class="o">=</span><span class="n">fcsis_kwds</span><span class="p">,</span>
+            <span class="n">descriptor_identification_keywords</span><span class="o">=</span><span class="n">di_kwds</span><span class="p">,</span>
+            <span class="n">fix</span><span class="o">=</span><span class="n">fix</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SISSOIn.from_file"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.inputs.SISSOIn.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct SISSOIn from file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filepath: Path of the file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="SISSOIn.to_file"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.inputs.SISSOIn.to_file">[docs]</a>    <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;SISSO.in&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write SISSOIn object to file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename: Name of the file to write SISSOIn object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_string</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="SISSOIn.set_keywords_for_SISSO_dat"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.inputs.SISSOIn.set_keywords_for_SISSO_dat">[docs]</a>    <span class="k">def</span> <span class="nf">set_keywords_for_SISSO_dat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sisso_dat</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update keywords for a given SISSO dat object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            sisso_dat: SISSODat object to update related keywords.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dimclass</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">sisso_dat</span><span class="o">.</span><span class="n">features_dimensions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">feature_dimensions_ranges</span> <span class="o">=</span> <span class="n">sisso_dat</span><span class="o">.</span><span class="n">SISSO_features_dimensions_ranges</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">feature_dimensions_ranges</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">feature_dimensions_ranges</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+                <span class="ow">and</span> <span class="nb">list</span><span class="p">(</span><span class="n">feature_dimensions_ranges</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="p">):</span>
+                <span class="n">dimclass</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dimclasslist</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">dim</span><span class="p">,</span> <span class="n">dimrange</span> <span class="ow">in</span> <span class="n">feature_dimensions_ranges</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">dim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">dimclasslist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;(</span><span class="si">{:d}</span><span class="s2">:</span><span class="si">{:d}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dimrange</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dimrange</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+                <span class="n">dimclass</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dimclasslist</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_properties_keywords</span><span class="p">[</span><span class="s2">&quot;nsample&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sisso_dat</span><span class="o">.</span><span class="n">nsample</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_properties_keywords</span><span class="p">[</span><span class="s2">&quot;ntask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sisso_dat</span><span class="o">.</span><span class="n">ntask</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_construction_sure_independence_screening_keywords</span><span class="p">[</span>
+            <span class="s2">&quot;nsf&quot;</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">sisso_dat</span><span class="o">.</span><span class="n">nsf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_construction_sure_independence_screening_keywords</span><span class="p">[</span>
+            <span class="s2">&quot;dimclass&quot;</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">dimclass</span></div>
+
+<div class="viewcode-block" id="SISSOIn.from_SISSO_dat"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.inputs.SISSOIn.from_SISSO_dat">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_SISSO_dat</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">sisso_dat</span><span class="p">:</span> <span class="n">SISSODat</span><span class="p">,</span> <span class="n">model_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;regression&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct SISSOIn object from SISSODat object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            sisso_dat: SISSODat object containing the data to fit.</span>
+<span class="sd">            model_type: Type of model. Should be &quot;regression&quot; or &quot;classification&quot;.</span>
+<span class="sd">            **kwargs: Keywords to be passed to SISSOIn.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            SISSOIn: SISSOIn object containing all the relevant SISSO input keywords.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">model_type</span> <span class="o">==</span> <span class="s2">&quot;regression&quot;</span><span class="p">:</span>
+            <span class="n">ptype</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">model_type</span> <span class="o">==</span> <span class="s2">&quot;classification&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Wrong model_type (&quot;</span><span class="si">{}</span><span class="s1">&quot;). Should be &quot;regression&quot; or &#39;</span>
+                <span class="s1">&#39;&quot;classification&quot;.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_type</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">sissoin</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_sisso_keywords</span><span class="p">(</span><span class="n">ptype</span><span class="o">=</span><span class="n">ptype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">sissoin</span><span class="o">.</span><span class="n">set_keywords_for_SISSO_dat</span><span class="p">(</span><span class="n">sisso_dat</span><span class="o">=</span><span class="n">sisso_dat</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sissoin</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Matgenix SRL.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
