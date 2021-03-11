@@ -1,8 +1,8 @@
-LICENCE - ACADEMICS AND NON-PROFIT USERS
+LICENSE - ACADEMICS AND NON-PROFIT USERS
 ========================================
 
 
-**This software licence agreement is concluded between MATGENIX SRL**, a company incorporated under Belgium law, with its principal executive offices located at Rue Armand Bury 185, 6534, GOZEE (BELGIUM), registered within the Crossroad bank of Enterprises under number BE0748.971.048, (hereinafter MATGENIX) and Academic and non-profit users of the Software (hereinafter Licensee or Beneficiary).
+**This software license agreement is concluded between MATGENIX SRL**, a company incorporated under Belgium law, with its principal executive offices located at Rue Armand Bury 185, 6534, GOZEE (BELGIUM), registered within the Crossroad bank of Enterprises under number BE0748.971.048, (hereinafter MATGENIX) and Academic and non-profit users of the Software (hereinafter Licensee or Beneficiary).
 
 If you are a for-profit user or if you wish to receive support and maintenance from MATGENIX, drop us an email to receive an offer : info@matgenix.com 
 
@@ -24,7 +24,7 @@ Article 1. DEFINITIONS
 
 * 1.5. **Installation**. Installation shall mean download of a copy of the Software and all the operations to be carried out by the Licensee, pursuant to the Documentation, in order to make the Software operational.
 
-* 1.6. **Licence**. Licence shall mean the right to use the Software only in accordance with the terms and conditions of this Agreement.
+* 1.6. **License**. License shall mean the right to use the Software only in accordance with the terms and conditions of this Agreement.
 
 * 1.7. **Maintenance**. Maintenance shall mean Software Updates and/or Software Corrections following a time schedule established at MATGENIX's sole discretion and in accordance with the Service Level Policy.
 
@@ -43,18 +43,18 @@ Article 1. DEFINITIONS
 * 1.14. **Third Party Software**. Third Party Software shall mean any software for which MATGENIX has obtained the rights to distribute with or be embedded in the Software.
 
 
-Article 2. ACADEMIC USER – LICENCE EXCEPTION
+Article 2. ACADEMIC USER – LICENSE EXCEPTION
 --------------------------------------------
 
-* 2.1. MATGENIX hereby grants to the Beneficiary, and the Beneficiary hereby acknowledges from MATGENIX, a worldwide, non-exclusive, transferable, royalty-free, licence to reproduce, modify, display, perform, embed and use the Software, and to access its Source code and the related Documentation. The Beneficiary shall not be authorized to license, sublicense or distribute the Software, its Source code and the related Documentation as well as any piece of software build using these elements under any commercial licence, proprietary licence and/or any licence that is different from the licence under which MATGENIX distributes the Software.
+* 2.1. MATGENIX hereby grants to the Beneficiary, and the Beneficiary hereby acknowledges from MATGENIX, a worldwide, non-exclusive, transferable, royalty-free, license to reproduce, modify, display, perform, embed and use the Software, and to access its Source code and the related Documentation. The Beneficiary shall not be authorized to license, sublicense or distribute the Software, its Source code and the related Documentation as well as any piece of software build using these elements under any commercial license, proprietary license and/or any license that is different from the license under which MATGENIX distributes the Software.
 
-* 2.2. The Beneficiary shall transfer to MATGENIX, under the same licence, all modification and/or amelioration brought to the Software, as well as the Source code and the related Documentation. The Beneficiary grants the right to MATGENIX to license, sublicense or distribute these modifications and/or amelioration made by the Beneficiary, under its commercial and/or proprietary licence.
+* 2.2. The Beneficiary shall transfer to MATGENIX, under the same license, all modification and/or amelioration brought to the Software, as well as the Source code and the related Documentation. The Beneficiary grants the right to MATGENIX to license, sublicense or distribute these modifications and/or amelioration made by the Beneficiary, under its commercial and/or proprietary license.
 
 * 2.3. If applicable, the Beneficiary shall waive and agree not to assert any moral rights on the modification and/or amelioration, to the maximum extent permitted by law and at least for the duration of the Agreement.
 
 * 2.4. By way of exception to the waiver of moral rights, the Beneficiary's name is mentioned in the credits pertaining to the modifications brought by the Beneficiary to the Software when used by MATGENIX.
 
-* 2.5. Unless terminated as provided in this Agreement, the Beneficiary shall benefit from this licence exception for an indefinite period of time.
+* 2.5. Unless terminated as provided in this Agreement, the Beneficiary shall benefit from this license exception for an indefinite period of time.
 
 * 2.6. The Beneficiary cannot claim any services, support or liability whatsoever from MATGENIX. In particular :
 
@@ -73,7 +73,7 @@ Article 3. COPYRIGHTS
 Article 4. USE OF THE SOFTWARE BY US GOVERNMENTAL BODIES
 --------------------------------------------------------
 
-* 4.1. The right to use as defined in this agreement does not authorize Licensee to use the Software for governmental purposes. In the event a unit or agency of a government (in particular US government) or of a public authority wants to use the Software, a specific licence agreement is required, in particular to arrange appropriate provisions to warrant the protection of MATGENIX intellectual property rights and the confidential character of information relating to the Software and the Source Code.
+* 4.1. The right to use as defined in this agreement does not authorize Licensee to use the Software for governmental purposes. In the event a unit or agency of a government (in particular US government) or of a public authority wants to use the Software, a specific license agreement is required, in particular to arrange appropriate provisions to warrant the protection of MATGENIX intellectual property rights and the confidential character of information relating to the Software and the Source Code.
 
 
 Article 5. MISCELLANEOUS

@@ -1,0 +1,892 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pysisso.outputs &mdash; pysisso 0.3.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pysisso
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/index.html">Get started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../how-to/index.html">How-to guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../background/index.html">Background information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/index.html">Technical reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pysisso</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pysisso.outputs</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pysisso.outputs</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># Copyright (c) 2020, Matgenix SRL, All rights reserved.</span>
+<span class="c1"># Distributed open source for academic and non-profit users.</span>
+<span class="c1"># Contact Matgenix for commercial usage.</span>
+<span class="c1"># See LICENSE file for details.</span>
+
+<span class="sd">&quot;&quot;&quot;Module containing classes to parse SISSO output files.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>  <span class="c1"># type: ignore</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>  <span class="c1"># type: ignore</span>
+
+<span class="kn">from</span> <span class="nn">pysisso.utils</span> <span class="kn">import</span> <span class="n">list_of_ints</span><span class="p">,</span> <span class="n">list_of_strs</span><span class="p">,</span> <span class="n">matrix_of_floats</span><span class="p">,</span> <span class="n">str_to_bool</span>
+
+
+<div class="viewcode-block" id="SISSOVersion"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.outputs.SISSOVersion">[docs]</a><span class="k">class</span> <span class="nc">SISSOVersion</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class containing information about the SISSO version used.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;Construct SISSOVersion class.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            header_string: Header string found in the SISSO.out output file.</span>
+<span class="sd">            version: Version of SISSO extracted from the header string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header_string</span> <span class="o">=</span> <span class="n">header_string</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
+
+<div class="viewcode-block" id="SISSOVersion.from_string"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.outputs.SISSOVersion.from_string">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct SISSOVersion from string.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            string: First line from the SISSO.out output file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">version_sp</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">header_string</span><span class="o">=</span><span class="n">string</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+            <span class="n">version</span><span class="o">=</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">version_sp</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">version_sp</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">version_sp</span><span class="p">[</span><span class="mi">3</span><span class="p">])),</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="scd"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.outputs.scd">[docs]</a><span class="k">def</span> <span class="nf">scd</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get Standard Cauchy Distribution of x.</span>
+
+<span class="sd">    The Standard Cauchy Distribution (SCD) of x is :</span>
+
+<span class="sd">    SCD(x) = (1.0 / pi) * 1.0 / (1.0 + x^2)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x: Value(s) for which the Standard Cauchy Distribution is needed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Standard Cauchy Distribution at value(s) x.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">x</span> <span class="o">*</span> <span class="n">x</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="SISSODescriptor"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.outputs.SISSODescriptor">[docs]</a><span class="k">class</span> <span class="nc">SISSODescriptor</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class containing one composed descriptor.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">descriptor_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">descriptor_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct SISSODescriptor class.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            descriptor_id: Integer identifier of this descriptor.</span>
+<span class="sd">            descriptor_string: String description of this descriptor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">descriptor_id</span> <span class="o">=</span> <span class="n">descriptor_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">descriptor_string</span> <span class="o">=</span> <span class="n">descriptor_string</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evalstring</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decode_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">descriptor_string</span><span class="p">)[</span><span class="s2">&quot;evalstring&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="SISSODescriptor.evaluate"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.outputs.SISSODescriptor.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>  <span class="c1"># pylint: disable=W0613</span>
+        <span class="sd">&quot;&quot;&quot;Evaluate the descriptor from a given Dataframe.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            df: panda&#39;s Dataframe to evaluate SISSODescriptor</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: Value of this descriptor for the samples in the dataframe.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">eval</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">evalstring</span><span class="p">)</span>  <span class="c1"># nosec, pylint: disable=W0123</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return string representation of this SISSODescriptor.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: String representation of this SISSODescriptor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">descriptor_string</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_decode_function</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a function based on the string.&quot;&quot;&quot;</span>
+        <span class="n">OPERATORS_REPLACEMENT</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;exp(-&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;exp(&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sin(&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cos(&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sqrt(&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cbrt(&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;log(&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;abs(&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;scd(&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;)^-1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;)^2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;)^3&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;)^6&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;+&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;*&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;/&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;(&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;)&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Get the list of base features needed</span>
+        <span class="c1"># First replace the operators with &quot;#&quot;</span>
+        <span class="n">replaced_string</span> <span class="o">=</span> <span class="n">string</span>
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">OPERATORS_REPLACEMENT</span><span class="p">:</span>
+            <span class="n">replaced_string</span> <span class="o">=</span> <span class="n">replaced_string</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">op</span><span class="p">))</span>
+        <span class="c1"># Get the features in order of the string and get the unique list of features</span>
+        <span class="k">if</span> <span class="n">replaced_string</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;#&quot;</span> <span class="ow">or</span> <span class="n">replaced_string</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;#&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;String should start and end with &quot;#&quot;&#39;</span><span class="p">)</span>
+        <span class="n">features_in_string</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">in_feature_word</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">ichar_start</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ichar</span><span class="p">,</span> <span class="n">char</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">replaced_string</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">in_feature_word</span> <span class="ow">and</span> <span class="n">char</span> <span class="o">==</span> <span class="s2">&quot;#&quot;</span><span class="p">:</span>
+                <span class="n">in_feature_word</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">featname</span> <span class="o">=</span> <span class="n">replaced_string</span><span class="p">[</span><span class="n">ichar_start</span><span class="p">:</span><span class="n">ichar</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">featname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
+                    <span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">featname</span><span class="p">)</span>
+                <span class="n">features_in_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span><span class="s2">&quot;featname&quot;</span><span class="p">:</span> <span class="n">featname</span><span class="p">,</span> <span class="s2">&quot;istart&quot;</span><span class="p">:</span> <span class="n">ichar_start</span><span class="p">,</span> <span class="s2">&quot;iend&quot;</span><span class="p">:</span> <span class="n">ichar</span><span class="p">}</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">in_feature_word</span> <span class="ow">and</span> <span class="n">char</span> <span class="o">!=</span> <span class="s2">&quot;#&quot;</span><span class="p">:</span>
+                <span class="n">in_feature_word</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">ichar_start</span> <span class="o">=</span> <span class="n">ichar</span>
+
+        <span class="c1"># Prepare string to be formatted from features</span>
+        <span class="n">prev_ichar</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">fdict</span> <span class="ow">in</span> <span class="n">features_in_string</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">string</span><span class="p">[</span><span class="n">prev_ichar</span> <span class="p">:</span> <span class="n">fdict</span><span class="p">[</span><span class="s2">&quot;istart&quot;</span><span class="p">]])</span>
+            <span class="n">prev_ichar</span> <span class="o">=</span> <span class="n">fdict</span><span class="p">[</span><span class="s2">&quot;iend&quot;</span><span class="p">]</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;df[&#39;</span><span class="si">{}</span><span class="s2">&#39;]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fdict</span><span class="p">[</span><span class="s2">&quot;featname&quot;</span><span class="p">]))</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">string</span><span class="p">[</span><span class="n">prev_ichar</span><span class="p">:</span><span class="kc">None</span><span class="p">])</span>
+        <span class="n">evalstring</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
+        <span class="c1"># Replace operators in the string with numpy operators</span>
+        <span class="n">evalstring</span> <span class="o">=</span> <span class="n">evalstring</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;sin(&quot;</span><span class="p">,</span> <span class="s2">&quot;np.sin(&quot;</span><span class="p">)</span>
+        <span class="n">evalstring</span> <span class="o">=</span> <span class="n">evalstring</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;cos(&quot;</span><span class="p">,</span> <span class="s2">&quot;np.cos(&quot;</span><span class="p">)</span>
+        <span class="n">evalstring</span> <span class="o">=</span> <span class="n">evalstring</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;exp(&quot;</span><span class="p">,</span> <span class="s2">&quot;np.exp(&quot;</span><span class="p">)</span>
+        <span class="n">evalstring</span> <span class="o">=</span> <span class="n">evalstring</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;log(&quot;</span><span class="p">,</span> <span class="s2">&quot;np.log(&quot;</span><span class="p">)</span>
+        <span class="n">evalstring</span> <span class="o">=</span> <span class="n">evalstring</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;sqrt(&quot;</span><span class="p">,</span> <span class="s2">&quot;np.sqrt(&quot;</span><span class="p">)</span>
+        <span class="n">evalstring</span> <span class="o">=</span> <span class="n">evalstring</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;cbrt(&quot;</span><span class="p">,</span> <span class="s2">&quot;np.cbrt(&quot;</span><span class="p">)</span>
+        <span class="n">evalstring</span> <span class="o">=</span> <span class="n">evalstring</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;abs(&quot;</span><span class="p">,</span> <span class="s2">&quot;np.abs(&quot;</span><span class="p">)</span>
+        <span class="n">evalstring</span> <span class="o">=</span> <span class="n">evalstring</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;)^2&quot;</span><span class="p">,</span> <span class="s2">&quot;)**2&quot;</span><span class="p">)</span>
+        <span class="n">evalstring</span> <span class="o">=</span> <span class="n">evalstring</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;)^3&quot;</span><span class="p">,</span> <span class="s2">&quot;)**3&quot;</span><span class="p">)</span>
+        <span class="n">evalstring</span> <span class="o">=</span> <span class="n">evalstring</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;)^6&quot;</span><span class="p">,</span> <span class="s2">&quot;)**6&quot;</span><span class="p">)</span>
+        <span class="c1"># Deal with the ^-1 ...</span>
+        <span class="k">while</span> <span class="s2">&quot;)^-1&quot;</span> <span class="ow">in</span> <span class="n">evalstring</span><span class="p">:</span>
+            <span class="n">idx1</span> <span class="o">=</span> <span class="n">evalstring</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;)^-1&quot;</span><span class="p">)</span>
+            <span class="n">level</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">idx1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">evalstring</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;)&quot;</span><span class="p">:</span>
+                    <span class="n">level</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">elif</span> <span class="n">evalstring</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;(&quot;</span><span class="p">:</span>
+                    <span class="n">level</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">level</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">idx2</span> <span class="o">=</span> <span class="n">ii</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Could not find initial parenthesis for &quot;)^-1&quot;.&#39;</span><span class="p">)</span>
+            <span class="n">evalstring</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">evalstring</span><span class="p">[:</span><span class="n">idx2</span><span class="p">]</span>
+                <span class="o">+</span> <span class="s2">&quot;1.0/&quot;</span>
+                <span class="o">+</span> <span class="n">evalstring</span><span class="p">[</span><span class="n">idx2</span><span class="p">:</span><span class="n">idx1</span><span class="p">]</span>
+                <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
+                <span class="o">+</span> <span class="n">evalstring</span><span class="p">[</span><span class="n">idx1</span> <span class="o">+</span> <span class="mi">4</span> <span class="p">:]</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;evalstring&quot;</span><span class="p">:</span> <span class="n">evalstring</span><span class="p">,</span>
+            <span class="s2">&quot;features_in_string&quot;</span><span class="p">:</span> <span class="n">features_in_string</span><span class="p">,</span>
+            <span class="s2">&quot;inputs&quot;</span><span class="p">:</span> <span class="n">inputs</span><span class="p">,</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="SISSODescriptor.from_string"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.outputs.SISSODescriptor.from_string">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct SISSODescriptor from string.</span>
+
+<span class="sd">        The string must be the line of the descriptor in the SISSO.out output file,</span>
+<span class="sd">            e.g. : 1:[((feature1-feature2)+(feature3-feature4))]</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            string: Substring from the SISSO.out output file corresponding to one</span>
+<span class="sd">                descriptor of SISSO.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sp</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">descriptor_id</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">sp</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">descriptor_string</span><span class="o">=</span><span class="n">sp</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span></div></div>
+
+
+<div class="viewcode-block" id="SISSOModel"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.outputs.SISSOModel">[docs]</a><span class="k">class</span> <span class="nc">SISSOModel</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class containing one SISSO model.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">dimension</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">descriptors</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SISSODescriptor</span><span class="p">],</span>
+        <span class="n">coefficients</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+        <span class="n">intercept</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+        <span class="n">rmse</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">maxae</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct SISSOModel class.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dimension: Dimension of the model.</span>
+<span class="sd">            descriptors: List of descriptors used in the model.</span>
+<span class="sd">            coefficients: Coefficient of each descriptor for each task/property.</span>
+<span class="sd">            intercept: Intercept of the model for each task/property.</span>
+<span class="sd">            rmse: Root Mean Squared Error of the model on the training data for each</span>
+<span class="sd">                task/property.</span>
+<span class="sd">            maxae: Maximum Absolute Error of the model on the training data for each</span>
+<span class="sd">                task/property.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span> <span class="o">=</span> <span class="n">dimension</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">descriptors</span> <span class="o">=</span> <span class="n">descriptors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span> <span class="o">=</span> <span class="n">coefficients</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intercept</span> <span class="o">=</span> <span class="n">intercept</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rmse</span> <span class="o">=</span> <span class="n">rmse</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxae</span> <span class="o">=</span> <span class="n">maxae</span>
+
+<div class="viewcode-block" id="SISSOModel.predict"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.outputs.SISSOModel.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Predict values from input DataFrame.</span>
+
+<span class="sd">        The input DataFrame should have the columns needed by the different SISSO</span>
+<span class="sd">            descriptors.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            df: panda&#39;s DataFrame containing the base features needed to apply the</span>
+<span class="sd">                model.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            darray: Predicted values from the model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">intercept</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="k">for</span> <span class="n">intercept</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">intercept</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">for</span> <span class="n">idescr</span><span class="p">,</span> <span class="n">descr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">descriptors</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">itask</span><span class="p">,</span> <span class="n">coeffs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">):</span>
+                <span class="n">dval</span> <span class="o">=</span> <span class="n">coeffs</span><span class="p">[</span><span class="n">idescr</span><span class="p">]</span> <span class="o">*</span> <span class="n">descr</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+                <span class="n">out</span><span class="p">[:,</span> <span class="n">itask</span><span class="p">]</span> <span class="o">+=</span> <span class="n">dval</span>  <span class="c1"># pylint: disable=E1137</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+
+<div class="viewcode-block" id="SISSOModel.from_string"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.outputs.SISSOModel.from_string">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct SISSOModel object from string.</span>
+
+<span class="sd">        The string must be the excerpt corresponding to one model, starting with a</span>
+<span class="sd">            line of 80 &quot;=&quot; characters and ending with a line of 80 &quot;=&quot; characters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            string: String from the SISSO.out output file corresponding to one model</span>
+<span class="sd">                of SISSO.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">dimension</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;D descriptor&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">descriptors</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">SISSODescriptor</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">coefficients</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">intercept</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">rmse</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">maxae</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s2">&quot;@@@descriptor&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">descriptors</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">descriptors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">descriptors</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">dimension</span><span class="p">:</span>
+                <span class="n">descriptors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SISSODescriptor</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="s2">&quot;coefficients_&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">coefficients</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">nn</span><span class="p">)</span> <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
+            <span class="k">elif</span> <span class="s2">&quot;Intercept_&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">intercept</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="k">elif</span> <span class="s2">&quot;RMSE,MaxAE_&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">sp</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="n">rmse</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">sp</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+                <span class="n">maxae</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">sp</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+
+        <span class="k">if</span> <span class="n">descriptors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># pragma: no cover, wrong SISSO output</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Descriptor not found&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">dimension</span><span class="o">=</span><span class="n">dimension</span><span class="p">,</span>
+            <span class="n">descriptors</span><span class="o">=</span><span class="n">descriptors</span><span class="p">,</span>
+            <span class="n">coefficients</span><span class="o">=</span><span class="n">coefficients</span><span class="p">,</span>
+            <span class="n">intercept</span><span class="o">=</span><span class="n">intercept</span><span class="p">,</span>
+            <span class="n">rmse</span><span class="o">=</span><span class="n">rmse</span><span class="p">,</span>
+            <span class="n">maxae</span><span class="o">=</span><span class="n">maxae</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="SISSOIteration"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.outputs.SISSOIteration">[docs]</a><span class="k">class</span> <span class="nc">SISSOIteration</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class containing one SISSO iteration.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">iteration_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">sisso_model</span><span class="p">:</span> <span class="n">SISSOModel</span><span class="p">,</span>
+        <span class="n">feature_spaces</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+        <span class="n">SIS_subspace_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">cpu_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct SISSOIteration class.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            iteration_number: Number of the iteration.</span>
+<span class="sd">            sisso_model: SISSO model of this iteration.</span>
+<span class="sd">            feature_spaces: Number of features in each feature rung.</span>
+<span class="sd">            SIS_subspace_size: Size of the SIS subspace.</span>
+<span class="sd">            cpu_time: CPU time for this SISSO iteration.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iteration_number</span> <span class="o">=</span> <span class="n">iteration_number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sisso_model</span> <span class="o">=</span> <span class="n">sisso_model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_spaces</span> <span class="o">=</span> <span class="n">feature_spaces</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SIS_subspace_size</span> <span class="o">=</span> <span class="n">SIS_subspace_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cpu_time</span> <span class="o">=</span> <span class="n">cpu_time</span>
+
+<div class="viewcode-block" id="SISSOIteration.from_string"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.outputs.SISSOIteration.from_string">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct SISSOIteration object from string.</span>
+
+<span class="sd">        The string must be the excerpt corresponding to one iteration, i.e. it must</span>
+<span class="sd">        start with &quot;iteration:   N&quot; and end with &quot;DI done!&quot;.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            string: String from the SISSO.out output file corresponding to one</span>
+<span class="sd">                iteration of SISSO.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">it_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">r_sisso_model</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;=</span><span class="si">{80}</span><span class="s2">.*?=</span><span class="si">{80}</span><span class="s2">&quot;</span>
+        <span class="n">match_sisso_model</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">r_sisso_model</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">match_sisso_model</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># pragma: no cover, wrong SISSO output</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Should get exactly one SISSO model excerpt in the string.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">sisso_model</span> <span class="o">=</span> <span class="n">SISSOModel</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">match_sisso_model</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># TODO: different for iteration 1 !</span>
+        <span class="n">r_feature_spaces</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;Total number of features in the space phi.*?\n&quot;</span>
+        <span class="n">match_feature_spaces</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">r_feature_spaces</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span>
+        <span class="n">feature_spaces</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">mfs</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">2</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span> <span class="nb">int</span><span class="p">(</span><span class="n">mfs</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">mfs</span> <span class="ow">in</span> <span class="n">match_feature_spaces</span>
+        <span class="p">}</span>
+
+        <span class="n">r_SIS_subspace_size</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;Size of the SIS-selected subspace.*?\n&quot;</span>
+        <span class="n">match_SIS_subspace_size</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">r_SIS_subspace_size</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">match_SIS_subspace_size</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># pragma: no cover, wrong SISSO output</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Should get exactly one SIS subspace size in the string.&quot;</span><span class="p">)</span>
+        <span class="n">SIS_subspace_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match_SIS_subspace_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">r_cputime</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;Wall-clock time \(second\) for this DI:.*?\n&quot;</span>
+        <span class="n">match_cputime</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">r_cputime</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">match_cputime</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># pragma: no cover, wrong SISSO output</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Should get exactly one Wall-clock time in the string, &quot;</span>
+                <span class="s2">&quot;got </span><span class="si">{:d}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">match_cputime</span><span class="p">))</span>
+            <span class="p">)</span>
+        <span class="n">cpu_time</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">match_cputime</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">iteration_number</span><span class="o">=</span><span class="n">it_num</span><span class="p">,</span>
+            <span class="n">sisso_model</span><span class="o">=</span><span class="n">sisso_model</span><span class="p">,</span>
+            <span class="n">feature_spaces</span><span class="o">=</span><span class="n">feature_spaces</span><span class="p">,</span>
+            <span class="n">SIS_subspace_size</span><span class="o">=</span><span class="n">SIS_subspace_size</span><span class="p">,</span>
+            <span class="n">cpu_time</span><span class="o">=</span><span class="n">cpu_time</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="SISSOParams"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.outputs.SISSOParams">[docs]</a><span class="k">class</span> <span class="nc">SISSOParams</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class containing input parameters extracted from the SISSO output file.&quot;&quot;&quot;</span>
+
+    <span class="n">PARAMS</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">type</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;property_type&quot;</span><span class="p">,</span> <span class="s2">&quot;Descriptor dimension:&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;descriptor_dimension&quot;</span><span class="p">,</span> <span class="s2">&quot;Descriptor dimension:&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;total_number_properties&quot;</span><span class="p">,</span> <span class="s2">&quot;Total number of properties:&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;task_weighting&quot;</span><span class="p">,</span> <span class="s2">&quot;Task_weighting:&quot;</span><span class="p">,</span> <span class="n">list_of_ints</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;number_of_samples&quot;</span><span class="p">,</span> <span class="s2">&quot;Number of samples for each property:&quot;</span><span class="p">,</span> <span class="n">list_of_ints</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;n_scalar_features&quot;</span><span class="p">,</span> <span class="s2">&quot;Number of scalar features:&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;n_rungs&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;Number of recursive calls for feature transformation \(rung of the &quot;</span>
+            <span class="sa">r</span><span class="s2">&quot;feature space\):&quot;</span><span class="p">,</span>
+            <span class="nb">int</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;max_feature_complexity&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;Max feature complexity \(number of operators in a feature\):&quot;</span><span class="p">,</span>
+            <span class="nb">int</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;n_dimension_types&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;Number of dimension\(unit\)-type \(for dimension analysis\):&quot;</span><span class="p">,</span>
+            <span class="nb">int</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;dimension_types&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Dimension type for each primary feature:&quot;</span><span class="p">,</span>
+            <span class="n">matrix_of_floats</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;lower_bound_maxabs_value&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;Lower bound of the max abs\. data value for the selected features:&quot;</span><span class="p">,</span>
+            <span class="nb">float</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;upper_bound_maxabs_value&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;Upper bound of the max abs\. data value for the selected features:&quot;</span><span class="p">,</span>
+            <span class="nb">float</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;SIS_subspaces_sizes&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;Size of the SIS-selected \(single\) subspace :&quot;</span><span class="p">,</span>
+            <span class="n">list_of_ints</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;operators&quot;</span><span class="p">,</span> <span class="s2">&quot;Operators for feature construction:&quot;</span><span class="p">,</span> <span class="n">list_of_strs</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;sparsification_method&quot;</span><span class="p">,</span> <span class="s2">&quot;Method for sparsification:&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;n_topmodels&quot;</span><span class="p">,</span> <span class="s2">&quot;Number of the top ranked models to output:&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;fit_intercept&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;Fitting intercept\?&quot;</span><span class="p">,</span> <span class="n">str_to_bool</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;metric&quot;</span><span class="p">,</span> <span class="s2">&quot;Metric for model selection:&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">property_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">descriptor_dimension</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">total_number_properties</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">task_weighting</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">number_of_samples</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">n_scalar_features</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">n_rungs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">max_feature_complexity</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">n_dimension_types</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">dimension_types</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">lower_bound_maxabs_value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">upper_bound_maxabs_value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">SIS_subspaces_sizes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">operators</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">sparsification_method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">n_topmodels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">fit_intercept</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">):</span>  <span class="c1"># noqa: D417</span>
+        <span class="sd">&quot;&quot;&quot;Construct SISSOParams class.</span>
+
+<span class="sd">        All arguments not listed below are arguments from the SISSO code. For more</span>
+<span class="sd">        information, see https://github.com/rouyang2017/SISSO.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">property_type</span> <span class="o">=</span> <span class="n">property_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">descriptor_dimension</span> <span class="o">=</span> <span class="n">descriptor_dimension</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_number_properties</span> <span class="o">=</span> <span class="n">total_number_properties</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_weighting</span> <span class="o">=</span> <span class="n">task_weighting</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_of_samples</span> <span class="o">=</span> <span class="n">number_of_samples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_scalar_features</span> <span class="o">=</span> <span class="n">n_scalar_features</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_rungs</span> <span class="o">=</span> <span class="n">n_rungs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_feature_complexity</span> <span class="o">=</span> <span class="n">max_feature_complexity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_dimension_types</span> <span class="o">=</span> <span class="n">n_dimension_types</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimension_types</span> <span class="o">=</span> <span class="n">dimension_types</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lower_bound_maxabs_value</span> <span class="o">=</span> <span class="n">lower_bound_maxabs_value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">upper_bound_maxabs_value</span> <span class="o">=</span> <span class="n">upper_bound_maxabs_value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SIS_subspaces_sizes</span> <span class="o">=</span> <span class="n">SIS_subspaces_sizes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">operators</span> <span class="o">=</span> <span class="n">operators</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sparsification_method</span> <span class="o">=</span> <span class="n">sparsification_method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_topmodels</span> <span class="o">=</span> <span class="n">n_topmodels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_intercept</span> <span class="o">=</span> <span class="n">fit_intercept</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="n">metric</span>
+
+<div class="viewcode-block" id="SISSOParams.from_string"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.outputs.SISSOParams.from_string">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct SISSOParams object from string.&quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">class_var</span><span class="p">,</span> <span class="n">output_var_str</span><span class="p">,</span> <span class="n">var_type</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">PARAMS</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">class_var</span> <span class="o">==</span> <span class="s2">&quot;dimension_types&quot;</span><span class="p">:</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+                    <span class="sa">r</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">(.*?)\nLower bound&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_var_str</span><span class="p">),</span> <span class="n">string</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># pragma: no cover, wrong SISSO output</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s1">&#39;Should find a match for &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_var_str</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="n">class_var</span><span class="p">]</span> <span class="o">=</span> <span class="n">var_type</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">matches</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.*?\n&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_var_str</span><span class="p">),</span> <span class="n">string</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># pragma: no cover, wrong SISSO output</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s1">&#39;Should get exactly one match for &quot;</span><span class="si">{}</span><span class="s1">&quot;.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_var_str</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="n">class_var</span><span class="p">]</span> <span class="o">=</span> <span class="n">var_type</span><span class="p">(</span><span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return string representation of the SISSO parameters.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: String representation of this SISSOParams object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Parameters for SISSO :&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">class_var</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">PARAMS</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot; - </span><span class="si">{}</span><span class="s2"> : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_var</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">class_var</span><span class="p">)))</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SISSOOut"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.outputs.SISSOOut">[docs]</a><span class="k">class</span> <span class="nc">SISSOOut</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class containing the results contained in the SISSO output file (SISSO.out).&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">params</span><span class="p">:</span> <span class="n">SISSOParams</span><span class="p">,</span>
+        <span class="n">iterations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SISSOIteration</span><span class="p">],</span>
+        <span class="n">version</span><span class="p">:</span> <span class="n">SISSOVersion</span><span class="p">,</span>
+        <span class="n">cpu_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct SISSOOut class.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            params: Parameters used for SISSO (as a SISSOParams object).</span>
+<span class="sd">            iterations: List of SISSO iterations.</span>
+<span class="sd">            version: Information about the version of SISSO used as a SISSOVersion</span>
+<span class="sd">                object.</span>
+<span class="sd">            cpu_time: Wall-clock CPU time from the output file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span> <span class="o">=</span> <span class="n">iterations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cpu_time</span> <span class="o">=</span> <span class="n">cpu_time</span>
+
+<div class="viewcode-block" id="SISSOOut.from_file"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.outputs.SISSOOut.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;SISSO.out&quot;</span><span class="p">,</span> <span class="n">allow_unfinished</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read in SISSOOut data from file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filepath: Path of the file to extract output.</span>
+<span class="sd">            allow_unfinished: Whether to allow parsing of unfinished SISSO runs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">string</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="n">r</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;Reading parameters from SISSO\.in:\s?\n-</span><span class="si">{80}</span><span class="s2">.*?-</span><span class="si">{80}</span><span class="s2">&quot;</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">match</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># pragma: no cover, wrong SISSO output</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Should get exactly one excerpt for input parameters in the string.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">SISSOParams</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">r</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;iteration:.*?DI done!&quot;</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+
+        <span class="n">iterations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">iteration_string</span> <span class="ow">in</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">iterations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SISSOIteration</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">iteration_string</span><span class="p">))</span>
+
+        <span class="n">r</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;Total wall-clock time \(second\):.*?\n&quot;</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">match</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_unfinished</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Should get exactly one total cpu time in the string, got 0.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">cpu_time</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">match</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># pragma: no cover, wrong SISSO output</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Should get exactly one total cpu time in the string, &quot;</span>
+                <span class="s2">&quot;got </span><span class="si">{:d}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">match</span><span class="p">))</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cpu_time</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="n">SISSOVersion</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="n">iterations</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span> <span class="n">cpu_time</span><span class="o">=</span><span class="n">cpu_time</span>
+        <span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Model for this SISSO run.</span>
+
+<span class="sd">        The last model is provided (with the highest dimension).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sisso_model</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">models</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Models (for all dimensions) for this SISSO run.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">it</span><span class="o">.</span><span class="n">sisso_model</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="TopModels"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.outputs.TopModels">[docs]</a><span class="k">class</span> <span class="nc">TopModels</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class containing summary info of the top N models from SISSO.</span>
+
+<span class="sd">    This class is a container for the topNNNN_DDDd files (NNNN being the number of</span>
+<span class="sd">    models in the file and DDD the dimension of the descriptor) that are stored in</span>
+<span class="sd">    the models directory.</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="TopModelsCoefficients"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.outputs.TopModelsCoefficients">[docs]</a><span class="k">class</span> <span class="nc">TopModelsCoefficients</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class containing the coefficients of the features for the top N models.</span>
+
+<span class="sd">    This class is a container for the topNNNN_DDDd_coeff files (NNNN being the number</span>
+<span class="sd">    of models in the file and DDD the dimension of the descriptor) that are stored</span>
+<span class="sd">    in the models directory.</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="FeatureSpace"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.outputs.FeatureSpace">[docs]</a><span class="k">class</span> <span class="nc">FeatureSpace</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class containing the selected features from SISSO.</span>
+
+<span class="sd">    This class is a container for the space_DDDd.name files (DDD being the dimension</span>
+<span class="sd">    of the descriptor) that are stored in the feature_space directory.</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="DescriptorsDataModels"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.outputs.DescriptorsDataModels">[docs]</a><span class="k">class</span> <span class="nc">DescriptorsDataModels</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>  <span class="c1"># pragma: no cover, reading full SISSO.out</span>
+    <span class="sd">&quot;&quot;&quot;Class containing the true and predicted data for the best descriptors/models.</span>
+
+<span class="sd">    This class is a container for the desc_DDDd_pPPP.dat files (DDD being the</span>
+<span class="sd">    dimension of the descriptor and PPP the property number in case of multi-task</span>
+<span class="sd">    SISSO) that are stored in the desc_dat directory.</span>
+
+<span class="sd">    Note: see if we want to implement this class, everything might be contained in</span>
+<span class="sd">        SISSO.out and its SISSOOut object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct this DescriptorsDataModels object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: Data for this DescriptorsDataModels object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+
+<div class="viewcode-block" id="DescriptorsDataModels.from_file"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.outputs.DescriptorsDataModels.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct this DescriptorsDataModels object from file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filepath: File to construct this DescriptorsDataModels from.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DescriptorsDataModels: DescriptorsDataModels object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">filepath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.dat&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_dat_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The from_file method is working only with .dat files&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DescriptorsDataModels.from_dat_file"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.outputs.DescriptorsDataModels.from_dat_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dat_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct this DescriptorsDataModels object from .dat file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filepath: File to construct this DescriptorsDataModels from.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DescriptorsDataModels: DescriptorsDataModels object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">delim_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ResidualData"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.outputs.ResidualData">[docs]</a><span class="k">class</span> <span class="nc">ResidualData</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class containing the residuals for the training data computed at each iteration.</span>
+
+<span class="sd">    This class is a container for the res_DDDd_pPPP.dat files (DDD being the dimension</span>
+<span class="sd">    of the descriptor and PPP the property number in case of multi-task SISSO)</span>
+<span class="sd">    that are stored in the residual directory.</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Matgenix SRL.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

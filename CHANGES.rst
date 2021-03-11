@@ -1,7 +1,16 @@
+
+Release 0.3.2 (Mar 11, 2021)
+============================
+
+* Started documentation
+* Updated spelling of "licence" to "license" everywhere
+
+
 Release 0.3.1 (Feb 18, 2021)
 ============================
 
 * Updated monty's versions requirement (>=3.0.4, <5)
+
 
 Release 0.3 (Feb 17, 2021)
 ==========================

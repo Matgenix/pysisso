@@ -1,0 +1,319 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pysisso.utils &mdash; pysisso 0.3.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pysisso
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/index.html">Get started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../how-to/index.html">How-to guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../background/index.html">Background information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/index.html">Technical reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pysisso</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pysisso.utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pysisso.utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># Copyright (c) 2020, Matgenix SRL, All rights reserved.</span>
+<span class="c1"># Distributed open source for academic and non-profit users.</span>
+<span class="c1"># Contact Matgenix for commercial usage.</span>
+<span class="c1"># See LICENSE file for details.</span>
+
+<span class="sd">&quot;&quot;&quot;Module containing various utility functions for pysisso.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">monty.tempfile</span> <span class="kn">import</span> <span class="n">ScratchDir</span>  <span class="c1"># type: ignore</span>
+
+<span class="kn">import</span> <span class="nn">pysisso</span>
+
+<span class="n">TEST_FILES_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pysisso</span><span class="o">.</span><span class="vm">__file__</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;test_files&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_version"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.utils.get_version">[docs]</a><span class="k">def</span> <span class="nf">get_version</span><span class="p">(</span><span class="n">SISSO_exe</span><span class="o">=</span><span class="s2">&quot;SISSO&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the version of a given SISSO executable.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        SISSO_exe: Name of executable.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Dictionary with version and header as keys. Version is a tuple of the</span>
+<span class="sd">            three numbers for the SISSO version and header is the header line of the</span>
+<span class="sd">            SISSO output.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># TODO: check how SISSO&lt;3.0.2 was working</span>
+    <span class="k">with</span> <span class="n">ScratchDir</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TEST_FILES_DIR</span><span class="p">,</span> <span class="s2">&quot;inputs&quot;</span><span class="p">,</span> <span class="s2">&quot;SISSO.in_simple&quot;</span><span class="p">),</span> <span class="s2">&quot;SISSO.in&quot;</span>
+        <span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TEST_FILES_DIR</span><span class="p">,</span> <span class="s2">&quot;inputs&quot;</span><span class="p">,</span> <span class="s2">&quot;train.dat_regression&quot;</span><span class="p">),</span> <span class="s2">&quot;train.dat&quot;</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;SISSO.log&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_stdout</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span>
+            <span class="s2">&quot;SISSO.err&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">buffering</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">f_stderr</span><span class="p">:</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="n">SISSO_exe</span><span class="p">],</span> <span class="n">stdin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">f_stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">f_stderr</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;SISSO.out&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">header</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="s2">&quot;Version&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">header</span>
+                <span class="p">):</span>  <span class="c1"># pragma: no cover # Reason: unlikely error of pysisso.</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Could not determine SISSO version.&quot;</span><span class="p">)</span>
+                <span class="n">version</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+                    <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">header</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">]]</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">version</span><span class="p">,</span> <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="n">header</span><span class="o">.</span><span class="n">strip</span><span class="p">()}</span></div>
+
+
+<div class="viewcode-block" id="list_of_ints"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.utils.list_of_ints">[docs]</a><span class="k">def</span> <span class="nf">list_of_ints</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">delimiter</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Cast a string to a list of integers.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        string: String to be converted to a list of int&#39;s.</span>
+<span class="sd">        delimiter: Delimiter between integers in the string.</span>
+<span class="sd">            Default is to split with any whitespace string (see str.split() method).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="n">delimiter</span><span class="p">)]</span></div>
+
+
+<div class="viewcode-block" id="list_of_strs"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.utils.list_of_strs">[docs]</a><span class="k">def</span> <span class="nf">list_of_strs</span><span class="p">(</span>
+    <span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">delimiter</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">strip</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Cast a string to a list of strings.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        string: String to be converted to a list of str&#39;s.</span>
+<span class="sd">        delimiter: Delimiter between str&#39;s in the string.</span>
+<span class="sd">            Default is to split with any whitespace string (see str.split() method).</span>
+<span class="sd">        strip: Whether to strip the substrings (i.e. remove leading and trailing</span>
+<span class="sd">            whitespaces after the split with a delimiter that is not whitespace).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">strip</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="n">delimiter</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="n">delimiter</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="matrix_of_floats"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.utils.matrix_of_floats">[docs]</a><span class="k">def</span> <span class="nf">matrix_of_floats</span><span class="p">(</span>
+    <span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">delimiter_ax0</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">delimiter_ax1</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;Cast a string to a list of list of floats.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        string: String to be converted to a list of lists of floats.</span>
+<span class="sd">        delimiter_ax0: Delimiter for the first axis of the matrix.</span>
+<span class="sd">        delimiter_ax1: Delimiter for the second axis of the matrix.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">sp2</span><span class="p">)</span> <span class="k">for</span> <span class="n">sp2</span> <span class="ow">in</span> <span class="n">sp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="n">delimiter_ax1</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="n">delimiter_ax0</span><span class="p">)</span>
+    <span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="str_to_bool"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.utils.str_to_bool">[docs]</a><span class="k">def</span> <span class="nf">str_to_bool</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Cast a string to a boolean value.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        string: String to be converted to a bool.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: In case the string could not be converted to a bool.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">strip</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">strip</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.True.&quot;</span><span class="p">,</span> <span class="s2">&quot;True&quot;</span><span class="p">,</span> <span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;.true.&quot;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="n">strip</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.False.&quot;</span><span class="p">,</span> <span class="s2">&quot;False&quot;</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">,</span> <span class="s2">&quot;.false.&quot;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Could not convert &quot;</span><span class="si">{}</span><span class="s1">&quot; to a boolean.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">string</span><span class="p">))</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Matgenix SRL.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

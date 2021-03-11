@@ -1,0 +1,508 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pysisso.sklearn &mdash; pysisso 0.3.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pysisso
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/index.html">Get started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../how-to/index.html">How-to guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../background/index.html">Background information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/index.html">Technical reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pysisso</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pysisso.sklearn</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pysisso.sklearn</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># Copyright (c) 2020, Matgenix SRL, All rights reserved.</span>
+<span class="c1"># Distributed open source for academic and non-profit users.</span>
+<span class="c1"># Contact Matgenix for commercial usage.</span>
+<span class="c1"># See LICENSE file for details.</span>
+
+<span class="sd">&quot;&quot;&quot;Module containing a scikit-learn compliant interface to SISSO.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>  <span class="c1"># type: ignore</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">custodian</span> <span class="kn">import</span> <span class="n">Custodian</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">monty.os</span> <span class="kn">import</span> <span class="n">cd</span><span class="p">,</span> <span class="n">makedirs_p</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">RegressorMixin</span>  <span class="c1"># type: ignore</span>
+
+<span class="kn">from</span> <span class="nn">pysisso.inputs</span> <span class="kn">import</span> <span class="n">SISSODat</span><span class="p">,</span> <span class="n">SISSOIn</span>
+<span class="kn">from</span> <span class="nn">pysisso.jobs</span> <span class="kn">import</span> <span class="n">SISSOJob</span>
+<span class="kn">from</span> <span class="nn">pysisso.outputs</span> <span class="kn">import</span> <span class="n">SISSOOut</span>
+
+
+<div class="viewcode-block" id="get_timestamp"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.sklearn.get_timestamp">[docs]</a><span class="k">def</span> <span class="nf">get_timestamp</span><span class="p">(</span><span class="n">tstamp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Get a string representing the a time stamp.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tstamp: datetime.datetime object representing date and time. If set to None,</span>
+<span class="sd">            the current time is taken.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: String representation of the time stamp.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tstamp</span> <span class="o">=</span> <span class="n">tstamp</span> <span class="ow">or</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">tstamp</span><span class="o">.</span><span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">tstamp</span><span class="o">.</span><span class="n">month</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">_&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">tstamp</span><span class="o">.</span><span class="n">day</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">_&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">tstamp</span><span class="o">.</span><span class="n">hour</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">tstamp</span><span class="o">.</span><span class="n">minute</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">_&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">tstamp</span><span class="o">.</span><span class="n">second</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">tstamp</span><span class="o">.</span><span class="n">microsecond</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SISSORegressor"><a class="viewcode-back" href="../../reference/index.html#pysisso.sklearn.SISSORegressor">[docs]</a><span class="k">class</span> <span class="nc">SISSORegressor</span><span class="p">(</span><span class="n">RegressorMixin</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;SISSO regressor class compatible with scikit-learn.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SISSORegressor.__init__"><a class="viewcode-back" href="../../reference/index.html#pysisso.sklearn.SISSORegressor.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ntask</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">task_weighting</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">desc_dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">restart</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">rung</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">opset</span><span class="o">=</span><span class="s2">&quot;(+)(-)&quot;</span><span class="p">,</span>
+        <span class="n">maxcomplexity</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">dimclass</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">maxfval_lb</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+        <span class="n">maxfval_ub</span><span class="o">=</span><span class="mf">1e5</span><span class="p">,</span>
+        <span class="n">subs_sis</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="n">method</span><span class="o">=</span><span class="s2">&quot;L0&quot;</span><span class="p">,</span>
+        <span class="n">L1L0_size4L0</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">fit_intercept</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;RMSE&quot;</span><span class="p">,</span>
+        <span class="n">nm_output</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+        <span class="n">isconvex</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">nvf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">vfsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">vf2sf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">npf_must</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">L1_max_iter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">L1_tole</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">L1_dens</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">L1_nlambda</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">L1_minrmse</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">L1_warm_start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">L1_weighted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">features_dimensions</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">use_custodian</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">custodian_job_kwargs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">custodian_kwargs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">run_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SISSO_dir&quot;</span><span class="p">,</span>
+        <span class="n">clean_run_dir</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>  <span class="c1"># noqa: D417</span>
+        <span class="sd">&quot;&quot;&quot;Construct SISSORegressor class.</span>
+
+<span class="sd">        All arguments not listed below are arguments from the SISSO code. For more</span>
+<span class="sd">        information, see https://github.com/rouyang2017/SISSO.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            use_custodian: Whether to use custodian (currently mandatory).</span>
+<span class="sd">            custodian_job_kwargs: Keyword arguments for custodian job.</span>
+<span class="sd">            custodian_kwargs: Keyword arguments for custodian.</span>
+<span class="sd">            run_dir: Name of the directory where SISSO is run. If None, the directory</span>
+<span class="sd">                will be set automatically. It then contains a timestamp and is unique.</span>
+<span class="sd">            clean_run_dir: Whether to clean the run directory after SISSO has run.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ntask</span> <span class="o">=</span> <span class="n">ntask</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_weighting</span> <span class="o">=</span> <span class="n">task_weighting</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">desc_dim</span> <span class="o">=</span> <span class="n">desc_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">restart</span> <span class="o">=</span> <span class="n">restart</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rung</span> <span class="o">=</span> <span class="n">rung</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opset</span> <span class="o">=</span> <span class="n">opset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxcomplexity</span> <span class="o">=</span> <span class="n">maxcomplexity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimclass</span> <span class="o">=</span> <span class="n">dimclass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxfval_lb</span> <span class="o">=</span> <span class="n">maxfval_lb</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxfval_ub</span> <span class="o">=</span> <span class="n">maxfval_ub</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subs_sis</span> <span class="o">=</span> <span class="n">subs_sis</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">L1L0_size4L0</span> <span class="o">=</span> <span class="n">L1L0_size4L0</span>  <span class="c1"># pylint: disable=C0103</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_intercept</span> <span class="o">=</span> <span class="n">fit_intercept</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="n">metric</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nm_output</span> <span class="o">=</span> <span class="n">nm_output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isconvex</span> <span class="o">=</span> <span class="n">isconvex</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nvf</span> <span class="o">=</span> <span class="n">nvf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vfsize</span> <span class="o">=</span> <span class="n">vfsize</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vf2sf</span> <span class="o">=</span> <span class="n">vf2sf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">npf_must</span> <span class="o">=</span> <span class="n">npf_must</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">L1_max_iter</span> <span class="o">=</span> <span class="n">L1_max_iter</span>  <span class="c1"># pylint: disable=C0103</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">L1_tole</span> <span class="o">=</span> <span class="n">L1_tole</span>  <span class="c1"># pylint: disable=C0103</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">L1_dens</span> <span class="o">=</span> <span class="n">L1_dens</span>  <span class="c1"># pylint: disable=C0103</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">L1_nlambda</span> <span class="o">=</span> <span class="n">L1_nlambda</span>  <span class="c1"># pylint: disable=C0103</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">L1_minrmse</span> <span class="o">=</span> <span class="n">L1_minrmse</span>  <span class="c1"># pylint: disable=C0103</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">L1_warm_start</span> <span class="o">=</span> <span class="n">L1_warm_start</span>  <span class="c1"># pylint: disable=C0103</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">L1_weighted</span> <span class="o">=</span> <span class="n">L1_weighted</span>  <span class="c1"># pylint: disable=C0103</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features_dimensions</span> <span class="o">=</span> <span class="n">features_dimensions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_custodian</span> <span class="o">=</span> <span class="n">use_custodian</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">custodian_job_kwargs</span> <span class="o">=</span> <span class="n">custodian_job_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">custodian_kwargs</span> <span class="o">=</span> <span class="n">custodian_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_dir</span> <span class="o">=</span> <span class="n">run_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clean_run_dir</span> <span class="o">=</span> <span class="n">clean_run_dir</span></div>
+
+<div class="viewcode-block" id="SISSORegressor.fit"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.sklearn.SISSORegressor.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fit a SISSO regression based on inputs X and output y.</span>
+
+<span class="sd">        This method supports Multi-Task SISSO. For Single-Task SISSO, y must have a</span>
+<span class="sd">        shape (n_samples) or (n_samples, 1).</span>
+<span class="sd">        For Multi-Task SISSO, y must have a shape (n_samples, n_tasks). The arrays</span>
+<span class="sd">        will be reshaped to fit SISSO&#39;s input files.</span>
+<span class="sd">        For example, with 10 samples and 3 properties, the output array (y) will be</span>
+<span class="sd">        reshaped to (30, 1). The input array (X) is left unchanged.</span>
+<span class="sd">        It is also possible to provide samples without an output for some properties</span>
+<span class="sd">        by setting that property to NaN. In that case, the corresponding values in the</span>
+<span class="sd">        input (X) and output (y) arrays will be removed from the SISSO inputs.</span>
+<span class="sd">        In the previous example, if 2 of the samples have NaN for the first property,</span>
+<span class="sd">        1 sample has Nan for the second property and 4 samples have Nan for the third</span>
+<span class="sd">        property, the final output array (y) will have a shape (30-2-1-4, 1), i.e.</span>
+<span class="sd">        (23, 1), while the final input array (X) will have a shape (23, n_features).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            X: Feature vectors as an array-like of shape (n_samples, n_features).</span>
+<span class="sd">            y: Target values as an array-like of shape (n_samples,)</span>
+<span class="sd">                or (n_samples, n_tasks).</span>
+<span class="sd">            index: List of string identifiers for each sample. If None, &quot;sampleN&quot;</span>
+<span class="sd">                with N=[1, ..., n_samples] will be used.</span>
+<span class="sd">            columns: List of string names of the features. If None, &quot;featN&quot;</span>
+<span class="sd">                with N=[1, ..., n_features] will be used.</span>
+<span class="sd">            tasks: When Multi-Task SISSO is used, this is the list of string names</span>
+<span class="sd">                that will be used for each task/property. If None, &quot;taskN&quot;</span>
+<span class="sd">                with N=[1, ..., n_tasks] will be used.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_custodian</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sisso_in</span> <span class="o">=</span> <span class="n">SISSOIn</span><span class="o">.</span><span class="n">from_sisso_keywords</span><span class="p">(</span>  <span class="c1"># pylint: disable=W0201</span>
+            <span class="n">ptype</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">ntask</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ntask</span><span class="p">,</span>
+            <span class="n">task_weighting</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task_weighting</span><span class="p">,</span>
+            <span class="n">desc_dim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">desc_dim</span><span class="p">,</span>
+            <span class="n">restart</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">restart</span><span class="p">,</span>
+            <span class="n">rung</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rung</span><span class="p">,</span>
+            <span class="n">opset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">opset</span><span class="p">,</span>
+            <span class="n">maxcomplexity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">maxcomplexity</span><span class="p">,</span>
+            <span class="n">dimclass</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dimclass</span><span class="p">,</span>
+            <span class="n">maxfval_lb</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">maxfval_lb</span><span class="p">,</span>
+            <span class="n">maxfval_ub</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">maxfval_ub</span><span class="p">,</span>
+            <span class="n">subs_sis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subs_sis</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
+            <span class="n">L1L0_size4L0</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">L1L0_size4L0</span><span class="p">,</span>
+            <span class="n">fit_intercept</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_intercept</span><span class="p">,</span>
+            <span class="n">metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">,</span>
+            <span class="n">nm_output</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nm_output</span><span class="p">,</span>
+            <span class="n">isconvex</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">isconvex</span><span class="p">,</span>
+            <span class="n">width</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span>
+            <span class="n">nvf</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nvf</span><span class="p">,</span>
+            <span class="n">vfsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vfsize</span><span class="p">,</span>
+            <span class="n">vf2sf</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vf2sf</span><span class="p">,</span>
+            <span class="n">npf_must</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">npf_must</span><span class="p">,</span>
+            <span class="n">L1_max_iter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">L1_max_iter</span><span class="p">,</span>
+            <span class="n">L1_tole</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">L1_tole</span><span class="p">,</span>
+            <span class="n">L1_dens</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">L1_dens</span><span class="p">,</span>
+            <span class="n">L1_nlambda</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">L1_nlambda</span><span class="p">,</span>
+            <span class="n">L1_minrmse</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">L1_minrmse</span><span class="p">,</span>
+            <span class="n">L1_warm_start</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">L1_warm_start</span><span class="p">,</span>
+            <span class="n">L1_weighted</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">L1_weighted</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># Set up columns. These columns are used by the SISSO model wrapper afterwards</span>
+        <span class="c1"># for the prediction</span>
+        <span class="k">if</span> <span class="n">columns</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span> <span class="ow">or</span> <span class="p">[</span>  <span class="c1"># pylint: disable=W0201</span>
+            <span class="s2">&quot;feat</span><span class="si">{:d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ifeat</span><span class="p">)</span> <span class="k">for</span> <span class="n">ifeat</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">!=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Columns should be of the size of the second axis of X.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Set up data</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>  <span class="c1"># Single-Task SISSO</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># pylint: disable=W0201</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="ow">or</span> <span class="p">[</span>
+                <span class="s2">&quot;sample</span><span class="si">{:d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Index, X and y should have same size.&quot;</span><span class="p">)</span>
+            <span class="n">nsample</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="n">y</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># Multi-Task SISSO</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># pylint: disable=W0201</span>
+            <span class="n">samples_index</span> <span class="o">=</span> <span class="n">index</span> <span class="ow">or</span> <span class="p">[</span>
+                <span class="s2">&quot;sample</span><span class="si">{:d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="p">]</span>
+            <span class="n">tasks</span> <span class="o">=</span> <span class="n">tasks</span> <span class="ow">or</span> <span class="p">[</span><span class="s2">&quot;task</span><span class="si">{:d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+            <span class="n">newX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">newy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">nsample</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">itask</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span><span class="p">):</span>
+                <span class="n">yadd</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:,</span> <span class="n">itask</span><span class="p">]</span>
+                <span class="n">nanindices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">yadd</span><span class="p">))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+                <span class="n">totake</span> <span class="o">=</span> <span class="p">[</span><span class="n">ii</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">yadd</span><span class="p">))</span> <span class="k">if</span> <span class="n">ii</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">nanindices</span><span class="p">]</span>
+                <span class="n">newy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">newy</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">yadd</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="n">totake</span><span class="p">)])</span>
+                <span class="n">newX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">row_stack</span><span class="p">([</span><span class="n">newX</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="n">totake</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)])</span>
+                <span class="n">nsample</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">totake</span><span class="p">))</span>
+                <span class="n">index</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sample_index</span><span class="p">,</span> <span class="n">tasks</span><span class="p">[</span><span class="n">itask</span><span class="p">])</span>
+                        <span class="k">for</span> <span class="n">i_sample</span><span class="p">,</span> <span class="n">sample_index</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">samples_index</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">i_sample</span> <span class="ow">in</span> <span class="n">totake</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="n">X</span> <span class="o">=</span> <span class="n">newX</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">newy</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wrong shapes.&quot;</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;identifier&quot;</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+
+        <span class="c1"># Set up SISSODat and SISSOIn</span>
+        <span class="n">sisso_dat</span> <span class="o">=</span> <span class="n">SISSODat</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">features_dimensions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">features_dimensions</span><span class="p">,</span> <span class="n">nsample</span><span class="o">=</span><span class="n">nsample</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sisso_in</span><span class="o">.</span><span class="n">set_keywords_for_SISSO_dat</span><span class="p">(</span><span class="n">sisso_dat</span><span class="o">=</span><span class="n">sisso_dat</span><span class="p">)</span>
+
+        <span class="c1"># Run SISSO</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">makedirs_p</span><span class="p">(</span><span class="s2">&quot;SISSO_runs&quot;</span><span class="p">)</span>
+            <span class="n">timestamp</span> <span class="o">=</span> <span class="n">get_timestamp</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">run_dir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span>
+                <span class="n">suffix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;SISSO_dir_</span><span class="si">{</span><span class="n">timestamp</span><span class="si">}</span><span class="s2">_&quot;</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="s2">&quot;SISSO_runs&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">makedirs_p</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_dir</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">cd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_dir</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sisso_in</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;SISSO.in&quot;</span><span class="p">)</span>
+            <span class="n">sisso_dat</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;train.dat&quot;</span><span class="p">)</span>
+            <span class="n">job</span> <span class="o">=</span> <span class="n">SISSOJob</span><span class="p">()</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">Custodian</span><span class="p">(</span><span class="n">jobs</span><span class="o">=</span><span class="p">[</span><span class="n">job</span><span class="p">],</span> <span class="n">handlers</span><span class="o">=</span><span class="p">[],</span> <span class="n">validators</span><span class="o">=</span><span class="p">[])</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sisso_out</span> <span class="o">=</span> <span class="n">SISSOOut</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span>  <span class="c1"># pylint: disable=W0201</span>
+                <span class="n">filepath</span><span class="o">=</span><span class="s2">&quot;SISSO.out&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Clean run directory</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clean_run_dir</span>
+        <span class="p">):</span>  <span class="c1"># TODO: add check here to not remove &quot;.&quot; if the user passes . ?</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_dir</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SISSORegressor.predict"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.sklearn.SISSORegressor.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Predict output based on a fitted SISSO regression.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            X: Feature vectors as an array-like of shape (n_samples, n_features).</span>
+<span class="sd">            index: List of string identifiers for each sample. If None, &quot;sampleN&quot;</span>
+<span class="sd">                with N=[1, ..., n_samples] will be used.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="ow">or</span> <span class="p">[</span><span class="s2">&quot;item</span><span class="si">{:d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sisso_out</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SISSORegressor.from_SISSOIn"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.sklearn.SISSORegressor.from_SISSOIn">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_SISSOIn</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sisso_in</span><span class="p">:</span> <span class="n">SISSOIn</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct SISSORegressor from a SISSOIn object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            sisso_in: SISSOIn object containing the inputs for a SISSO run.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            SISSORegressor: SISSO regressor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Matgenix SRL.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
