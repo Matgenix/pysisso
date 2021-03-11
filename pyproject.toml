@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pysisso"
-version = "0.3.1"
+version = "0.3.2"
 description = "Python interface to the SISSO (Sure Independence Screening and Sparsifying Operator) method."
 authors = ["David Waroquiers <david.waroquiers@matgenix.com>"]
 license = "See LICENSE file."
