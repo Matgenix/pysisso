@@ -1,0 +1,1038 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pysisso package &mdash; pysisso 0.3.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pysisso
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">Get started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/index.html">How-to guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/index.html">Background information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Technical reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pysisso</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>pysisso package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/pysisso.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pysisso-package">
+<h1>pysisso package<a class="headerlink" href="#pysisso-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pysisso.inputs">
+<span id="pysisso-inputs-module"></span><h2>pysisso.inputs module<a class="headerlink" href="#module-pysisso.inputs" title="Permalink to this headline">¶</a></h2>
+<p>Module containing classes to create and manipulate SISSO input files.</p>
+<dl class="py class">
+<dt id="pysisso.inputs.SISSODat">
+<em class="property">class </em><code class="sig-prename descclassname">pysisso.inputs.</code><code class="sig-name descname">SISSODat</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">pandas.core.frame.DataFrame</span></em>, <em class="sig-param"><span class="n">features_dimensions</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>dict<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">model_type</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'regression'</span></em>, <em class="sig-param"><span class="n">nsample</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>List<span class="p">[</span>int<span class="p">]</span><span class="p">, </span>int<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/inputs.html#SISSODat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.inputs.SISSODat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Main class containing the data for SISSO (training, test or new data).</p>
+<dl class="py method">
+<dt id="pysisso.inputs.SISSODat.SISSO_features_dimensions_ranges">
+<em class="property">property </em><code class="sig-name descname">SISSO_features_dimensions_ranges</code><a class="headerlink" href="#pysisso.inputs.SISSODat.SISSO_features_dimensions_ranges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the ranges of features for each dimension.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dimension to range mapping.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.inputs.SISSODat.from_dat_file">
+<em class="property">classmethod </em><code class="sig-name descname">from_dat_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filepath</span></em>, <em class="sig-param"><span class="n">features_dimensions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nsample</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/inputs.html#SISSODat.from_dat_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.inputs.SISSODat.from_dat_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct SISSODat object from .dat file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath</strong> – Name of the file.</p></li>
+<li><p><strong>features_dimensions</strong> – Dimension of the different base features as a
+dictionary mapping the name of each feature to its dimension.
+Features not in the dictionary are supposed to be dimensionless.
+If set to None, all features are supposed to be dimensionless.</p></li>
+<li><p><strong>nsample</strong> – Number of samples in the .dat file. If set to None, will be set
+automatically.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>SISSODat object extracted from file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pysisso.inputs.SISSODat" title="pysisso.inputs.SISSODat">SISSODat</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.inputs.SISSODat.from_file">
+<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filepath</span></em>, <em class="sig-param"><span class="n">features_dimensions</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/inputs.html#SISSODat.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.inputs.SISSODat.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct SISSODat object from file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath</strong> – Name of the file.</p></li>
+<li><p><strong>features_dimensions</strong> – Dimension of the different base features as a
+dictionary mapping the name of each feature to its dimension.
+Features not in the dictionary are supposed to be dimensionless.
+If set to None, all features are supposed to be dimensionless.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>SISSODat object extracted from file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pysisso.inputs.SISSODat" title="pysisso.inputs.SISSODat">SISSODat</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.inputs.SISSODat.input_string">
+<em class="property">property </em><code class="sig-name descname">input_string</code><a class="headerlink" href="#pysisso.inputs.SISSODat.input_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Input string of the .dat file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>String for the .dat file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.inputs.SISSODat.nsample">
+<em class="property">property </em><code class="sig-name descname">nsample</code><a class="headerlink" href="#pysisso.inputs.SISSODat.nsample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return number of samples in this data set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Number of samples</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.inputs.SISSODat.nsf">
+<em class="property">property </em><code class="sig-name descname">nsf</code><a class="headerlink" href="#pysisso.inputs.SISSODat.nsf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return number of (scalar) features in this data set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Number of (scalar) features.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.inputs.SISSODat.ntask">
+<em class="property">property </em><code class="sig-name descname">ntask</code><a class="headerlink" href="#pysisso.inputs.SISSODat.ntask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return number of tasks (i.e. output targets) in this data set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Number of tasks</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.inputs.SISSODat.to_file">
+<code class="sig-name descname">to_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'train.dat'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/inputs.html#SISSODat.to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.inputs.SISSODat.to_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write this SISSODat object to file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – Name of the file to write this SISSODat to.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pysisso.inputs.SISSOIn">
+<em class="property">class </em><code class="sig-prename descclassname">pysisso.inputs.</code><code class="sig-name descname">SISSOIn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">target_properties_keywords</span></em>, <em class="sig-param"><span class="n">feature_construction_sure_independence_screening_keywords</span></em>, <em class="sig-param"><span class="n">descriptor_identification_keywords</span></em>, <em class="sig-param"><span class="n">fix</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/inputs.html#SISSOIn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.inputs.SISSOIn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Main class containing the input variables for SISSO.</p>
+<p>This class is basically a container for the SISSO.in input file for SISSO.
+Additional helper functions are available.</p>
+<dl class="py attribute">
+<dt id="pysisso.inputs.SISSOIn.AVAILABLE_OPERATIONS">
+<code class="sig-name descname">AVAILABLE_OPERATIONS</code><em class="property"> = {'binary': {'*': '', '+': '', '-': '', '/': '', '|-|': ''}, 'unary': {'^-1': '', '^2': '', '^3': '', '^6': '', 'cbrt': '', 'cos': '', 'exp': '', 'exp-': '', 'log': '', 'scd': '', 'sin': '', 'sqrt': ''}}</em><a class="headerlink" href="#pysisso.inputs.SISSOIn.AVAILABLE_OPERATIONS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pysisso.inputs.SISSOIn.KW_TYPES">
+<code class="sig-name descname">KW_TYPES</code><em class="property"> = {'L1L0_size4L0': (&lt;class 'int'&gt;,), 'L1_dens': (&lt;class 'int'&gt;,), 'L1_max_iter': (&lt;class 'int'&gt;,), 'L1_minrmse': (&lt;class 'float'&gt;,), 'L1_nlambda': (&lt;class 'int'&gt;,), 'L1_tole': (&lt;class 'float'&gt;,), 'L1_warm_start': (&lt;class 'bool'&gt;,), 'L1_weighted': (&lt;class 'bool'&gt;,), 'desc_dim': (&lt;class 'int'&gt;,), 'dimclass': ('str_dimensions',), 'fit_intercept': (&lt;class 'bool'&gt;,), 'isconvex': ('str_isconvex',), 'maxcomplexity': (&lt;class 'int'&gt;,), 'maxfval_lb': (&lt;class 'float'&gt;,), 'maxfval_ub': (&lt;class 'float'&gt;,), 'method': (&lt;class 'str'&gt;,), 'metric': (&lt;class 'str'&gt;,), 'nm_output': (&lt;class 'int'&gt;,), 'npf_must': (&lt;class 'int'&gt;,), 'nsample': (&lt;class 'int'&gt;, 'list_of_ints'), 'nsf': (&lt;class 'int'&gt;,), 'ntask': (&lt;class 'int'&gt;,), 'nvf': (&lt;class 'int'&gt;,), 'opset': ('str_operators',), 'ptype': (&lt;class 'int'&gt;,), 'restart': (&lt;class 'bool'&gt;,), 'rung': (&lt;class 'int'&gt;,), 'subs_sis': (&lt;class 'int'&gt;, 'list_of_ints'), 'task_weighting': (&lt;class 'int'&gt;,), 'vf2sf': (&lt;class 'str'&gt;,), 'vfsize': (&lt;class 'int'&gt;,), 'width': (&lt;class 'float'&gt;,)}</em><a class="headerlink" href="#pysisso.inputs.SISSOIn.KW_TYPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Types or descriptions (as a string) of the values for each SISSO keyword.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.inputs.SISSOIn.from_SISSO_dat">
+<em class="property">classmethod </em><code class="sig-name descname">from_SISSO_dat</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sisso_dat</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#pysisso.inputs.SISSODat" title="pysisso.inputs.SISSODat">pysisso.inputs.SISSODat</a></span></em>, <em class="sig-param"><span class="n">model_type</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'regression'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">object</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/inputs.html#SISSOIn.from_SISSO_dat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.inputs.SISSOIn.from_SISSO_dat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct SISSOIn object from SISSODat object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sisso_dat</strong> – SISSODat object containing the data to fit.</p></li>
+<li><p><strong>model_type</strong> – Type of model. Should be “regression” or “classification”.</p></li>
+<li><p><strong>**kwargs</strong> – Keywords to be passed to SISSOIn.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>SISSOIn object containing all the relevant SISSO input keywords.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pysisso.inputs.SISSOIn" title="pysisso.inputs.SISSOIn">SISSOIn</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.inputs.SISSOIn.from_file">
+<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filepath</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/inputs.html#SISSOIn.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.inputs.SISSOIn.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct SISSOIn from file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filepath</strong> – Path of the file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.inputs.SISSOIn.from_sisso_keywords">
+<em class="property">classmethod </em><code class="sig-name descname">from_sisso_keywords</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptype</span></em>, <em class="sig-param"><span class="n">nsample</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nsf</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ntask</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">task_weighting</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">desc_dim</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">restart</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">rung</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">opset</span><span class="o">=</span><span class="default_value">'(+)(-)'</span></em>, <em class="sig-param"><span class="n">maxcomplexity</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">dimclass</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">maxfval_lb</span><span class="o">=</span><span class="default_value">0.001</span></em>, <em class="sig-param"><span class="n">maxfval_ub</span><span class="o">=</span><span class="default_value">100000.0</span></em>, <em class="sig-param"><span class="n">subs_sis</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'L0'</span></em>, <em class="sig-param"><span class="n">L1L0_size4L0</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">fit_intercept</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">metric</span><span class="o">=</span><span class="default_value">'RMSE'</span></em>, <em class="sig-param"><span class="n">nm_output</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">isconvex</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">width</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nvf</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">vfsize</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">vf2sf</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">npf_must</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">L1_max_iter</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">L1_tole</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">L1_dens</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">L1_nlambda</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">L1_minrmse</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">L1_warm_start</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">L1_weighted</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fix</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/inputs.html#SISSOIn.from_sisso_keywords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.inputs.SISSOIn.from_sisso_keywords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct SISSOIn object from SISSO input keywords.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fix</strong> – Whether to fix keywords if they are not compatible.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>SISSOIn object containing the SISSO input arguments.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pysisso.inputs.SISSOIn" title="pysisso.inputs.SISSOIn">SISSOIn</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.inputs.SISSOIn.input_string">
+<code class="sig-name descname">input_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">matgenix_acknowledgement</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/inputs.html#SISSOIn.input_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.inputs.SISSOIn.input_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Input string of the SISSO.in file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>matgenix_acknowledgement</strong> – Whether to add the acknowledgment of Matgenix.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>String for the SISSO.in file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.inputs.SISSOIn.is_classification">
+<em class="property">property </em><code class="sig-name descname">is_classification</code><a class="headerlink" href="#pysisso.inputs.SISSOIn.is_classification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether this SISSOIn object corresponds to a classification model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>True if this SISSOIn object is a classification model,</dt><dd><p>False otherwise.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.inputs.SISSOIn.is_regression">
+<em class="property">property </em><code class="sig-name descname">is_regression</code><a class="headerlink" href="#pysisso.inputs.SISSOIn.is_regression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether this SISSOIn object corresponds to a regression model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if this SISSOIn object is a regression model, False otherwise.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.inputs.SISSOIn.set_keywords_for_SISSO_dat">
+<code class="sig-name descname">set_keywords_for_SISSO_dat</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sisso_dat</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/inputs.html#SISSOIn.set_keywords_for_SISSO_dat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.inputs.SISSOIn.set_keywords_for_SISSO_dat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update keywords for a given SISSO dat object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sisso_dat</strong> – SISSODat object to update related keywords.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.inputs.SISSOIn.to_file">
+<code class="sig-name descname">to_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'SISSO.in'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/inputs.html#SISSOIn.to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.inputs.SISSOIn.to_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write SISSOIn object to file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – Name of the file to write SISSOIn object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pysisso.jobs">
+<span id="pysisso-jobs-module"></span><h2>pysisso.jobs module<a class="headerlink" href="#module-pysisso.jobs" title="Permalink to this headline">¶</a></h2>
+<p>Module containing the custodian jobs for SISSO.</p>
+<dl class="py class">
+<dt id="pysisso.jobs.SISSOJob">
+<em class="property">class </em><code class="sig-prename descclassname">pysisso.jobs.</code><code class="sig-name descname">SISSOJob</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">SISSO_exe</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'SISSO'</span></em>, <em class="sig-param"><span class="n">nprocs</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">1</span></em>, <em class="sig-param"><span class="n">stdout_file</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'SISSO.log'</span></em>, <em class="sig-param"><span class="n">stderr_file</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'SISSO.err'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/jobs.html#SISSOJob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.jobs.SISSOJob" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">custodian.custodian.Job</span></code></p>
+<p>Custodian Job to run SISSO.</p>
+<dl class="py attribute">
+<dt id="pysisso.jobs.SISSOJob.INPUT_FILE">
+<code class="sig-name descname">INPUT_FILE</code><em class="property"> = 'SISSO.in'</em><a class="headerlink" href="#pysisso.jobs.SISSOJob.INPUT_FILE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pysisso.jobs.SISSOJob.TRAINING_DATA_DILE">
+<code class="sig-name descname">TRAINING_DATA_DILE</code><em class="property"> = 'train.dat'</em><a class="headerlink" href="#pysisso.jobs.SISSOJob.TRAINING_DATA_DILE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.jobs.SISSOJob.postprocess">
+<code class="sig-name descname">postprocess</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/jobs.html#SISSOJob.postprocess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.jobs.SISSOJob.postprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Not needed for SISSO.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.jobs.SISSOJob.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; subprocess.Popen<a class="reference internal" href="../_modules/pysisso/jobs.html#SISSOJob.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.jobs.SISSOJob.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run SISSO.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a Popen process.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.jobs.SISSOJob.setup">
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/jobs.html#SISSOJob.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.jobs.SISSOJob.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Not needed for SISSO.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pysisso.outputs">
+<span id="pysisso-outputs-module"></span><h2>pysisso.outputs module<a class="headerlink" href="#module-pysisso.outputs" title="Permalink to this headline">¶</a></h2>
+<p>Module containing classes to parse SISSO output files.</p>
+<dl class="py class">
+<dt id="pysisso.outputs.DescriptorsDataModels">
+<em class="property">class </em><code class="sig-prename descclassname">pysisso.outputs.</code><code class="sig-name descname">DescriptorsDataModels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/outputs.html#DescriptorsDataModels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.outputs.DescriptorsDataModels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Class containing the true and predicted data for the best descriptors/models.</p>
+<p>This class is a container for the desc_DDDd_pPPP.dat files (DDD being the
+dimension of the descriptor and PPP the property number in case of multi-task
+SISSO) that are stored in the desc_dat directory.</p>
+<dl class="simple">
+<dt>Note: see if we want to implement this class, everything might be contained in</dt><dd><p>SISSO.out and its SISSOOut object.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pysisso.outputs.DescriptorsDataModels.from_dat_file">
+<em class="property">classmethod </em><code class="sig-name descname">from_dat_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filepath</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/outputs.html#DescriptorsDataModels.from_dat_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.outputs.DescriptorsDataModels.from_dat_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct this DescriptorsDataModels object from .dat file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filepath</strong> – File to construct this DescriptorsDataModels from.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DescriptorsDataModels object.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pysisso.outputs.DescriptorsDataModels" title="pysisso.outputs.DescriptorsDataModels">DescriptorsDataModels</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.outputs.DescriptorsDataModels.from_file">
+<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filepath</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/outputs.html#DescriptorsDataModels.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.outputs.DescriptorsDataModels.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct this DescriptorsDataModels object from file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filepath</strong> – File to construct this DescriptorsDataModels from.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DescriptorsDataModels object.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pysisso.outputs.DescriptorsDataModels" title="pysisso.outputs.DescriptorsDataModels">DescriptorsDataModels</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pysisso.outputs.FeatureSpace">
+<em class="property">class </em><code class="sig-prename descclassname">pysisso.outputs.</code><code class="sig-name descname">FeatureSpace</code><a class="reference internal" href="../_modules/pysisso/outputs.html#FeatureSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.outputs.FeatureSpace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Class containing the selected features from SISSO.</p>
+<p>This class is a container for the space_DDDd.name files (DDD being the dimension
+of the descriptor) that are stored in the feature_space directory.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pysisso.outputs.ResidualData">
+<em class="property">class </em><code class="sig-prename descclassname">pysisso.outputs.</code><code class="sig-name descname">ResidualData</code><a class="reference internal" href="../_modules/pysisso/outputs.html#ResidualData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.outputs.ResidualData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Class containing the residuals for the training data computed at each iteration.</p>
+<p>This class is a container for the res_DDDd_pPPP.dat files (DDD being the dimension
+of the descriptor and PPP the property number in case of multi-task SISSO)
+that are stored in the residual directory.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pysisso.outputs.SISSODescriptor">
+<em class="property">class </em><code class="sig-prename descclassname">pysisso.outputs.</code><code class="sig-name descname">SISSODescriptor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">descriptor_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">descriptor_string</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/outputs.html#SISSODescriptor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.outputs.SISSODescriptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Class containing one composed descriptor.</p>
+<dl class="py method">
+<dt id="pysisso.outputs.SISSODescriptor.evaluate">
+<code class="sig-name descname">evaluate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/outputs.html#SISSODescriptor.evaluate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.outputs.SISSODescriptor.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the descriptor from a given Dataframe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>df</strong> – panda’s Dataframe to evaluate SISSODescriptor</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Value of this descriptor for the samples in the dataframe.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.outputs.SISSODescriptor.from_string">
+<em class="property">classmethod </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">string</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/outputs.html#SISSODescriptor.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.outputs.SISSODescriptor.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct SISSODescriptor from string.</p>
+<dl class="simple">
+<dt>The string must be the line of the descriptor in the SISSO.out output file,</dt><dd><p>e.g. : 1:[((feature1-feature2)+(feature3-feature4))]</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>string</strong> – Substring from the SISSO.out output file corresponding to one
+descriptor of SISSO.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pysisso.outputs.SISSOIteration">
+<em class="property">class </em><code class="sig-prename descclassname">pysisso.outputs.</code><code class="sig-name descname">SISSOIteration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">iteration_number</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">sisso_model</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#pysisso.outputs.SISSOModel" title="pysisso.outputs.SISSOModel">pysisso.outputs.SISSOModel</a></span></em>, <em class="sig-param"><span class="n">feature_spaces</span><span class="p">:</span> <span class="n">Mapping<span class="p">[</span>str<span class="p">, </span>int<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">SIS_subspace_size</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">cpu_time</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/outputs.html#SISSOIteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.outputs.SISSOIteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Class containing one SISSO iteration.</p>
+<dl class="py method">
+<dt id="pysisso.outputs.SISSOIteration.from_string">
+<em class="property">classmethod </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">string</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/outputs.html#SISSOIteration.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.outputs.SISSOIteration.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct SISSOIteration object from string.</p>
+<p>The string must be the excerpt corresponding to one iteration, i.e. it must
+start with “iteration:   N” and end with “DI done!”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>string</strong> – String from the SISSO.out output file corresponding to one
+iteration of SISSO.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pysisso.outputs.SISSOModel">
+<em class="property">class </em><code class="sig-prename descclassname">pysisso.outputs.</code><code class="sig-name descname">SISSOModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dimension</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">descriptors</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference internal" href="#pysisso.outputs.SISSODescriptor" title="pysisso.outputs.SISSODescriptor">pysisso.outputs.SISSODescriptor</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">coefficients</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">intercept</span><span class="p">:</span> <span class="n">List<span class="p">[</span>float<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">rmse</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">maxae</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/outputs.html#SISSOModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.outputs.SISSOModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Class containing one SISSO model.</p>
+<dl class="py method">
+<dt id="pysisso.outputs.SISSOModel.from_string">
+<em class="property">classmethod </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">string</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/outputs.html#SISSOModel.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.outputs.SISSOModel.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct SISSOModel object from string.</p>
+<dl class="simple">
+<dt>The string must be the excerpt corresponding to one model, starting with a</dt><dd><p>line of 80 “=” characters and ending with a line of 80 “=” characters.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>string</strong> – String from the SISSO.out output file corresponding to one model
+of SISSO.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.outputs.SISSOModel.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span><span class="p">:</span> <span class="n">pandas.core.frame.DataFrame</span></em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../_modules/pysisso/outputs.html#SISSOModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.outputs.SISSOModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict values from input DataFrame.</p>
+<dl class="simple">
+<dt>The input DataFrame should have the columns needed by the different SISSO</dt><dd><p>descriptors.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>df</strong> – panda’s DataFrame containing the base features needed to apply the
+model.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Predicted values from the model.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>darray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pysisso.outputs.SISSOOut">
+<em class="property">class </em><code class="sig-prename descclassname">pysisso.outputs.</code><code class="sig-name descname">SISSOOut</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#pysisso.outputs.SISSOParams" title="pysisso.outputs.SISSOParams">pysisso.outputs.SISSOParams</a></span></em>, <em class="sig-param"><span class="n">iterations</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference internal" href="#pysisso.outputs.SISSOIteration" title="pysisso.outputs.SISSOIteration">pysisso.outputs.SISSOIteration</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">version</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#pysisso.outputs.SISSOVersion" title="pysisso.outputs.SISSOVersion">pysisso.outputs.SISSOVersion</a></span></em>, <em class="sig-param"><span class="n">cpu_time</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>float<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/outputs.html#SISSOOut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.outputs.SISSOOut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Class containing the results contained in the SISSO output file (SISSO.out).</p>
+<dl class="py method">
+<dt id="pysisso.outputs.SISSOOut.from_file">
+<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filepath</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'SISSO.out'</span></em>, <em class="sig-param"><span class="n">allow_unfinished</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/outputs.html#SISSOOut.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.outputs.SISSOOut.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read in SISSOOut data from file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath</strong> – Path of the file to extract output.</p></li>
+<li><p><strong>allow_unfinished</strong> – Whether to allow parsing of unfinished SISSO runs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.outputs.SISSOOut.model">
+<em class="property">property </em><code class="sig-name descname">model</code><a class="headerlink" href="#pysisso.outputs.SISSOOut.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Model for this SISSO run.</p>
+<p>The last model is provided (with the highest dimension).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.outputs.SISSOOut.models">
+<em class="property">property </em><code class="sig-name descname">models</code><a class="headerlink" href="#pysisso.outputs.SISSOOut.models" title="Permalink to this definition">¶</a></dt>
+<dd><p>Models (for all dimensions) for this SISSO run.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pysisso.outputs.SISSOParams">
+<em class="property">class </em><code class="sig-prename descclassname">pysisso.outputs.</code><code class="sig-name descname">SISSOParams</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">property_type</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">descriptor_dimension</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">total_number_properties</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">task_weighting</span><span class="p">:</span> <span class="n">List<span class="p">[</span>int<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">number_of_samples</span><span class="p">:</span> <span class="n">List<span class="p">[</span>int<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">n_scalar_features</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">n_rungs</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">max_feature_complexity</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">n_dimension_types</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">dimension_types</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">lower_bound_maxabs_value</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">upper_bound_maxabs_value</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">SIS_subspaces_sizes</span><span class="p">:</span> <span class="n">List<span class="p">[</span>int<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">operators</span><span class="p">:</span> <span class="n">List<span class="p">[</span>str<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">sparsification_method</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">n_topmodels</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">fit_intercept</span><span class="p">:</span> <span class="n">bool</span></em>, <em class="sig-param"><span class="n">metric</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/outputs.html#SISSOParams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.outputs.SISSOParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Class containing input parameters extracted from the SISSO output file.</p>
+<dl class="py attribute">
+<dt id="pysisso.outputs.SISSOParams.PARAMS">
+<code class="sig-name descname">PARAMS</code><em class="property">: List<span class="p">[</span>Tuple<span class="p">[</span>str<span class="p">, </span>str<span class="p">, </span>Union<span class="p">[</span>type<span class="p">, </span>Callable<span class="p">]</span><span class="p">]</span><span class="p">]</span></em><em class="property"> = [('property_type', 'Descriptor dimension:', &lt;class 'int'&gt;), ('descriptor_dimension', 'Descriptor dimension:', &lt;class 'int'&gt;), ('total_number_properties', 'Total number of properties:', &lt;class 'int'&gt;), ('task_weighting', 'Task_weighting:', &lt;function list_of_ints&gt;), ('number_of_samples', 'Number of samples for each property:', &lt;function list_of_ints&gt;), ('n_scalar_features', 'Number of scalar features:', &lt;class 'int'&gt;), ('n_rungs', 'Number of recursive calls for feature transformation \\(rung of the feature space\\):', &lt;class 'int'&gt;), ('max_feature_complexity', 'Max feature complexity \\(number of operators in a feature\\):', &lt;class 'int'&gt;), ('n_dimension_types', 'Number of dimension\\(unit\\)-type \\(for dimension analysis\\):', &lt;class 'int'&gt;), ('dimension_types', 'Dimension type for each primary feature:', &lt;function matrix_of_floats&gt;), ('lower_bound_maxabs_value', 'Lower bound of the max abs\\. data value for the selected features:', &lt;class 'float'&gt;), ('upper_bound_maxabs_value', 'Upper bound of the max abs\\. data value for the selected features:', &lt;class 'float'&gt;), ('SIS_subspaces_sizes', 'Size of the SIS-selected \\(single\\) subspace :', &lt;function list_of_ints&gt;), ('operators', 'Operators for feature construction:', &lt;function list_of_strs&gt;), ('sparsification_method', 'Method for sparsification:', &lt;class 'str'&gt;), ('n_topmodels', 'Number of the top ranked models to output:', &lt;class 'int'&gt;), ('fit_intercept', 'Fitting intercept\\?', &lt;function str_to_bool&gt;), ('metric', 'Metric for model selection:', &lt;class 'str'&gt;)]</em><a class="headerlink" href="#pysisso.outputs.SISSOParams.PARAMS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.outputs.SISSOParams.from_string">
+<em class="property">classmethod </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">string</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/outputs.html#SISSOParams.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.outputs.SISSOParams.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct SISSOParams object from string.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pysisso.outputs.SISSOVersion">
+<em class="property">class </em><code class="sig-prename descclassname">pysisso.outputs.</code><code class="sig-name descname">SISSOVersion</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">header_string</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">version</span><span class="p">:</span> <span class="n">Tuple<span class="p">[</span>int<span class="p">, </span>int<span class="p">, </span>int<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/outputs.html#SISSOVersion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.outputs.SISSOVersion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Class containing information about the SISSO version used.</p>
+<dl class="py method">
+<dt id="pysisso.outputs.SISSOVersion.from_string">
+<em class="property">classmethod </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">string</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/outputs.html#SISSOVersion.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.outputs.SISSOVersion.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct SISSOVersion from string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>string</strong> – First line from the SISSO.out output file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pysisso.outputs.TopModels">
+<em class="property">class </em><code class="sig-prename descclassname">pysisso.outputs.</code><code class="sig-name descname">TopModels</code><a class="reference internal" href="../_modules/pysisso/outputs.html#TopModels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.outputs.TopModels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Class containing summary info of the top N models from SISSO.</p>
+<p>This class is a container for the topNNNN_DDDd files (NNNN being the number of
+models in the file and DDD the dimension of the descriptor) that are stored in
+the models directory.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pysisso.outputs.TopModelsCoefficients">
+<em class="property">class </em><code class="sig-prename descclassname">pysisso.outputs.</code><code class="sig-name descname">TopModelsCoefficients</code><a class="reference internal" href="../_modules/pysisso/outputs.html#TopModelsCoefficients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.outputs.TopModelsCoefficients" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Class containing the coefficients of the features for the top N models.</p>
+<p>This class is a container for the topNNNN_DDDd_coeff files (NNNN being the number
+of models in the file and DDD the dimension of the descriptor) that are stored
+in the models directory.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pysisso.outputs.scd">
+<code class="sig-prename descclassname">pysisso.outputs.</code><code class="sig-name descname">scd</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/outputs.html#scd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.outputs.scd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Standard Cauchy Distribution of x.</p>
+<p>The Standard Cauchy Distribution (SCD) of x is :</p>
+<p>SCD(x) = (1.0 / pi) * 1.0 / (1.0 + x^2)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – Value(s) for which the Standard Cauchy Distribution is needed.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Standard Cauchy Distribution at value(s) x.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pysisso.sklearn">
+<span id="pysisso-sklearn-module"></span><h2>pysisso.sklearn module<a class="headerlink" href="#module-pysisso.sklearn" title="Permalink to this headline">¶</a></h2>
+<p>Module containing a scikit-learn compliant interface to SISSO.</p>
+<dl class="py class">
+<dt id="pysisso.sklearn.SISSORegressor">
+<em class="property">class </em><code class="sig-prename descclassname">pysisso.sklearn.</code><code class="sig-name descname">SISSORegressor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ntask</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">task_weighting</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">desc_dim</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">restart</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">rung</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">opset</span><span class="o">=</span><span class="default_value">'(+)(-)'</span></em>, <em class="sig-param"><span class="n">maxcomplexity</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">dimclass</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">maxfval_lb</span><span class="o">=</span><span class="default_value">0.001</span></em>, <em class="sig-param"><span class="n">maxfval_ub</span><span class="o">=</span><span class="default_value">100000.0</span></em>, <em class="sig-param"><span class="n">subs_sis</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'L0'</span></em>, <em class="sig-param"><span class="n">L1L0_size4L0</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">fit_intercept</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">metric</span><span class="o">=</span><span class="default_value">'RMSE'</span></em>, <em class="sig-param"><span class="n">nm_output</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">isconvex</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">width</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nvf</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">vfsize</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">vf2sf</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">npf_must</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">L1_max_iter</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">L1_tole</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">L1_dens</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">L1_nlambda</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">L1_minrmse</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">L1_warm_start</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">L1_weighted</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">features_dimensions</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>dict<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_custodian</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">custodian_job_kwargs</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>dict<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">custodian_kwargs</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>dict<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">run_dir</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>None<span class="p">, </span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">'SISSO_dir'</span></em>, <em class="sig-param"><span class="n">clean_run_dir</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/sklearn.html#SISSORegressor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.sklearn.SISSORegressor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.RegressorMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code></p>
+<p>SISSO regressor class compatible with scikit-learn.</p>
+<dl class="py method">
+<dt id="pysisso.sklearn.SISSORegressor.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">X</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">index</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">columns</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">tasks</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/sklearn.html#SISSORegressor.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.sklearn.SISSORegressor.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit a SISSO regression based on inputs X and output y.</p>
+<p>This method supports Multi-Task SISSO. For Single-Task SISSO, y must have a
+shape (n_samples) or (n_samples, 1).
+For Multi-Task SISSO, y must have a shape (n_samples, n_tasks). The arrays
+will be reshaped to fit SISSO’s input files.
+For example, with 10 samples and 3 properties, the output array (y) will be
+reshaped to (30, 1). The input array (X) is left unchanged.
+It is also possible to provide samples without an output for some properties
+by setting that property to NaN. In that case, the corresponding values in the
+input (X) and output (y) arrays will be removed from the SISSO inputs.
+In the previous example, if 2 of the samples have NaN for the first property,
+1 sample has Nan for the second property and 4 samples have Nan for the third
+property, the final output array (y) will have a shape (30-2-1-4, 1), i.e.
+(23, 1), while the final input array (X) will have a shape (23, n_features).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> – Feature vectors as an array-like of shape (n_samples, n_features).</p></li>
+<li><p><strong>y</strong> – Target values as an array-like of shape (n_samples,)
+or (n_samples, n_tasks).</p></li>
+<li><p><strong>index</strong> – List of string identifiers for each sample. If None, “sampleN”
+with N=[1, …, n_samples] will be used.</p></li>
+<li><p><strong>columns</strong> – List of string names of the features. If None, “featN”
+with N=[1, …, n_features] will be used.</p></li>
+<li><p><strong>tasks</strong> – When Multi-Task SISSO is used, this is the list of string names
+that will be used for each task/property. If None, “taskN”
+with N=[1, …, n_tasks] will be used.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.sklearn.SISSORegressor.from_SISSOIn">
+<em class="property">classmethod </em><code class="sig-name descname">from_SISSOIn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sisso_in</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#pysisso.inputs.SISSOIn" title="pysisso.inputs.SISSOIn">pysisso.inputs.SISSOIn</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/sklearn.html#SISSORegressor.from_SISSOIn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.sklearn.SISSORegressor.from_SISSOIn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct SISSORegressor from a SISSOIn object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sisso_in</strong> – SISSOIn object containing the inputs for a SISSO run.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>SISSO regressor.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="../reference/index.html#pysisso.sklearn.SISSORegressor" title="pysisso.sklearn.SISSORegressor">SISSORegressor</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysisso.sklearn.SISSORegressor.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">X</span></em>, <em class="sig-param"><span class="n">index</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/sklearn.html#SISSORegressor.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.sklearn.SISSORegressor.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict output based on a fitted SISSO regression.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> – Feature vectors as an array-like of shape (n_samples, n_features).</p></li>
+<li><p><strong>index</strong> – List of string identifiers for each sample. If None, “sampleN”
+with N=[1, …, n_samples] will be used.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="pysisso.sklearn.get_timestamp">
+<code class="sig-prename descclassname">pysisso.sklearn.</code><code class="sig-name descname">get_timestamp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tstamp</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>datetime.datetime<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; object<a class="reference internal" href="../_modules/pysisso/sklearn.html#get_timestamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.sklearn.get_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a string representing the a time stamp.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tstamp</strong> – datetime.datetime object representing date and time. If set to None,
+the current time is taken.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>String representation of the time stamp.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pysisso.utils">
+<span id="pysisso-utils-module"></span><h2>pysisso.utils module<a class="headerlink" href="#module-pysisso.utils" title="Permalink to this headline">¶</a></h2>
+<p>Module containing various utility functions for pysisso.</p>
+<dl class="py function">
+<dt id="pysisso.utils.get_version">
+<code class="sig-prename descclassname">pysisso.utils.</code><code class="sig-name descname">get_version</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">SISSO_exe</span><span class="o">=</span><span class="default_value">'SISSO'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/utils.html#get_version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.utils.get_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the version of a given SISSO executable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>SISSO_exe</strong> – Name of executable.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Dictionary with version and header as keys. Version is a tuple of the</dt><dd><p>three numbers for the SISSO version and header is the header line of the
+SISSO output.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pysisso.utils.list_of_ints">
+<code class="sig-prename descclassname">pysisso.utils.</code><code class="sig-name descname">list_of_ints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">string</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">delimiter</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>int<span class="p">]</span><a class="reference internal" href="../_modules/pysisso/utils.html#list_of_ints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.utils.list_of_ints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cast a string to a list of integers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>string</strong> – String to be converted to a list of int’s.</p></li>
+<li><p><strong>delimiter</strong> – Delimiter between integers in the string.
+Default is to split with any whitespace string (see str.split() method).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pysisso.utils.list_of_strs">
+<code class="sig-prename descclassname">pysisso.utils.</code><code class="sig-name descname">list_of_strs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">string</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">delimiter</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">strip</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>str<span class="p">]</span><a class="reference internal" href="../_modules/pysisso/utils.html#list_of_strs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.utils.list_of_strs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cast a string to a list of strings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>string</strong> – String to be converted to a list of str’s.</p></li>
+<li><p><strong>delimiter</strong> – Delimiter between str’s in the string.
+Default is to split with any whitespace string (see str.split() method).</p></li>
+<li><p><strong>strip</strong> – Whether to strip the substrings (i.e. remove leading and trailing
+whitespaces after the split with a delimiter that is not whitespace).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pysisso.utils.matrix_of_floats">
+<code class="sig-prename descclassname">pysisso.utils.</code><code class="sig-name descname">matrix_of_floats</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">string</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">delimiter_ax0</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'\n'</span></em>, <em class="sig-param"><span class="n">delimiter_ax1</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span><a class="reference internal" href="../_modules/pysisso/utils.html#matrix_of_floats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.utils.matrix_of_floats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cast a string to a list of list of floats.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>string</strong> – String to be converted to a list of lists of floats.</p></li>
+<li><p><strong>delimiter_ax0</strong> – Delimiter for the first axis of the matrix.</p></li>
+<li><p><strong>delimiter_ax1</strong> – Delimiter for the second axis of the matrix.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pysisso.utils.str_to_bool">
+<code class="sig-prename descclassname">pysisso.utils.</code><code class="sig-name descname">str_to_bool</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">string</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/pysisso/utils.html#str_to_bool"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.utils.str_to_bool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cast a string to a boolean value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>string</strong> – String to be converted to a bool.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – In case the string could not be converted to a bool.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pysisso.validators">
+<span id="pysisso-validators-module"></span><h2>pysisso.validators module<a class="headerlink" href="#module-pysisso.validators" title="Permalink to this headline">¶</a></h2>
+<p>Module containing custodian validators for SISSO.</p>
+<dl class="py class">
+<dt id="pysisso.validators.NormalCompletionValidator">
+<em class="property">class </em><code class="sig-prename descclassname">pysisso.validators.</code><code class="sig-name descname">NormalCompletionValidator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">output_file</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'SISSO.out'</span></em>, <em class="sig-param"><span class="n">stdout_file</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'SISSO.log'</span></em>, <em class="sig-param"><span class="n">stderr_file</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'SISSO.err'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pysisso/validators.html#NormalCompletionValidator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.validators.NormalCompletionValidator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">custodian.custodian.Validator</span></code></p>
+<p>Validator of the normal completion of SISSO.</p>
+<dl class="py method">
+<dt id="pysisso.validators.NormalCompletionValidator.check">
+<code class="sig-name descname">check</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/pysisso/validators.html#NormalCompletionValidator.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysisso.validators.NormalCompletionValidator.check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate the normal completion of SISSO.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>True if the standard error file is empty, the standard output file</dt><dd><p>is not empty and the output file ends with “Have a nice day !”.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pysisso">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pysisso" title="Permalink to this headline">¶</a></h2>
+<p>Main module of pysisso package.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Matgenix SRL.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

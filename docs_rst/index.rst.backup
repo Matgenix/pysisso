@@ -1,0 +1,118 @@
+.. Copyright (c) 2020, Matgenix SRL, All rights reserved.
+   Distributed open source for academic and non-profit users.
+   Contact Matgenix for commercial usage.
+   See LICENSE file for details.
+
+Welcome to pysisso's documentation!
+===================================
+
+The pysisso package is a python interface to SISSO,
+the Sure Independence Screening and Sparsifying Operator
+(https://github.com/rouyang2017/SISSO).
+
+
+..  rst-class:: column
+
+
+:ref:`Get started <introduction>`
+-------------------------------------------------------
+
+**Tutorials.** A hands-on introduction to Divio for developers.
+
+..  raw:: html
+
+    <a class="btn btn-primary btn-small" href="introduction" role="button">Tutorials</a>
+
+
+..  rst-class:: column
+
+
+:ref:`How-to <how-to>`
+-------------------------------------------------------
+
+**Step-by-step guides.** Covers key tasks and operations and common problems.
+
+..  raw:: html
+
+    <a class="btn btn-primary btn-small" href="how-to" role="button">How-to</a>
+
+
+..  rst-class:: column clearfix
+
+:ref:`Background <background>`
+-------------------------------------------------------
+
+**Explanation.** Clarification and discussion of key topics.
+
+..  raw:: html
+
+    <a class="btn btn-primary btn-small" href="background" role="button">Background</a>
+
+
+..  rst-class:: column
+
+:ref:`Reference <reference>`
+-------------------------------------------------------
+
+**Technical reference.** Covers tools, components, commands and resources.
+
+..  raw:: html
+
+    <a class="btn btn-primary btn-small" href="reference" role="button">Reference</a>
+
+..  rst-class:: clearfix row custon-headings
+
+Additional resources
+--------------------
+
+..  rst-class:: column
+
+Divio Community Slack
+~~~~~~~~~~~~~~~~~~~~~
+
+The Divio Community Slack group is for all Divio users.
+
+..  raw:: html
+
+    <a class="btn btn-primary btn-small" target="_blank" href="https://join.slack.com/t/divio-community/shared_invite/zt-k5h56uqa-fPxLJq5vQx2OQ9xTiSJnoQ" role="button">Join Slacks</a>
+
+..  rst-class:: column
+
+
+
+
+
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents
+
+   tutorial/index.rst
+   how-to/index.rst
+   discussion/index.rst
+   reference/index.rst
+
+
+Content
+-------
+
+The documentation of pysisso is organized in four sections: tutorials, how-to guides,
+topics and API reference
+
+* Tutorials
+   * Simple
+* How-to guides
+   * Install pysisso
+   * Use sklearn's interface
+* Reference
+
+* Discussion
+   * Wrapper vs "real" interface.
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
