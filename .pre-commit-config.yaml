@@ -40,5 +40,5 @@ repos:
     rev: v0.790
     hooks:
     - id: mypy
-      exclude: (examples_usage|test_.*py)  # exclude python test files and example usage
+      exclude: (examples_usage|test_.*py|docs_rst)  # exclude some files
       args: []
