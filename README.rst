@@ -1,3 +1,9 @@
+..
+   Copyright (c) 2020, Matgenix SRL, All rights reserved.
+   Distributed open source for academic and non-profit users.
+   Contact Matgenix for commercial usage.
+   See LICENSE file for details.
+
 Python interface to the SISSO (Sure Independence Screening and Sparsifying Operator) method.
 ============================================================================================
 
@@ -8,9 +14,9 @@ The interface has been developed in accordance with scikit-learn's API so that S
 Installation
 ------------
 
-In order to install pysisso, you must have poetry (https://python-poetry.org/) installed.
+pysisso is available on Pypi and is easily installed with:
 
-Simply run *poetry install* to install pysisso in your environment.
+    pip install pysisso
 
 Usage examples
 --------------
