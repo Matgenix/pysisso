@@ -17,6 +17,7 @@ from monty.tempfile import ScratchDir
 
 import pysisso
 import pysisso.sklearn
+from pysisso.outputs import SISSOOut
 from pysisso.sklearn import SISSORegressor, get_timestamp
 
 TEST_FILES_DIR = os.path.abspath(
@@ -240,6 +241,56 @@ def test_sisso_regressor(mocker):
         X_df = pd.DataFrame([[1], [2], [3], [4], [5]])
         with pytest.raises(ValueError, match=r"Wrong shapes."):
             sisso_reg.fit(X_df, np.array([[[0], [1], [2], [3], [4]]]))
+
+
+@pytest.mark.unit
+def test_sisso_regressor_omp(mocker):
+    # Simple SISSO run with OMP
+    # Mock the run of the custodian by just copying a reference SISSO.out file
+    def copy_sisso_out():
+        shutil.copy(
+            os.path.join(TEST_FILES_DIR, "runs", "OMP", "SISSO.out"),
+            "SISSO.out",
+        )
+
+    mocker.patch.object(
+        pysisso.sklearn.Custodian,
+        "run",
+        return_value=[],
+        side_effect=copy_sisso_out,
+    )
+    with ScratchDir("."):
+        sisso_reg = SISSORegressor.OMP(desc_dim=4)
+        assert sisso_reg.rung == 0
+        assert sisso_reg.subs_sis == 1
+        assert sisso_reg.desc_dim == 4
+        assert sisso_reg.method == "L0"
+        assert sisso_reg.L1L0_size4L0 is None
+        X = np.array(
+            [
+                [8, 1, 3.01, 4],
+                [6, 2, 3.02, 3],
+                [2, 3, 3.01, 0],
+                [10, 4, 3.02, -8],
+                [4, 5, 3.01, 10],
+            ]
+        )
+        y = 0.9 * X[:, 1] + 0.1 * X[:, 3] - 1.0
+        sisso_reg.fit(X, y)
+
+        actual_sin = "SISSO_dir/SISSO.in"
+        ref_sin = os.path.join(TEST_FILES_DIR, "runs", "OMP", "SISSO.in")
+        assert [line for line in open(actual_sin)] == [line for line in open(ref_sin)]
+
+        sisso_out = SISSOOut.from_file(filepath="SISSO_dir/SISSO.out")
+        assert sisso_out.params.n_rungs == sisso_reg.rung
+        assert sisso_out.params.SIS_subspaces_sizes == [sisso_reg.subs_sis]
+        assert sisso_out.params.descriptor_dimension == sisso_reg.desc_dim
+        assert sisso_out.params.sparsification_method == sisso_reg.method
+
+        sisso_model = sisso_out.model
+        assert str(sisso_model.descriptors[0]) == "(feature_1)"
+        assert str(sisso_model.descriptors[1]) == "(feature_3)"
 
 
 @pytest.mark.unit
