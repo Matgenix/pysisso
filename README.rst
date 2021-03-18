@@ -11,6 +11,8 @@ The pysisso package is a python interface to the SISSO code (https://github.com/
 
 The interface has been developed in accordance with scikit-learn's API so that SISSO can be directly integrated in sklearn's pipelines or cross-validation schemes for example.
 
+The documentation is available here: https://matgenix.github.io/pysisso/.
+
 Installation
 ------------
 
