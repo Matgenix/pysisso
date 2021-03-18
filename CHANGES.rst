@@ -4,8 +4,18 @@
    Contact Matgenix for commercial usage.
    See LICENSE file for details.
 
-Release 0.3.2 (Mar 11, 2021)
+
+Release 0.3.2 (Mar 18, 2021)
 ============================
+
+Features added
+--------------
+
+* Added OMP class method to set up Orthogonal Matching Pursuit parameters in
+  SISSO regressor.
+
+Miscellanous
+------------
 
 * Started documentation
 * Updated spelling of "licence" to "license" everywhere
