@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>pysisso.sklearn &mdash; pysisso 0.3.1 documentation</title>
+  <title>pysisso.sklearn &mdash; pysisso 0.3.2 documentation</title>
   
 
   
@@ -448,6 +448,51 @@
         <span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="ow">or</span> <span class="p">[</span><span class="s2">&quot;item</span><span class="si">{:d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sisso_out</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SISSORegressor.OMP"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.sklearn.SISSORegressor.OMP">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">OMP</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">desc_dim</span><span class="p">,</span>
+        <span class="n">use_custodian</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">custodian_job_kwargs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">custodian_kwargs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">run_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SISSO_dir&quot;</span><span class="p">,</span>
+        <span class="n">clean_run_dir</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct SISSORegressor for Orthogonal Matching Pursuit (OMP).</span>
+
+<span class="sd">        OMP is usually the first step to be performed before applying SISSO.</span>
+<span class="sd">        Indeed, one starts with a relatively small set of base input descriptors</span>
+<span class="sd">        (usually less than 20), that are then combined together by SISSO. One way to</span>
+<span class="sd">        obtain this small set is to use the OMP algorithm (which is a particular case</span>
+<span class="sd">        of the SISSO algorithm itself).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            desc_dim: Number of descriptors to get with OMP.</span>
+<span class="sd">            use_custodian: Whether to use custodian (currently mandatory).</span>
+<span class="sd">            custodian_job_kwargs: Keyword arguments for custodian job.</span>
+<span class="sd">            custodian_kwargs: Keyword arguments for custodian.</span>
+<span class="sd">            run_dir: Name of the directory where SISSO is run. If None, the directory</span>
+<span class="sd">                will be set automatically. It then contains a timestamp and is unique.</span>
+<span class="sd">            clean_run_dir: Whether to clean the run directory after SISSO has run.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            SISSORegressor: SISSO regressor with OMP parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">opset</span><span class="o">=</span><span class="s2">&quot;(+)(-)(*)(/)(exp)(exp-)(^-1)(^2)(^3)(sqrt)(cbrt)(log)(|-|)(scd)(^6)&quot;</span><span class="p">,</span>
+            <span class="n">rung</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">desc_dim</span><span class="o">=</span><span class="n">desc_dim</span><span class="p">,</span>
+            <span class="n">subs_sis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="s2">&quot;L0&quot;</span><span class="p">,</span>
+            <span class="n">L1L0_size4L0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">features_dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">use_custodian</span><span class="o">=</span><span class="n">use_custodian</span><span class="p">,</span>
+            <span class="n">custodian_job_kwargs</span><span class="o">=</span><span class="n">custodian_job_kwargs</span><span class="p">,</span>
+            <span class="n">custodian_kwargs</span><span class="o">=</span><span class="n">custodian_kwargs</span><span class="p">,</span>
+            <span class="n">run_dir</span><span class="o">=</span><span class="n">run_dir</span><span class="p">,</span>
+            <span class="n">clean_run_dir</span><span class="o">=</span><span class="n">clean_run_dir</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="SISSORegressor.from_SISSOIn"><a class="viewcode-back" href="../../api/pysisso.html#pysisso.sklearn.SISSORegressor.from_SISSOIn">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_SISSOIn</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sisso_in</span><span class="p">:</span> <span class="n">SISSOIn</span><span class="p">):</span>

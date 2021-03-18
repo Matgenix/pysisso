@@ -293,6 +293,51 @@ class SISSORegressor(RegressorMixin, BaseEstimator):
         return self.sisso_out.model.predict(data)
 
     @classmethod
+    def OMP(
+        cls,
+        desc_dim,
+        use_custodian: bool = True,
+        custodian_job_kwargs: Union[None, dict] = None,
+        custodian_kwargs: Union[None, dict] = None,
+        run_dir: Union[None, str] = "SISSO_dir",
+        clean_run_dir: bool = False,
+    ):
+        """Construct SISSORegressor for Orthogonal Matching Pursuit (OMP).
+
+        OMP is usually the first step to be performed before applying SISSO.
+        Indeed, one starts with a relatively small set of base input descriptors
+        (usually less than 20), that are then combined together by SISSO. One way to
+        obtain this small set is to use the OMP algorithm (which is a particular case
+        of the SISSO algorithm itself).
+
+        Args:
+            desc_dim: Number of descriptors to get with OMP.
+            use_custodian: Whether to use custodian (currently mandatory).
+            custodian_job_kwargs: Keyword arguments for custodian job.
+            custodian_kwargs: Keyword arguments for custodian.
+            run_dir: Name of the directory where SISSO is run. If None, the directory
+                will be set automatically. It then contains a timestamp and is unique.
+            clean_run_dir: Whether to clean the run directory after SISSO has run.
+
+        Returns:
+            SISSORegressor: SISSO regressor with OMP parameters.
+        """
+        return cls(
+            opset="(+)(-)(*)(/)(exp)(exp-)(^-1)(^2)(^3)(sqrt)(cbrt)(log)(|-|)(scd)(^6)",
+            rung=0,
+            desc_dim=desc_dim,
+            subs_sis=1,
+            method="L0",
+            L1L0_size4L0=None,
+            features_dimensions=None,
+            use_custodian=use_custodian,
+            custodian_job_kwargs=custodian_job_kwargs,
+            custodian_kwargs=custodian_kwargs,
+            run_dir=run_dir,
+            clean_run_dir=clean_run_dir,
+        )
+
+    @classmethod
     def from_SISSOIn(cls, sisso_in: SISSOIn):
         """Construct SISSORegressor from a SISSOIn object.
 
