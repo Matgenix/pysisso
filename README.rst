@@ -4,11 +4,12 @@
    Contact Matgenix for commercial usage.
    See LICENSE file for details.
 
-.. warning::
-    The pysisso package has been archived. There was not much attraction from users anymore and no time to maintain. Also the new SISSO++ package, reimplemented in C++ and with python
-    bindings is likely to be more efficient and used. More information here: https://sissopp_developers.gitlab.io/sissopp/#
+**Warning!!**
 
-    If you still have a need and would like support from us to revive the pysisso package, don't hesitate to contact us at info@matgenix.com.
+**The pysisso package has been archived. There was not much attraction from users anymore and no time to maintain. Also the new SISSO++ package, reimplemented in C++ and with python
+bindings is likely to be more efficient and used. More information here: https://sissopp_developers.gitlab.io/sissopp/#**
+
+**If you still have a need and would like support from us to revive the pysisso package, don't hesitate to contact us at** info@matgenix.com.
 
 Python interface to the SISSO (Sure Independence Screening and Sparsifying Operator) method.
 ============================================================================================
